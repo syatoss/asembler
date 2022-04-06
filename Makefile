@@ -116,23 +116,20 @@ $(TARGET): $(BINDIR) $(BUILDDIR) $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(TARGET) $(LIB)
 	$(call print_green,"$(TARGET) has been created!")
 
-objects:
-	@echo $(OBJECTS)
-
 $(BUILDDIR) :
 	mkdir $(BUILDDIR)
 
 $(BINDIR):
 	mkdir $(BINDIR)
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c*
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 	$(CC) $(CFLAGS) $(INC) -M $< -MT $@ > $(@:.o=.td)
-	# cp $(@:.o=.td) $(@:.o=.d);
-	# sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-	# -e '/^$$/ d' -e 's/$$/ :/' < $(@:.o=.td) >> $(@:.o=.d);
-	# rm -f $(@:.o=.td)
+	cp $(@:.o=.td) $(@:.o=.d);
+	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+	-e '/^$$/ d' -e 's/$$/ :/' < $(@:.o=.td) >> $(@:.o=.d);
+	rm -f $(@:.o=.td)
 
 
 -include $(DEPS)

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "./../../headers/master_header.h"
-#include "../../constants.h"
+#include "../../include/master_header.h"
+#include "../../include/constants.h"
 
 void read_next_line(FILE* fp, char* line) {
     free(line);
