@@ -1,3 +1,43 @@
+CC = gcc
+CFLAGS = -ansi -Wall -pedantic
+MAIN = main
+BIN = bin
+SRC = src
+HEDEARS = headers
+OBJS = $(patsubst $(SRC)/%.c,$(BIN)/%.o,$(wildcard $(SRC)/*.c))
+TESTDIR = tests
+EXE = ./$(BIN)/$(MAIN)
+
+#auto rule to generate objects files
+$(BIN)/%.o: $(SRC)/%.c $(wildcard $(HEADERS)/*.h)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+default: $(BIN) $(BIN)/$(MAIN)
+
+$(BIN)/$(MAIN): $(OBJS)
+	$(CC) -o $@ $^ $(CFLAGS)
+
+run: default
+	$(EXE)
+
+
+$(BIN):
+	@mkdir bin
+
+.PHONY: clean run
+
+objs-print:
+	@echo $(OBJS)
+
+clean:
+	rm -rf bin
+
+test-argv: default
+	$(EXE) $(TESTDIR)/main/argv-read
+
+
+
+
 # CC = gcc
 # CFLAGS = -ansi -Wall -pedantic
 # MAIN = main
@@ -79,64 +119,61 @@
 # clean:
 # 	rm -rf $(BIN)/*
 # 	PROJECT_NAME := example-project
-PROJECT_NAME := main
-CC        := gcc
-SRCDIR    := src
-HEADERDIR := include
-BUILDDIR  := build
-BINDIR    := bin
-TARGET    := $(BINDIR)/$(PROJECT_NAME)
-SOURCES   := $(shell find $(SRCDIR) -type f -name *.c*)
-HEDEARS   := $(shell find $(HEADERDIR) -type f -name *.h*)
-OBJECTS   := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(addsuffix .o,$(basename $(SOURCES))))
-DEPS      := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(addsuffix .d,$(basename $(SOURCES))))
-CFLAGS    := ansi -Wall pedantic
-LIB       :=
-INC       :=
-all: debug
-debug: CFLAGS += -g
-debug: $(TARGET)
-release: $(TARGET)
-release: CFLAGS += -O3
+# PROJECT_NAME := main
+# CC        := gcc
+# SRCDIR    := src
+# HEADERDIR := include
+# BUILDDIR  := build
+# BINDIR    := bin
+# TARGET    := $(BINDIR)/$(PROJECT_NAME)
+# SOURCES   := $(shell find $(SRCDIR) -type f -name *.c*)
+# HEDEARS   := $(shell find $(HEADERDIR) -type f -name *.h*)
+# OBJECTS   := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(addsuffix .o,$(basename $(SOURCES))))
+# DEPS      := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(addsuffix .d,$(basename $(SOURCES))))
+# CFLAGS    := ansi -Wall pedantic
+# LIB       :=
+# INC       :=
+# all: debug
+# debug: CFLAGS += -g
+# debug: $(TARGET)
+# release: $(TARGET)
+# release: CFLAGS += -O3
 
-GREEN=`tput setaf 2`
-RESET=`tput sgr0`
+# GREEN=`tput setaf 2`
+# RESET=`tput sgr0`
 
-define print_green
-	@echo "$(GREEN)$(1)$(RESET)"
-endef
+# define print_green
+# 	@echo "$(GREEN)$(1)$(RESET)"
+# endef
 
-all: $(TARGET)
+# all: $(TARGET)
 
-clean:
-	rm $(BUILDDIR) $(BINDIR) -rf
+# clean:
+# 	rm $(BUILDDIR) $(BINDIR) -rf
 
-$(TARGET): $(BINDIR) $(BUILDDIR) $(OBJECTS)
-	$(call print_green,"Linking object files...")
-	$(CC) $(OBJECTS) -o $(TARGET) $(LIB)
-	$(call print_green,"$(TARGET) has been created!")
+# $(TARGET): $(BINDIR) $(BUILDDIR) $(OBJECTS)
+# 	$(call print_green,"Linking object files...")
+# 	$(CC) $(OBJECTS) -o $(TARGET) $(LIB)
+# 	$(call print_green,"$(TARGET) has been created!")
 
-objects:
-	@echo $(OBJECTS)
+# $(BUILDDIR) :
+# 	mkdir $(BUILDDIR)
 
-$(BUILDDIR) :
-	mkdir $(BUILDDIR)
+# $(BINDIR):
+# 	mkdir $(BINDIR)
 
-$(BINDIR):
-	mkdir $(BINDIR)
-
-$(BUILDDIR)/%.o: $(SRCDIR)/%.c
-	mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-	$(CC) $(CFLAGS) $(INC) -M $< -MT $@ > $(@:.o=.td)
-	# cp $(@:.o=.td) $(@:.o=.d);
-	# sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-	# -e '/^$$/ d' -e 's/$$/ :/' < $(@:.o=.td) >> $(@:.o=.d);
-	# rm -f $(@:.o=.td)
+# $(BUILDDIR)/%.o: $(SRCDIR)/%.c*
+# 	mkdir -p $(dir $@)
+# 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+# 	$(CC) $(CFLAGS) $(INC) -M $< -MT $@ > $(@:.o=.td)
+# 	cp $(@:.o=.td) $(@:.o=.d);
+# 	sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+# 	-e '/^$$/ d' -e 's/$$/ :/' < $(@:.o=.td) >> $(@:.o=.d);
+# 	rm -f $(@:.o=.td)
 
 
--include $(DEPS)
+# -include $(DEPS)
 
-.PHONY: clean all
+# .PHONY: clean all
 
 
