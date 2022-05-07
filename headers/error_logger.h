@@ -3,5 +3,5 @@
 typedef struct {
     int has_errors;
     int error_count;
-    str_table errors;
+    str_table* errors;
 } error_logger;

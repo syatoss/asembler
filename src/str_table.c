@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include "../headers/str_table.h"
+#include "../headers/utils.h"
 
-str_table* new_str_table(FILE* fd) {
+str_table* new_str_table(FILE* print_target) {
     str_table* table = malloc(sizeof(str_table));
+    if(!table) SYS_MEM_FAIL_EXIT(1)
     table->num_of_lines = 0;
     table->strings = new_str_linked_list();
-    table->print_target = fd;
+    table->print_target = print_target;
     return table;
 }
 

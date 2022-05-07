@@ -12,3 +12,4 @@ void add_str(str_table*,char*);
 void println_str(str_table*,char*);
 void print_table(str_table*);
 void clear_str_table(str_table*);
+str_table* new_str_table(FILE*);
