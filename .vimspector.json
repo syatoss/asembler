@@ -1,0 +1,17 @@
+{
+  "configurations": {
+    "Launch": {
+      "adapter": "vscode-cpptools",
+      "filetypes": [ "cpp", "c", "objc", "rust" ], // optional
+      "configuration": {
+        "request": "launch",
+        "program": "bin/main",
+        "args": [ "tests/main/argv-read" ],
+        "cwd": "~/stas-main/univer/2022b/c/assembler",
+        // "environment": [ ... ],
+        "externalConsole": true,
+        "MIMode": "gdb"
+      }
+    }
+  }
+}

@@ -11,9 +11,10 @@ int main(int argc, char* argv[] ) {
         while(!feof(ds->fp)) {
             was_next_line_read = get_next_line(ds);
             if(was_next_line_read) {
-                printf("%s",ds->line);
+                log_error(ds->err_log, ds->line);
             }
         }
+        print_all_logger_errors(ds->err_log);
         free_asm_descriptor(ds);
     }
     return 0;

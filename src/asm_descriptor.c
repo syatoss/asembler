@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include "../headers/asm_descriptor.h"
 #include "../headers/constants.h"
 
@@ -6,10 +7,13 @@ asm_descriptor* new_asm_descriptor(char* file_path) {
     asm_descriptor* ds;
     ds  = malloc(sizeof(asm_descriptor));
     ds->fp = fopen(file_path, "r" );
-    if(!ds->fp) return NULL;
-    ds->line = malloc(sizeof(char)* STRING_BUFFER_SIZE);
-    ds->file_name = file_path;
+    if(ds->fp == NULL) return NULL;
+    ds->line = malloc(sizeof(char) * STRING_BUFFER_SIZE);
+    ds->file_name = malloc(STRING_BUFFER_SIZE * sizeof(char));
+    if(ds->line == NULL || ds->file_name == NULL) SYS_MEM_FAIL_EXIT(1);
+    strcpy(ds->file_name, file_path);
     ds->line_num = 0;
+    ds->err_log = new_error_logger(stderr);
     return ds;
 }
 
@@ -25,5 +29,6 @@ void free_asm_descriptor(asm_descriptor* ds) {
     if(ds == NULL) return;
     if(ds->line != NULL) free(ds->line);
     if(ds->fp != NULL) fclose(ds->fp);
+    if(ds->err_log != NULL) clear_logger(ds->err_log);
     free(ds);
 }

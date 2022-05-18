@@ -12,7 +12,8 @@ str_table* new_str_table(FILE* print_target) {
 }
 
 void add_str(str_table* tb,char* str) {
-    str_node* node = get_new_node(str);
+    str_node* node;
+    node = get_new_node(str);
     add_node(tb->strings, node);
 }
 
