@@ -1,18 +1,18 @@
-typedef struct str_node{
+typedef struct StrNode{
     char* string;
-    struct str_node* next;
-} str_node;
+    struct StrNode* next;
+} StrNode;
 
 typedef struct {
-    str_node* head;
-    str_node* last_node;
-} str_linked_list;
+    StrNode* head;
+    StrNode* last_node;
+} StrList;
 
-str_linked_list* new_str_linked_list();
-str_node* get_next_node(str_node*);
-str_node* get_nth_node(str_linked_list, int);
-void init_list_with_node(str_linked_list* , str_node* );
-void add_node(str_linked_list*, str_node*);
-str_node* get_new_node(char*);
-void free_node(str_node*);
-void clear_linked_list(str_linked_list*);
+StrList* new_str_linked_list();
+StrNode* get_next_node(StrNode*);
+StrNode* get_nth_node(StrList, int);
+void init_list_with_node(StrList* , StrNode* );
+void add_node(StrList*, StrNode*);
+StrNode* get_new_node(char*);
+void free_node(StrNode*);
+void clear_linked_list(StrList*);

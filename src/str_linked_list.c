@@ -4,9 +4,9 @@
 #include "../headers/str_linked_list.h"
 #include "../headers/utils.h"
 
-str_linked_list* new_str_linked_list() {
-    str_node* head;
-    str_linked_list* list = malloc(sizeof(str_linked_list));
+StrList* new_str_linked_list() {
+    StrNode* head;
+    StrList* list = malloc(sizeof(StrList));
     if(!list) SYS_MEM_FAIL_EXIT(1)
     head = NULL;
     list->head = head;
@@ -14,18 +14,18 @@ str_linked_list* new_str_linked_list() {
     return list;
 }
 
-str_node* get_next_node(str_node* node) {
+StrNode* get_next_node(StrNode* node) {
     return (*node).next;
 }
 
-str_node* get_nth_node(str_linked_list ll, int n) {
-    str_node* head_proxy = ll.head;
+StrNode* get_nth_node(StrList ll, int n) {
+    StrNode* head_proxy = ll.head;
     while(head_proxy && n--)
         head_proxy = get_next_node(head_proxy);
     return head_proxy;
 }
 
-void add_node(str_linked_list* ll, str_node* node) {
+void add_node(StrList* ll, StrNode* node) {
     if(ll->head == NULL) {
         init_list_with_node(ll,node);
         return;
@@ -34,13 +34,13 @@ void add_node(str_linked_list* ll, str_node* node) {
     ll->last_node = node;
 }
 
-void init_list_with_node(str_linked_list* ll, str_node* node) {
+void init_list_with_node(StrList* ll, StrNode* node) {
     ll->head = node;
     ll->last_node = node;
 }
 
-str_node* get_new_node(char* str) {
-    str_node* node = malloc(sizeof(str_node));
+StrNode* get_new_node(char* str) {
+    StrNode* node = malloc(sizeof(StrNode));
     if(!node) SYS_MEM_FAIL_EXIT(1);
     node->string = malloc(sizeof(char) * strlen(str));
     node->string = strcpy(node->string,str);
@@ -48,15 +48,15 @@ str_node* get_new_node(char* str) {
     return node;
 }
 
-void free_node(str_node* node) {
+void free_node(StrNode* node) {
     if(!node) return;
     free(node->string);
     free(node);
 }
 
-void clear_linked_list(str_linked_list* ll) {
-    str_linked_list ll_proxy;
-    str_node* next;
+void clear_linked_list(StrList* ll) {
+    StrList ll_proxy;
+    StrNode* next;
     if(!ll) return;
     ll_proxy = (*ll);
     while(ll_proxy.head) {

@@ -5,7 +5,7 @@
 int main(int argc, char* argv[] ) {
     int i;
     int was_next_line_read;
-    asm_descriptor* ds;
+    AsmDescriptor* ds;
     for(i = 1; i < argc; i++) {
         ds = new_asm_descriptor(argv[i]);
         while(!feof(ds->fp)) {

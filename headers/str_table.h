@@ -3,13 +3,12 @@
 
 typedef struct {
     int num_of_lines;
-    str_linked_list* strings;
-    FILE* print_target;
-} str_table;
+    StrList* strings;
+} StrTable;
 
 
-void add_str(str_table*,char*);
-void println_str(str_table*,char*);
-void print_table(str_table*);
-void clear_str_table(str_table*);
-str_table* new_str_table(FILE*);
+void add_str(StrTable*,char*);
+void print_table(StrTable*, FILE*);
+void println_str(StrTable* ,char* , FILE* );
+void clear_str_table(StrTable*);
+StrTable* new_str_table();

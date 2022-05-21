@@ -3,10 +3,10 @@
 typedef struct {
     int has_errors;
     int error_count;
-    str_table* errors;
-} error_logger;
+    StrTable* errors;
+} ErrorLogger;
 
-error_logger* new_error_logger(FILE* );
-void log_error(error_logger* , char* );
-void clear_logger(error_logger* );
-void print_all_logger_errors(error_logger* );
+ErrorLogger* new_error_logger(FILE* );
+void log_error(ErrorLogger* , char* );
+void clear_logger(ErrorLogger* );
+void print_all_logger_errors(ErrorLogger* );
