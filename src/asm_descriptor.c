@@ -5,11 +5,11 @@
 
 AsmDescriptor* new_asm_descriptor(char* file_path) {
     AsmDescriptor* ds;
-    ds  = malloc(sizeof(AsmDescriptor));
+    ds  = (AsmDescriptor*)malloc(sizeof(AsmDescriptor));
     ds->fp = fopen(file_path, "r" );
     if(ds->fp == NULL) return NULL;
-    ds->line = malloc(sizeof(char) * STRING_BUFFER_SIZE);
-    ds->file_name = malloc(STRING_BUFFER_SIZE * sizeof(char));
+    ds->line = (char*)malloc(sizeof(char) * STRING_BUFFER_SIZE);
+    ds->file_name = (char*)malloc(STRING_BUFFER_SIZE * sizeof(char));
     if(ds->line == NULL || ds->file_name == NULL) SYS_MEM_FAIL_EXIT(1);
     strcpy(ds->file_name, file_path);
     ds->line_num = 0;

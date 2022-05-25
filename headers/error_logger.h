@@ -9,4 +9,4 @@ typedef struct {
 ErrorLogger* new_error_logger(FILE* );
 void log_error(ErrorLogger* , char* );
 void clear_logger(ErrorLogger* );
-void print_all_logger_errors(ErrorLogger* );
+void print_all_logger_errors(ErrorLogger*);

@@ -7,7 +7,7 @@
 ErrorLogger* new_error_logger(FILE* print_target) {
     ErrorLogger* el;
     StrTable* err_tb;
-    el = malloc(sizeof(ErrorLogger));
+    el = (ErrorLogger*)malloc(sizeof(ErrorLogger));
     if(!el) SYS_MEM_FAIL_EXIT(1);
     err_tb = new_str_table(print_target);
     el->error_count = 0;
@@ -28,6 +28,6 @@ void clear_logger(ErrorLogger* logger) {
 }
 
 void print_all_logger_errors(ErrorLogger* logger) {
-    print_table(logger->errors);
+    print_table(logger->errors, stderr);
 }
 

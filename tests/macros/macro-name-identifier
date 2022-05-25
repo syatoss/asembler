@@ -1,0 +1,4 @@
+macro firstMacroName
+this should not be read
+
+macro secondMacroName

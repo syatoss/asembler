@@ -6,7 +6,7 @@
 
 StrList* new_str_linked_list() {
     StrNode* head;
-    StrList* list = malloc(sizeof(StrList));
+    StrList* list = (StrList*)malloc(sizeof(StrList));
     if(!list) SYS_MEM_FAIL_EXIT(1)
     head = NULL;
     list->head = head;
@@ -40,9 +40,9 @@ void init_list_with_node(StrList* ll, StrNode* node) {
 }
 
 StrNode* get_new_node(char* str) {
-    StrNode* node = malloc(sizeof(StrNode));
+    StrNode* node = (StrNode*)malloc(sizeof(StrNode));
     if(!node) SYS_MEM_FAIL_EXIT(1);
-    node->string = malloc(sizeof(char) * strlen(str));
+    node->string = (char*)malloc(sizeof(char) * strlen(str));
     node->string = strcpy(node->string,str);
     node->next = NULL;
     return node;

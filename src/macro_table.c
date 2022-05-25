@@ -4,7 +4,7 @@
 #include <string.h>
 
 MacroTable* init_macro_table() {
-    MacroTable* macroTable = malloc(sizeof(MacroTable));
+    MacroTable* macroTable = (MacroTable*)malloc(sizeof(MacroTable));
     if(!macroTable) SYS_MEM_FAIL_EXIT(1);
     macroTable->macro_count = 0;
     macroTable->macros = init_macro_list();
@@ -31,14 +31,14 @@ void free_macro_node(MacroNode* macroNode) {
 }
 
 MacroList* init_macro_list() {
-    MacroList* macroList = malloc(sizeof(MacroList));
+    MacroList* macroList = (MacroList*)malloc(sizeof(MacroList));
     if(!macroList) SYS_MEM_FAIL_EXIT(1);
     macroList->head = NULL;
     return macroList;
 }
 
 MacroList* get_new_macro_list() {
-    MacroList* macroList = malloc(sizeof(MacroList));
+    MacroList* macroList = (MacroList*)malloc(sizeof(MacroList));
     if(!macroList) SYS_MEM_FAIL_EXIT(1);
     macroList->head = NULL;
     return macroList;
@@ -73,7 +73,7 @@ MacroNode* get_macro_node_by_name_from_list(char* macroName, MacroList* macroLis
 }
 
 MacroNode* get_new_macro_node(Macro* macro) {
-    MacroNode* macroNode = malloc(sizeof(MacroNode));
+    MacroNode* macroNode = (MacroNode*)malloc(sizeof(MacroNode));
     if(!macroNode) SYS_MEM_FAIL_EXIT(1);
     macroNode->macro = macro;
     macroNode->next = NULL;
@@ -81,7 +81,7 @@ MacroNode* get_new_macro_node(Macro* macro) {
 }
 
 Macro* get_new_macro(char* name) {
-    Macro* macro = malloc(sizeof(Macro));
+    Macro* macro = (Macro*)malloc(sizeof(Macro));
     if(!macro) SYS_MEM_FAIL_EXIT(1);
     macro->name = strcpy(macro->name, name);
     macro->body = new_str_table();

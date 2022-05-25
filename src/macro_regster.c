@@ -7,23 +7,31 @@
 
 
 int is_macro_def(char* line) {
-    return compare_first_word_to(line, MACRO_START);
+    return nth_word_at_line_equals(line,1, MACRO_START);
 }
 
 int is_macro_def_end(char* line) {
-    return compare_first_word_to(line, MACRO_END);
+    return nth_word_at_line_equals(line,1, MACRO_END);
 }
 
-int compare_first_word_to(char* line, char* word_to_compare) {
-    int trimmed_len;
-    int compare_word_len;
-    char* first_word;
-    line = strcpy(line,trim(line));
-    trimmed_len = strlen(line);
-    compare_word_len = strlen(word_to_compare);
-    if(trimmed_len < compare_word_len ) return false;
-    first_word = malloc(sizeof(char) * compare_word_len );
-    if(!first_word) SYS_MEM_FAIL_EXIT(1);
-    first_word = substring(first_word, line, 0, compare_word_len );
-    return strcmp(word_to_compare, first_word) == 0;
+char* get_macro_name_from_line(char* line) {
+    char* name;
+    char* name_cp;
+    StrArr* words = get_line_words(line);
+    name = get_str_at_index(words, MACRO_NAME_WORD_INDEX);
+    name_cp = (char*)malloc(sizeof(char) * strlen(name));
+    if(!name_cp) SYS_MEM_FAIL_EXIT(1);
+    name_cp = strcpy(name_cp, name);
+    free_str_arr(words);
+    return name_cp;
+}
+
+int nth_word_at_line_equals(char* line, int n, char* word_to_compare) {
+    StrArr* words;
+    int equals = false;
+    words = get_line_words(line);
+    if(words->length > 1)
+        equals = strcmp(get_str_at_index(words, n - 1), word_to_compare) == 0;
+    free_str_arr(words);
+    return equals;
 }

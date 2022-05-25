@@ -3,7 +3,7 @@
 #include "../headers/utils.h"
 
 StrTable* new_str_table(FILE* print_target) {
-    StrTable* table = malloc(sizeof(StrTable));
+    StrTable* table = (StrTable*)malloc(sizeof(StrTable));
     if(!table) SYS_MEM_FAIL_EXIT(1)
     table->num_of_lines = 0;
     table->strings = new_str_linked_list();

@@ -35,4 +35,7 @@ clean:
 test-argv: default
 	$(EXE) $(TESTDIR)/main/argv-read
 
+test-macro-name: default
+	$(EXE) $(TESTDIR)/macros/macro-name-identifier
+
 
