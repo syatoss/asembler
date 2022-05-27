@@ -83,6 +83,7 @@ MacroNode* get_new_macro_node(Macro* macro) {
 Macro* get_new_macro(char* name) {
     Macro* macro = (Macro*)malloc(sizeof(Macro));
     if(!macro) SYS_MEM_FAIL_EXIT(1);
+    macro->name = (char*)malloc(sizeof(char)* (strlen(name)) + 1);
     macro->name = strcpy(macro->name, name);
     macro->body = new_str_table();
     return macro;

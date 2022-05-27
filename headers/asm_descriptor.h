@@ -1,6 +1,11 @@
 #include <stdio.h>
-#include "./utils.h"
+
+#ifndef ERROR_LOGGER
+#define ERROR_LOGGER
 #include "./error_logger.h"
+#endif
+
+#include "./utils.h"
 
 typedef struct {
     FILE* fp;
@@ -9,8 +14,6 @@ typedef struct {
     int line_num;
     ErrorLogger* err_log;
 } AsmDescriptor;
-
-
 
 AsmDescriptor* new_asm_descriptor(char*);
 int get_next_line(AsmDescriptor*);

@@ -5,7 +5,7 @@
 
 AsmDescriptor* new_asm_descriptor(char* file_path) {
     AsmDescriptor* ds;
-    ds  = (AsmDescriptor*)malloc(sizeof(AsmDescriptor));
+    ds = (AsmDescriptor*)malloc(sizeof(AsmDescriptor));
     ds->fp = fopen(file_path, "r" );
     if(ds->fp == NULL) return NULL;
     ds->line = (char*)malloc(sizeof(char) * STRING_BUFFER_SIZE);

@@ -4,4 +4,5 @@
 #define MACRO_END "endmacro"
 #define true 1
 #define false 0
+#define COMMENT_LINE_TOKEN ';'
 

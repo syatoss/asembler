@@ -42,7 +42,7 @@ void init_list_with_node(StrList* ll, StrNode* node) {
 StrNode* get_new_node(char* str) {
     StrNode* node = (StrNode*)malloc(sizeof(StrNode));
     if(!node) SYS_MEM_FAIL_EXIT(1);
-    node->string = (char*)malloc(sizeof(char) * strlen(str));
+    node->string = (char*)malloc(sizeof(char) * (strlen(str) + 1));
     node->string = strcpy(node->string,str);
     node->next = NULL;
     return node;
