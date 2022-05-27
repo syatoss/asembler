@@ -1,10 +1,9 @@
+#ifndef ASM_DESCRIPTOR_H
+#define ASM_DESCRIPTOR_H
+
 #include <stdio.h>
 
-#ifndef ERROR_LOGGER
-#define ERROR_LOGGER
 #include "./error_logger.h"
-#endif
-
 #include "./utils.h"
 
 typedef struct {
@@ -18,4 +17,7 @@ typedef struct {
 AsmDescriptor* new_asm_descriptor(char*);
 int get_next_line(AsmDescriptor*);
 void free_asm_descriptor(AsmDescriptor*);
+char* get_file_name_without_suffix(AsmDescriptor* ds);
+int is_asm_file(char* file_name);
 
+#endif

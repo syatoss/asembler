@@ -1,7 +1,7 @@
-#ifndef SRT_TABLE
-#define SRT_TABLE
+#ifndef ERROR_LOGGER_H
+#define ERROR_LOGGER_H
+
 #include "./str_table.h"
-#endif
 
 typedef struct {
     int has_errors;
@@ -13,3 +13,5 @@ ErrorLogger* new_error_logger(FILE*);
 void log_error(ErrorLogger*, char*);
 void clear_logger(ErrorLogger*);
 void print_all_logger_errors(ErrorLogger*);
+
+#endif

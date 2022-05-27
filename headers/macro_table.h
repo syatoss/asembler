@@ -1,7 +1,7 @@
-#ifndef SRT_TABLE
-#define SRT_TABLE
+#ifndef MACRO_TABLE_H
+#define MACRO_TABLE_H
+
 #include "./str_table.h"
-#endif
 
 typedef struct {
     char* name;
@@ -24,7 +24,7 @@ typedef struct {
 
 MacroNode* get_new_macro_node(Macro*);
 void add_macro_to_list(Macro*, MacroList*);
-Macro* get_new_macro(char*);
+Macro* get_new_macro(char* name);
 void free_macro(Macro*);
 MacroNode* get_macro_node_by_name_from_list(char*, MacroList*);
 int is_macro_in_table(char*, MacroTable*);
@@ -33,3 +33,7 @@ MacroTable* init_macro_table();
 void free_macro_node(MacroNode*);
 void free_macro_list(MacroList*);
 void clear_macro_table(MacroTable*);
+Macro* get_macro_by_name_from_table(char* macro_name, MacroTable* macro_table);
+void print_macro(Macro* macro, FILE* print_target);
+
+#endif

@@ -19,11 +19,30 @@ StrArr* new_str_arr() {
     return arr;
 }
 
+char* cat_string(char* target, char* str_to_append) {
+    char* appended = cp_string(target);
+    appended = appended == NULL
+                   ? (char*)malloc(sizeof(char) * (strlen(str_to_append) + 1))
+                   : (char*)realloc(appended,
+                                    sizeof(char) * (strlen(appended) +
+                                                    strlen(str_to_append) + 1));
+    if (!appended) SYS_MEM_FAIL_EXIT(1);
+    appended = strcat(appended, str_to_append);
+    free(target);
+    return appended;
+}
+
 void free_str_arr(StrArr* arr) {
     int i = 0;
     while (i < arr->length) free(arr->strings[i++]);
     free(arr->strings);
     free(arr);
+}
+
+char* cp_string(char* str) {
+    char* str_cp = (char*)malloc(sizeof(char*) * (strlen(str) + 1));
+    if (!str_cp) SYS_MEM_FAIL_EXIT(1);
+    return stpcpy(str_cp, str);
 }
 
 void push_next_string(StrArr* array, char* str) {
