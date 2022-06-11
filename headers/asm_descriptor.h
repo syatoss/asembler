@@ -12,6 +12,9 @@ typedef struct {
     char* line;
     int line_num;
     ErrorLogger* err_log;
+    /* LableTable* lable_tb; */
+    /* CodeTable* code_tb; */
+
 } AsmDescriptor;
 
 AsmDescriptor* new_asm_descriptor(char*);

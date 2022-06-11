@@ -30,7 +30,7 @@ void spread_macros_to_a_file(MacroTable* macro_table) {
         cat_string(get_file_name_without_suffix(ds), SPREAD_FILE_SUFFIX);
     spread_file = fopen(spreaded_file_name, "w");
     if (!spread_file) SYS_MEM_FAIL_EXIT(1);
-    fseek(ds->fp, 0, SEEK_SET);
+    fseek(ds->fp, 0, SEEK_SET);  // go to the beggining of the file
     write_spread_to_file(spread_file, macro_table);
     free(spreaded_file_name);
     fclose(spread_file);
