@@ -28,8 +28,8 @@ Macro* register_line_to_macro(char* line, Macro* macro) {
     return macro;
 }
 
-MacroTable* add_macro_to_table(Macro* macro, MacroTable* macro_table) {
-    if (macro) add_macro_to_list(macro, macro_table->macros);
+MacroTable* register_macro_to_table(Macro* macro, MacroTable* macro_table) {
+    add_macro_to_table(macro, macro_table);
     return macro_table;
 }
 
@@ -58,7 +58,7 @@ int nth_word_at_line_equals(char* line, int n, char* word_to_compare) {
     StrArr* words;
     int equals = false;
     words = get_line_words(line);
-    if (words->length > 1)
+    if (words->length >= 1)
         equals = strcmp(get_str_at_index(words, n - 1), word_to_compare) == 0;
     free_str_arr(words);
     return equals;

@@ -6,7 +6,7 @@
       "configuration": {
         "request": "launch",
         "program": "bin/main",
-        "args": [ "tests/macros/macro-name-identifier" ],
+        "args": [ "tests/macros/macro_spread" ],
         "cwd": "~/stas-main/univer/2022b/c/assembler",
         // "environment": [ ... ],
         "externalConsole": true,

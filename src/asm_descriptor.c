@@ -21,10 +21,16 @@ AsmDescriptor* new_asm_descriptor(char* file_path) {
 }
 
 int get_next_line(AsmDescriptor* ds) {
+    char* line;
     int was_successful = false;
-    ds->line = fgets(ds->line, STRING_BUFFER_SIZE, ds->fp);
-    was_successful = ds->line == NULL ? false : true;
-    if (was_successful) ds->line_num++;
+    line = (char*)malloc(sizeof(char) * STRING_BUFFER_SIZE);
+    line = fgets(line, STRING_BUFFER_SIZE, ds->fp);
+    was_successful = line == NULL ? false : true;
+    if (was_successful) {
+        ds->line_num++;
+        strcpy(ds->line, line);
+        free(line);
+    }
     return was_successful;
 }
 

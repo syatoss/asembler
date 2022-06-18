@@ -41,4 +41,7 @@ test-error-logger: default
 test-macro-name: default
 	$(EXE) $(TESTDIR)/macros/macro-name-identifier
 
+test-macro-spread: default
+	$(EXE) $(TESTDIR)/macros/macro_spread
+
 
