@@ -47,7 +47,7 @@ MacroList* get_new_macro_list() {
 }
 
 void add_macro_to_table(Macro* macro, MacroTable* macroTable) {
-    add_macro_to_list(macro, macroTable->macros);
+    if (macro) add_macro_to_list(macro, macroTable->macros);
     macroTable->macro_count++;
 }
 
@@ -71,7 +71,7 @@ int is_macro_in_table(char* macroName, MacroTable* macroTable) {
 MacroNode* get_macro_node_by_name_from_list(char* macroName,
                                             MacroList* macroList) {
     MacroNode* currentMacro = macroList->head;
-    while (currentMacro && !strcmp(macroName, currentMacro->macro->name))
+    while (currentMacro && strcmp(macroName, currentMacro->macro->name))
         currentMacro = currentMacro->next;
     return currentMacro;
 }

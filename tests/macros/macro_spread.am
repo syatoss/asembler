@@ -1,0 +1,9 @@
+
+this line is not from macro
+
+
+    this line is form the macro
+    this line is also from the macro
+
+    this line is from macro 2
+    should apear only once

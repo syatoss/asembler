@@ -35,7 +35,13 @@ clean:
 test-argv: default
 	$(EXE) $(TESTDIR)/main/argv-read
 
+test-error-logger: default
+	$(EXE) $(TESTDIR)/main/errors
+
 test-macro-name: default
 	$(EXE) $(TESTDIR)/macros/macro-name-identifier
+
+test-macro-spread: default
+	$(EXE) $(TESTDIR)/macros/macro_spread
 
 

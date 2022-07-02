@@ -23,6 +23,7 @@ typedef struct {
 } MacroTable;
 
 MacroNode* get_new_macro_node(Macro*);
+void add_macro_to_table(Macro* macro, MacroTable* macroTable);
 void add_macro_to_list(Macro*, MacroList*);
 Macro* get_new_macro(char* name);
 void free_macro(Macro*);
