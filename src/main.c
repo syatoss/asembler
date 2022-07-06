@@ -34,19 +34,7 @@ void run_pre_proc(char* asm_file_name) {
 }
 
 int main(int argc, char* argv[]) {
-    /* for_each_cmd_param(argv, argc, run_pre_proc); */
-    char labelName1[] = "stas";
-    int line1 = 35;
-    enum LABEL_STATUS status1 = INTERNAL;
-    enum LABEL_TYPE type1 = INSTRUCTION;
-    char labelName2[] = "denis";
-    int line2 = 36;
-    enum LABEL_STATUS status2 = EXTERNAL;
-    enum LABEL_TYPE type2 = DATA;
-    LabelTable* labelTable = newLabelTable();
-    addLabelToTable(newLabel(labelName1, line1, status1, type1), labelTable);
-    addLabelToTable(newLabel(labelName2, line2, status2, type2), labelTable);
-    printLabelTable(labelTable);
+    for_each_cmd_param(argv, argc, run_pre_proc);
 
     return 0;
 }

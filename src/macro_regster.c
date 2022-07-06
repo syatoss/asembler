@@ -15,6 +15,20 @@ int is_macro_def(char* line) {
            nth_word_at_line_equals(line, 1, MACRO_START);
 }
 
+int line_has_macro_def(char* line, MacroTable* table) {
+    StrArr* words;
+    int i;
+    int lineHasMacro = false;
+    if (is_comment_line(line)) return false;
+    words = get_line_words(line);
+    for (i = 0; i < words->length; i++) {
+        lineHasMacro = lineHasMacro ||
+                       is_macro_in_table(get_str_at_index(words, i), table);
+    }
+    free_str_arr(words);
+    return lineHasMacro;
+}
+
 Macro* register_new_macro_by_name(char* macro_name, MacroTable* macro_table) {
     if (is_macro_in_table(macro_name, macro_table)) {
         log_error(ds->err_log, "Duplicate macro definition");

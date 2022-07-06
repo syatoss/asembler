@@ -24,6 +24,7 @@ void generate_spread_file(char* spread_file_name) {
         err = cat_strings("Error in file ", ds->file_name,
                           ", not a valid assembly file.", NULL);
         log_error(ds->err_log, err);
+        free(err);
     }
     scan_macros(macro_table);
     if (!ds->err_log->has_errors)
@@ -45,7 +46,8 @@ void write_spread_to_file(FILE* target, MacroTable* macro_table) {
             skip_macro_def(ds);
             continue;
         }
-        if (is_macro_in_table(trim(ds->line), macro_table)) {
+        // needs to replace macro if is not taking entire line
+        if (line_has_macro_def(ds->line, macro_table)) {
             append_macro_to_file(ds->line, macro_table, target);
             continue;
         }
@@ -53,11 +55,20 @@ void write_spread_to_file(FILE* target, MacroTable* macro_table) {
     }
 }
 
-void append_macro_to_file(char* macro_name, MacroTable* macro_table,
-                          FILE* target) {
-    Macro* macro = get_macro_by_name_from_table(macro_name, macro_table);
-    if (!macro) return;
-    print_macro(macro, target);
+void append_macro_to_file(char* line, MacroTable* macro_table, FILE* target) {
+    StrArr* words;
+    int i;
+    Macro* macro;
+    words = get_line_words(line);
+    for (i = 0; i < words->length; i++) {
+        macro = get_macro_by_name_from_table(get_str_at_index(words, i),
+                                             macro_table);
+        macro ? print_macro(macro, target)
+              : fprintf(target, "%s", get_str_at_index(words, i));
+    }
+    /* Macro* macro = get_macro_by_name_from_table(macro_name, macro_table); */
+    /* if (!macro) return; */
+    /* print_macro(macro, target); */
 }
 
 void scan_macros(MacroTable* macro_table) {
