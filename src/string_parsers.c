@@ -55,7 +55,8 @@ char* cp_string(char* str) {
     str_cp = str ? (char*)malloc(sizeof(char*) * (strlen(str) + 1))
                  : (char*)malloc(sizeof(char));
     if (!str_cp) SYS_MEM_FAIL_EXIT(1);
-    return str ? strcpy(str_cp, str) : strcpy(str_cp, "");
+    str ? strcpy(str_cp, str) : strcpy(str_cp, "");
+    return str_cp;
 }
 
 void push_next_string(StrArr* array, char* str) {

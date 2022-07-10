@@ -11,6 +11,12 @@ macro m2
 endmacro
 
 m1
-
 m2
+
+macro m3
+    this line should not apear as a seperate one
+endmacro
+
+macro3: m3 m1
+
 ;m2

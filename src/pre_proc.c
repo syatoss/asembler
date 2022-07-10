@@ -46,7 +46,6 @@ void write_spread_to_file(FILE* target, MacroTable* macro_table) {
             skip_macro_def(ds);
             continue;
         }
-        // needs to replace macro if is not taking entire line
         if (line_has_macro_def(ds->line, macro_table)) {
             append_macro_to_file(ds->line, macro_table, target);
             continue;
@@ -63,12 +62,11 @@ void append_macro_to_file(char* line, MacroTable* macro_table, FILE* target) {
     for (i = 0; i < words->length; i++) {
         macro = get_macro_by_name_from_table(get_str_at_index(words, i),
                                              macro_table);
-        macro ? print_macro(macro, target)
-              : fprintf(target, "%s", get_str_at_index(words, i));
+        if (macro)
+            print_macro(macro, target);
+        else
+            fprintf(target, "%s", get_str_at_index(words, i));
     }
-    /* Macro* macro = get_macro_by_name_from_table(macro_name, macro_table); */
-    /* if (!macro) return; */
-    /* print_macro(macro, target); */
 }
 
 void scan_macros(MacroTable* macro_table) {
