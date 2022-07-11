@@ -22,3 +22,15 @@ Translation* newTranslation(char** binary, int len) {
     return trans;
 }
 
+void freeTranslation(Translation* trans) {
+    int i;
+    if (!trans) return;
+    for (i = 0; i < trans->lineCount; i++) {
+        free((trans->base32)[i]);
+        free((trans->binary)[i]);
+    }
+    free(trans->base32);
+    free(trans->binary);
+    free(trans);
+}
+

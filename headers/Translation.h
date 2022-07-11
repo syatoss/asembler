@@ -9,5 +9,6 @@ typedef struct {
 
 char* binarayTo32(char* binary);
 Translation* newTranslation(char** binary, int len);
+void freeTranslation(Translation* trans);
 
 #endif
