@@ -2,6 +2,7 @@
 #define ASM_DESCRIPTOR_H
 
 #include <stdio.h>
+#include "./LabelTable.h"
 
 #include "./error_logger.h"
 #include "./utils.h"
@@ -10,10 +11,12 @@ typedef struct {
     FILE* fp;
     char* file_name;
     char* line;
+    int IC;
+    int DC;
     int line_num;
     ErrorLogger* err_log;
-    /* LableTable* lable_tb; */
-    /* CodeTable* code_tb; */
+    LabelTable* labelTable;
+//    CodeTable* code_tb;
 
 } AsmDescriptor;
 

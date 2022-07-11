@@ -2,24 +2,17 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include "label.h"
+#include "LabelTabel.h"
 
 
 
 #define N 80
-#define MAX 250
+#define MAXLABELNAME 30
 #define NUMOFOPCODE 16
 #define NUMOFREG 8
 #define NUMOFDATACODE 5
 
-
-
-//typedef struct LNode{
-//    char* data[30];
-//    struct LNode* next;
-//}LNode;
-//typedef struct List{
-//    struct LNode *head, *tail;
-//}List;
 
 
 
@@ -31,30 +24,30 @@ char *dataCode[NUMOFDATACODE]={".data\0",".struct\0",".string\0",".entry\0", ".e
 
 
 
-void freeArr(char* );
-char* srchWord(char*,int);
-int isOpcode(char*, int n );
-int isRegistr(char*, int n );
-int isData(char*, int n );
+void freeArr(char*);
+char* srchWord(char*);
+int isOpcode(char*);
+int isNumber(char*);
+int isRegistr(char*);
+int isData(char*);
 //int isLabel(char*);
-//void addToLable(char* arr);
-//void insertNodeToTail(List* lst, LNode* newNode);
-//void insertValueToTail(List *lst, char * newData);
-//LNode* createNewNode(char* newData, LNode* next);
-//int isEmpty(const List* lst);
-//List makeEmptyList();
+void addToLable(char* );
 
 
-void firstscan () {
+
+int firstscan () {
     FILE *file;
     char line[N]={};
     char word[N]={};
+    int symbolSetting=0;
+    char label[MAXLABELNAME]={};
+    int countWord=0;
     char prevChar;
     int i=0, j=0;
     file = fopen("text.txt", "r");
     while ((line[i] = fgetc(file)) != EOF) {
         if(line[i] == ';' && i == 0){
-            while ((line[i] = fgetc(file)) != '\n')
+            while ((line[i] = fgetc(file)) != '\n' && line[i]!= EOF)
             {
                 i++;
             }
@@ -65,68 +58,73 @@ void firstscan () {
             if(isalnum(prevChar) || ispunct(prevChar))
             {
                 word[j]='\0';
-                printf("search the word: %s %s ", word, srchWord(word, j));
+                printf("search the word: %s %s ", word, srchWord(word));
                 j=0;
                 freeArr(word); prevChar=' ';
             }
-            line[i] = '\0';
-            printf("\n%s\n", line);
+            printf("\n");
             i = 0;
             freeArr(line);
+            continue;
+
+        }
+        if(isspace(line[i]))
+        {
+            if(isalnum(prevChar) && word[0] != '\0')
+            {
+                printf("search the word: %s %s ", word, srchWord(word));
+                freeArr(word); j=0;
+            }
+
+            prevChar=line[i];
+            i++;
+            continue;
         }
         else {
-
-            if(isalpha(line[i]))
-            {
-                word[j]=line[i]; j++;
-            }
             if(line[i] == ':')
             {
                 if(isalnum(prevChar)){
                     word[j]='\0'; j=0;
+                    symbolSetting=1;
+                    strcpy(label, word);
                     printf("addToLabel:%s ", word);
                     freeArr(word); prevChar=' ';}
                 else printf("Error ':' ");
                 continue;
             }
-            if(isspace(line[i]))
-            {
-                if(isalnum(prevChar) && word[0] != '\0') {
-                    printf("search the word: %s %s ", word, srchWord(word, j));
-                }
-                freeArr(word); j=0;
-
-            }
             if(isdigit(line[i]))
             {
                 if(word[0] == '\0') printf("error");
                 else { word[j]=line[i]; j++;}
+                continue;
             }
             if(line[i] == '.')
             {
-                if(word[0] != '\0') { word[j]='\0'; j=0; printf("addToLabel:%s ", word);
+                if(word[0] != '\0') { word[j]='\0'; j=0; printf("searchLabel:%s ", word);
                     freeArr(word);}
                 if(word[0] == '\0') { word[j]=line[i]; j++;}
+                continue;
             }
             if(line[i] == ',')
             {
                 if(!isspace(prevChar) || word[0] != '\0'){
-                    printf("search the word: %s %s ", word, srchWord(word, j));
+                    printf("search the word: %s %s ", word, srchWord(word));
                     freeArr(word); j=0;}
+                continue;
             }
 
-
+            word[j]=line[i];
+            j++;
             prevChar=line[i];
             i++;
 
         }
     }
-    line[i] = '\0';
-    printf("\n%s\n", line);
-
+    freeArr(line);
+    freeArr(word);
     fclose(file);
-
 }
+
 void freeArr(char* line)
 {
     int i;
@@ -135,84 +133,66 @@ void freeArr(char* line)
         line[i]='\0';
     }
 }
-char* srchWord(char* arr, int n )
+char* srchWord(char* arr)
 {
-    if(isOpcode(arr,n)!=-1) return "isOpcode";
-    if(isRegistr(arr,n)!=-1) return "isRegistr";
-    if(isData(arr,n)!=-1) return "isData";
+    if(isOpcode(arr)!=-1) return "isOpcode";
+    if(isRegistr(arr)!=-1) return "isRegistr";
+    if(isData(arr)!=-1) return "isData";
+    if(isNumber(arr)) return "isNumber";
     return "isLabel?";
 }
-int isOpcode(char* arr, int n )
+int isOpcode(char* arr )
 {
     int i;
     for(i=0; i<NUMOFOPCODE; i++){
         if(strcmp(arr, opcodeTable[i])==0) return i;}
     return -1;
 }
-int isRegistr(char* arr, int n )
+int isRegistr(char* arr )
 {
     int i;
     for(i=0; i<NUMOFREG; i++){
         if(strcmp(arr, regTable[i])==0) return i;}
     return -1;
 }
-int isData(char* arr, int n )
+int isData(char* arr )
 {
     int i;
     for(i=0; i<NUMOFDATACODE; i++){
-        if(strcmp(arr, dataCode[i])==0) return i;}
+        if(strcmp(arr, dataCode[i])==0) {printf("its data number %d ", i);return i;}}
     return -1;
 }
-//void addToLable(char* arr)
+int isNumber(char* arr)
+{
+    char buf[N]={};
+    strcpy(buf,arr);
+    if(arr[0]=='.'|| arr[0]=='#'){
+        strcpy(buf,arr+1);
+    }
+    return atoi(buf);
+}
+
+//void addDataLable(char* arr, int numOfData)
 //{
-//    int n=isLabel(arr);
-//    if(n==-1){
-//        labelTable[count]=arr;
-//        count++;
+//    switch (numOfData) {
+//        case 0: addLabelToTable(newLabel(arr, ++line, status1, DATA), labelTable);
+//            break;
+//        case 1: addLabelToTable(newLabel(arr, ++line, status1, DATA), labelTable);
+//            break;
+//        case 2: addLabelToTable(newLabel(arr, ++line, status1, DATA), labelTable);
+//            break;
+//        case 3: addLabelToTable(newLabel(arr, ++line, status1, INSTRUCTION), labelTable);
+//            break;
+//        case 4: addLabelToTable(newLabel(arr, ++line, status1, INSTRUCTION), labelTable);
+//            break;
+//        default: printf("Error addDataLable");
+//
 //    }
-//    else printf("Number of label:%d ", n);
 //}
 
-//int isLabel(char* arr)
+//int isLabel(char* arr, LabelTable* table)
 //{
-//    int i;
-//    for(i=0; i<2; i++){
-//        if(!strcmp(arr, labelTable[i])) return i;}
-//    return -1;
+//    return getLabelByName(table, arr);
 //}
-//LNode* createNewNode(char* newData, LNode* next)
-//{
-//    LNode * newNode=(LNode*) calloc(1,sizeof (LNode));
-//    strcpy(newNode->data ,newData);
-//    newNode->next = next;
-//    return newNode;
-//}
-//void insertValueToTail(List *lst, char * newData)
-//{
-//    LNode * newNode = createNewNode(newData, NULL);
-//    if(isEmpty(lst))
-//        lst->head = lst->tail = newNode;
-//    else{
-//        lst->tail->next=newNode;
-//        lst->tail=newNode;
-//    }
-//}
-//void insertNodeToTail(List* lst, LNode* newNode)
-//{
-//    if(isEmpty(lst))
-//        lst->head=lst->tail=newNode;
-//    else
-//    {
-//        lst->tail->next=newNode;
-//    }
-//}
-//List makeEmptyList()
-//{
-//    List lst;
-//    lst.head = lst.tail =NULL;
-//    return lst;
-//}
-//int isEmpty(const List* lst)
-//{
-//    return lst->head == NULL;
-//}
+
+
