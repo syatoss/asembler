@@ -64,8 +64,9 @@ void freeAsmRowNode(AsmRowNode* node) {
 }
 
 void freeAsmRowList(AsmRowList* list) {
+    AsmRowNode* current;
     if (!list) return;
-    AsmRowNode* current = list->head;
+    current = list->head;
     while (current) {
         list->head = current->next;
         freeAsmRowNode(current);

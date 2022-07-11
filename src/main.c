@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "../headers/LabelTable.h"
+#include "../headers/Translation.h"
 #include "../headers/asm_descriptor.h"
 #include "../headers/constants.h"
 #include "../headers/label.h"
@@ -34,7 +35,9 @@ void run_pre_proc(char* asm_file_name) {
 }
 
 int main(int argc, char* argv[]) {
-    for_each_cmd_param(argv, argc, run_pre_proc);
-
+    /* for_each_cmd_param(argv, argc, run_pre_proc); */
+    char* c = cat_strings("", "hello", " world ", "bitches", NULL);
+    printf("%s\n", c);
+    free(c);
     return 0;
 }

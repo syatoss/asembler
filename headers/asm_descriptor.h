@@ -2,22 +2,21 @@
 #define ASM_DESCRIPTOR_H
 
 #include <stdio.h>
-#include "./LabelTable.h"
 
+#include "./DataTable.h"
+#include "./LabelTable.h"
 #include "./error_logger.h"
 #include "./utils.h"
 
 typedef struct {
     FILE* fp;
-    char* file_name;
-    char* line;
-    int IC;
-    int DC;
+    char* file_name; /* line in the assembly file*/
+    char* line;      /* line in the assembly file*/
     int line_num;
     ErrorLogger* err_log;
-    LabelTable* labelTable;
-//    CodeTable* code_tb;
-
+    LabelTable* lable_tb;
+    AsmTranslationTable* instructions_tb;
+    AsmTranslationTable* data_tb;
 } AsmDescriptor;
 
 /* creates a new strunt that holds all the information needed for the assembler
