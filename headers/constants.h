@@ -12,5 +12,6 @@
 #define EXTERN_FILE_SUFFIX ".ext"
 #define ENTRY_FILE_SUFFIX ".ent"
 #define SPREAD_FILE_SUFFIX ".am"
+#define WORD_SIZE 10
 
 #endif
