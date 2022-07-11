@@ -37,8 +37,9 @@ void freeLabelNode(LabelNode* node) {
 }
 
 void freeLabelList(LabelList* list) {
+    LabelNode* current;
     if (!list) return;
-    LabelNode* current = list->head;
+    current = list->head;
     while (current) {
         list->head = current->next;
         freeLabelNode(current);

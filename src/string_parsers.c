@@ -24,10 +24,10 @@ char* cat_strings(char* target, ...) {
     va_list string_to_concat;
     char* concatenated = NULL;
     char* next_string;
+    va_start(string_to_concat, target);
     concatenated = cp_string(target);
     while ((next_string = va_arg(string_to_concat, char*)))
-        concatenated = cat_strings(concatenated, next_string);
-    va_start(string_to_concat, target);
+        concatenated = cat_string(concatenated, next_string);
     va_end(string_to_concat);
     return concatenated;
 }

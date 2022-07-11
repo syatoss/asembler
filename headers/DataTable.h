@@ -4,7 +4,7 @@
 #include "./Translation.h"
 
 typedef struct {
-    int lineCount;
+    int lineCount; /*how many lines the translation takes*/
     int startLine; /*dc*/
     Translation* translation;
     int hasLabel;    /*true/false*/
@@ -24,6 +24,7 @@ typedef struct {
 typedef struct {
     int entries;
     AsmRowList* rows;
+    int translationCounter; /*ic or dc depending on context*/
 } AsmTranslationTable;
 
 /* creats a new row in the as translation table */
