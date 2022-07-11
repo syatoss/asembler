@@ -7,7 +7,7 @@
 
 #include "../headers/string_parsers.h"
 
-char* getBase32Translation(char* binary) { return cp_string(binary); }
+char* binarayTo32(char* binary) { return cp_string(binary); }
 
 Translation* newTranslation(char** binary, int len) {
     int i;
@@ -17,7 +17,7 @@ Translation* newTranslation(char** binary, int len) {
     trans->lineCount = len;
     for (i = 0; i < len; i++) {
         (trans->binary)[i] = cp_string(binary[i]);
-        (trans->base32)[i] = getBase32Translation(binary[i]);
+        (trans->base32)[i] = binarayTo32(binary[i]);
     }
     return trans;
 }

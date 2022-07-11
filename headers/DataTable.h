@@ -5,10 +5,10 @@
 
 typedef struct {
     int lineCount;
-    int startLine;
+    int startLine; /*dc*/
     Translation* translation;
-    int hasLabel;
-    char* labelName;
+    int hasLabel;    /*true/false*/
+    char* labelName; /*string/NULL*/
 } Data;
 
 typedef struct dataNode {
