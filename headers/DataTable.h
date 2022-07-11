@@ -9,21 +9,21 @@ typedef struct {
     Translation* translation;
     int hasLabel;    /*true/false*/
     char* labelName; /*string/NULL*/
-} Data;
+} AsmRow;
 
-typedef struct dataNode {
-    struct dataNode* next;
-    Data* data;
-} DataNode;
+typedef struct asmRowNode {
+    struct asmRowNode* next;
+    AsmRow* data;
+} AsmRowNode;
 
 typedef struct {
-    DataNode* head;
-    DataNode* tail;
-} DataList;
+    AsmRowNode* head;
+    AsmRowNode* tail;
+} AsmRowList;
 
 typedef struct {
     int entries;
-    DataList* rows;
-} DataTable;
+    AsmRowList* rows;
+} AsmTranslationTable;
 
 #endif

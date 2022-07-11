@@ -8,12 +8,12 @@
 #include "../headers/Translation.h"
 #include "../headers/constants.h"
 
-void addDataNodeToListTail(DataNode* node, DataList* list);
-void addDataToListTail(Data* data, DataTable* table);
+void addAsmRowNodeToListTail(AsmRowNode* node, AsmRowList* list);
+void addAsmRowToListTail(AsmRow* data, AsmTranslationTable* table);
 
-Data* newData(int lineCount, int startLine, Translation* translation,
-              int hasLabel, char* labelName) {
-    Data* data = (Data*)malloc(sizeof(Data));
+AsmRow* newAsmRow(int lineCount, int startLine, Translation* translation,
+                  int hasLabel, char* labelName) {
+    AsmRow* data = (AsmRow*)malloc(sizeof(AsmRow));
     data->lineCount = lineCount;
     data->startLine = startLine;
     data->translation = translation;
@@ -26,59 +26,61 @@ Data* newData(int lineCount, int startLine, Translation* translation,
     return data;
 }
 
-void freeData(Data* data) {
+void freeAsmRow(AsmRow* data) {
     if (!data) return;
+    freeTranslation(data->translation);
     if (data->labelName != NULL) free(data->labelName);
     free(data);
 }
 
-void printData(Data* data) {}
+void printAsmRow(AsmRow* data) {}
 
-DataNode* newDataNode(Data* data) {
-    DataNode* node = (DataNode*)malloc(sizeof(DataNode));
+AsmRowNode* newAsmRowNode(AsmRow* data) {
+    AsmRowNode* node = (AsmRowNode*)malloc(sizeof(AsmRowNode));
     node->next = NULL;
     node->data = data;
     return node;
 }
 
-DataList* newDataList() {
-    DataList* list = (DataList*)malloc(sizeof(DataList));
+AsmRowList* newAsmRowList() {
+    AsmRowList* list = (AsmRowList*)malloc(sizeof(AsmRowList));
     list->head = NULL;
     list->tail = NULL;
     return list;
 }
 
-DataTable* newDataTable() {
-    DataTable* table = (DataTable*)malloc(sizeof(DataTable));
-    table->rows = newDataList();
+AsmTranslationTable* newAsmTranslationTable() {
+    AsmTranslationTable* table =
+        (AsmTranslationTable*)malloc(sizeof(AsmTranslationTable));
+    table->rows = newAsmRowList();
     table->entries = 0;
     return table;
 }
 
-void freeDataNode(DataNode* node) {
+void freeAsmRowNode(AsmRowNode* node) {
     if (!node) return;
-    freeData(node->data);
+    freeAsmRow(node->data);
     free(node);
 }
 
-void freeDataList(DataList* list) {
+void freeAsmRowList(AsmRowList* list) {
     if (!list) return;
-    DataNode* current = list->head;
+    AsmRowNode* current = list->head;
     while (current) {
         list->head = current->next;
-        freeDataNode(current);
+        freeAsmRowNode(current);
         current = list->head;
     }
     free(list->head);
 }
 
-void freeDataTable(DataTable* table) {
+void freeAsmTranslationTable(AsmTranslationTable* table) {
     if (!table) return;
-    freeDataList(table->rows);
+    freeAsmRowList(table->rows);
     free(table);
 }
 
-DataNode* getDataNodeByDc(DataList* list, int dc) {
+AsmRowNode* getAsmRowNodeByDc(AsmRowList* list, int dc) {
     while (list->head) {
         if (list->head->data->startLine == dc) return list->head;
         list->head = list->head->next;
@@ -86,43 +88,43 @@ DataNode* getDataNodeByDc(DataList* list, int dc) {
     return NULL;
 }
 
-Data* getDataByDc(DataTable* table, int dc) {
-    DataNode* node = getDataNodeByDc(table->rows, dc);
+AsmRow* getAsmRowByDc(AsmTranslationTable* table, int dc) {
+    AsmRowNode* node = getAsmRowNodeByDc(table->rows, dc);
     return node ? node->data : NULL;
 }
 
-void addDataNodeToListTail(DataNode* node, DataList* list) {
+void addAsmRowNodeToListTail(AsmRowNode* node, AsmRowList* list) {
     if (!node) return;
     if (!list->head) list->head = node;
     if (list->tail) list->tail->next = node;
     list->tail = node;
 }
 
-void addDataToListTail(Data* data, DataTable* table) {
-    addDataNodeToListTail(newDataNode(data), table->rows);
+void addAsmRowToListTail(AsmRow* data, AsmTranslationTable* table) {
+    addAsmRowNodeToListTail(newAsmRowNode(data), table->rows);
 }
 
-void addDataToTable(Data* lable, DataTable* table) {
-    addDataToListTail(lable, table);
+void addAsmRowToTable(AsmRow* lable, AsmTranslationTable* table) {
+    addAsmRowToListTail(lable, table);
     table->entries++;
 }
 
-void printDataNode(DataNode* node) {
+void printAsmRowNode(AsmRowNode* node) {
     if (!node) return;
-    printData(node->data);
+    printAsmRow(node->data);
     printf("\n");
 }
 
-void printDataList(DataList* list) {
+void printAsmRowList(AsmRowList* list) {
     if (!list) return;
     while (list->head) {
-        printDataNode(list->head);
+        printAsmRowNode(list->head);
         list->head = list->head->next;
     }
 }
 
-void printDataTable(DataTable* table) {
+void printAsmTranslationTable(AsmTranslationTable* table) {
     printf("Table has %d entries:\n", table->entries);
-    printDataList(table->rows);
+    printAsmRowList(table->rows);
 }
 
