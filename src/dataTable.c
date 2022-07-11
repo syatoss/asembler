@@ -80,16 +80,16 @@ void freeAsmTranslationTable(AsmTranslationTable* table) {
     free(table);
 }
 
-AsmRowNode* getAsmRowNodeByDc(AsmRowList* list, int dc) {
+AsmRowNode* getAsmRowNodeByStartLine(AsmRowList* list, int startLine) {
     while (list->head) {
-        if (list->head->data->startLine == dc) return list->head;
+        if (list->head->data->startLine == startLine) return list->head;
         list->head = list->head->next;
     }
     return NULL;
 }
 
-AsmRow* getAsmRowByDc(AsmTranslationTable* table, int dc) {
-    AsmRowNode* node = getAsmRowNodeByDc(table->rows, dc);
+AsmRow* getAsmRowByStartLine(AsmTranslationTable* table, int startLine) {
+    AsmRowNode* node = getAsmRowNodeByStartLine(table->rows, startLine);
     return node ? node->data : NULL;
 }
 
