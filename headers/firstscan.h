@@ -17,17 +17,18 @@ extern ds;
 
 
 void freeArr(char*);
-enum WORD_TYPE srchWord(char*);
-int isOpcode(char*);
-int isNumber(char*);
-int isRegistr(char*);
-int isData(char*);
-int isLabel(char*);
+enum WORD_TYPE srchWord(const char*);
+int isOpcode(const char*);
+int isNumber(const char*);
+int isRegistr(const char*);
+int isData(const char*);
+int isLabel(const char*);
 void addData(char*);
 void scanData(char*);
 void checkLine(char*);
 void checkWord(const char*);
 int checkNumberArr(char* );
+int emptyArr(char* arr);
 #endif
 
 

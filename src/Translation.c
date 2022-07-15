@@ -44,6 +44,7 @@ char* uIntToBinary(unsigned int uInt) {
     return binUInt;
 }
 
+
 void completionTo2(char* binVal) {
     int bit = WORD_SIZE - 1;
     while (bit >= 0) {

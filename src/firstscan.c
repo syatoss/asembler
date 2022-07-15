@@ -20,8 +20,8 @@ enum WORD_TYPE wordType;
 char label[MAXLABELNAME]={0};
 int dataCodeNumber=-1;
 int opcodeNumber=-1;
-int op1=-1;
-int op2=-1;
+char op1[MAXLABELNAME]={};
+char op2[MAXLABELNAME]={};
 int countWord=0;
 
 int firstscan () {
@@ -32,169 +32,218 @@ int firstscan () {
         checkLine(line);
     }
 }
-void checkLine(char* line)
-{
-    char word[N]={};
+void checkLine(char *line) {
+    char word[N] = {};
     char prevChar;
-    int i=0, j=0; // r2, LENGTH\0
+    int i = 0, j = 0;
     while (line[i] != '\0') {
-        if(line[i] == ';' && i == 0){
+        if (line[i] == ';' && i == 0) {
             return;
         }
-        if(isspace(line[i]))
-        {
-            if(isalnum(prevChar) && word[0] != '\0')
-            {
+        if (isspace(line[i])) {
+            if (isalnum(prevChar) && !emptyArr(word)) {
                 countWord++;
                 checkWord(word);
-                freeArr(word); j=0;
+                freeArr(word);
+                j = 0;
             }
-            prevChar=line[i];
+            prevChar = line[i];
             i++;
             continue;
-        }
-        else {
-            if(line[i] == ':')
-            {
-                if(isalnum(prevChar)){
-                    word[j]='\0'; j=0;
+        } else {
+            if (line[i] == ':') {
+                if (isalnum(prevChar)) {
+                    word[j] = '\0';
+                    j = 0;
                     strcpy(label, word);
-                    freeArr(word); prevChar=' ';}
-                else printf("Error ':' ");
+                    freeArr(word);
+                    prevChar = ' ';
+                } else printf("Error ':' ");
                 i++;
                 continue;
             }
-            if(isdigit(line[i]))
-            {
-                if(word[0] == '\0') printf("error");
-                else { word[j]=line[i]; j++;}
+            if (isdigit(line[i])) {
+                if (emptyArr(word)) printf("error");
+                else {
+                    word[j] = line[i];
+                    j++;
+                }
+                prevChar = line[i];
                 i++;
                 continue;
             }
-            if(line[i] == '.')
-            {
-                if(word[0] != '\0') { word[j]='\0'; j=0;
-                    countWord++;
-                    checkWord(word);
-                    freeArr(word);}
-                if(word[0] == '\0') { word[j]=line[i]; j++;}
-                continue;
-            }
-            if(line[i] == ',')
-            {
-                if(!isspace(prevChar) || word[0] != '\0'){
-                    countWord++;
-                    checkWord(word);
-                    freeArr(word); j=0;}
-                continue;
-            }
-            word[j]=line[i];
-            j++;
-            prevChar=line[i];
-
-            i++;
-            if (line[i] == '\0') {
-                if(word[0]!='\0')
-                {
-                    word[j]='\0';
+            if (line[i] == '.') {
+                if (!emptyArr(word)) {
+                    word[j] = '\0';
+                    j = 0;
                     countWord++;
                     checkWord(word);
                     freeArr(word);
                 }
-                return;
+                if (emptyArr(word)) {
+                    word[j] = line[i];
+                    j++;
+                }
+                prevChar = line[i];
+                i++;
+                continue;
             }
+            if (line[i] == ',') {
+                if (!isspace(prevChar) || !emptyArr(word)) {
+                    countWord++;
+                    checkWord(word);
+                    freeArr(word);
+                    j = 0;
+                }
+                i++;
+                continue;
+            }
+            word[j] = line[i];
+            j++;
+            prevChar = line[i];
+
+            i++;
         }
     }
+    if (!emptyArr(word)) {
+        word[j] ='\0';
+        countWord++;
+        checkWord(word);
+        freeArr(word);
+    }
     freeArr(word);
+    return;
 }
-void freeArr(char* line)
-{
+
+int emptyArr(char* arr) {
+    if (arr[0] == '\0') return 1;
+    return 0;
+}
+
+void freeArr(char *line) {
     int i;
-    for(i=0; i<N; i++)
-    {
-        line[i]='\0';
+    for (i = 0; i < N; i++) {
+        line[i] = '\0';
     }
 }
-enum WORD_TYPE srchWord(char* arr)
-{
-    if(isOpcode(arr)!=-1) return ISOPCODE;
-    if(isRegistr(arr)!=-1) return ISREGISTR;
-    if(isData(arr)!=-1) return ISDATA;
-    if(isNumber(arr)) return ISNUMBER;
+
+enum WORD_TYPE srchWord(char *arr) {
+    if (isOpcode(arr) != -1) return ISOPCODE;
+    if (isRegistr(arr) != -1) return ISREGISTR;
+    if (isData(arr) != -1) return ISDATA;
+    if (isNumber(arr)) return ISNUMBER;
     return UNKNOWN;
 }
-int isOpcode(char* arr )
-{
+
+int isOpcode(char *arr) {
     int i;
-    for(i=0; i<NUMOFOPCODE; i++){
-        if(strcmp(arr, opcodeTable[i])==0) return i;}
-    return -1;
-}
-int isRegistr(char* arr )
-{
-    int i;
-    for(i=0; i<NUMOFREG; i++){
-        if(strcmp(arr, regTable[i])==0) return i;}
-    return -1;
-}
-int isData(char* arr )
-{
-    int i;
-    for(i=0; i<NUMOFDATACODE; i++){
-        if(strcmp(arr, dataCode[i])==0) return i;
+    for (i = 0; i < NUMOFOPCODE; i++) {
+        if (strcmp(arr, opcodeTable[i]) == 0) return i;
     }
     return -1;
 }
-int isNumber(char* arr)
-{
-    char buf[30]={};
-    strcpy(buf,arr);
-    if(arr[0]=='.'|| arr[0]=='#'){
-        strcpy(buf,arr+1);
+
+int isRegistr(char *arr) {
+    int i;
+    for (i = 0; i < NUMOFREG; i++) {
+        if (strcmp(arr, regTable[i]) == 0) return i;
     }
-    if(checkNumberArr(buf)) return true;
+    return -1;
+}
+
+int isData(char *arr) {
+    int i;
+    for (i = 0; i < NUMOFDATACODE; i++) {
+        if (strcmp(arr, dataCode[i]) == 0) return i;
+    }
+    return -1;
+}
+
+int isNumber(char *arr) {
+    char buf[30] = {};
+    strcpy(buf, arr);
+    if (arr[0] == '.' || arr[0] == '#') {
+        strcpy(buf, arr + 1);
+
+    }
+    if (checkNumberArr(buf)) return true;
     return false;
 }
-int checkNumberArr(char* arr)
-{
-    int i=0;
+
+int checkNumberArr(char *arr) {
+    int i = 0;
     if(arr[i]=='-' || arr[i]=='+') {
         if(arr[i+1]=='\0') {
             printf("Error number incorrect");
             return false;
         }
+        i++;
     }
-    while(arr[i]!='\0')
-    {
-        if(isdigit(arr[i]) )  i++;
-        else return false;
+    while (arr[i]!='\0') {
+
+        if (!isdigit(arr[i])) return false;
+        i++;
     }
     return true;
 }
 
 
-void checkWord(const char* word){
+void checkWord(char* word) {
     enum WORD_TYPE wordType;
-    wordType=srchWord(word);
+    wordType = srchWord(word);
     switch (wordType) {
         case ISDATA:
             break;
-       case ISNUMBER: if(word[0]=='.') //add number atoi(word) to binary machine code with <<
-                      if(word[0]=='#') //add number atoi(word) to binary machine code with 2's complement
+        case ISNUMBER:
+            if (word[0] == '.' || word[0] == '#') {
+                if (word[0] == '#') {
+                    if (emptyArr(op1)) {
+                        strcpy(op1, word);
+                        printf(" First operand: %s ", op1);
+                        printf("add number atoi(word+1) to binary machine code with <<");
+                    } else {
+                        if (emptyArr(op2)) {
+                            strcpy(op2, word);
+                            printf(" Second operand: %s ", op2);
+                            printf("add number atoi(word+1) to binary machine code with <<");
+                        } else printf(" Operand error");
+                    }
+                }
+                else printf("add number atoi(word+1) to binary machine code with <<");
+            } else printf("add number to binary machine code");
             break;
         case ISOPCODE:
-            if(opcodeNumber==-1) opcodeNumber= isOpcode(word);
-            //add binary machine code of opcode
-            printf("opcode error");
+            if (opcodeNumber == -1) {
+                opcodeNumber = isOpcode(word);
+                printf("add binary machine code of opcode %d ", opcodeNumber);
+            } else printf("opcode error");
             break;
-        case ISREGISTR: break;
-        case UNKNOWN: if(op1==-1) op1=1; //add operand to opcode
-                      else {
-                             if (op2 == -1) op2 = 1; //add operand to opcode
-                             else printf("Operand error");
-                      }
-                      //add binary machine code Null
-                      break;
+        case ISREGISTR:
+            if (emptyArr(op1)) {
+                strcpy(op1, word);
+                printf(" First operand: %s ", op1);
+                printf("add number of registr to 4 first bin");
+            } else {
+                if (emptyArr(op2)) {
+                    strcpy(op2, word);
+                    printf(" Second operand: %s ", op2);
+                    printf("add number of registr to 5-8  bin");
+                } else printf(" Operand error");
+            }
+            break;
+        case UNKNOWN:
+            if (emptyArr(op1)) {
+                strcpy(op1, word);
+                printf(" First operand: %s ", op1);
+            } else {
+                if (emptyArr(op2)) {
+                    strcpy(op2, word);
+                    printf(" Second operand: %s ", op2);
+                } else printf(" Operand error");
+            }
+            printf(" add binary machine code Null");
+            break;
+
 
     }
 
