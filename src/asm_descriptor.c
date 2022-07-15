@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../headers/DataTable.h"
 #include "../headers/constants.h"
 #include "../headers/string_parsers.h"
 
@@ -17,6 +18,9 @@ AsmDescriptor* new_asm_descriptor(char* file_path) {
     strcpy(ds->file_name, file_path);
     ds->line_num = 0;
     ds->err_log = new_error_logger(stderr);
+    ds->lable_tb = newLabelTable();
+    ds->data_tb = newAsmTranslationTable();
+    ds->instructions_tb = newAsmTranslationTable();
     return ds;
 }
 
@@ -31,7 +35,7 @@ int get_next_line(AsmDescriptor* ds) {
         strcpy(ds->line, line);
         free(line);
     }
-    return was_successful;
+    return !feof(ds->fp);
 }
 
 int is_asm_file(char* file_name) {
@@ -61,5 +65,9 @@ void free_asm_descriptor(AsmDescriptor* ds) {
     if (ds->line != NULL) free(ds->line);
     if (ds->fp != NULL) fclose(ds->fp);
     if (ds->err_log != NULL) clear_logger(ds->err_log);
+    clear_logger(ds->err_log);
+    freeLabelTable(ds->lable_tb);
+    freeAsmTranslationTable(ds->data_tb);
+    freeAsmTranslationTable(ds->instructions_tb);
     free(ds);
 }
