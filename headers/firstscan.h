@@ -2,6 +2,7 @@
 #define ASEMBLER_FIRSTSCAN_H
 
 #include <stdio.h>
+#include "string_parsers.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -16,16 +17,17 @@ extern ds;
 
 
 void freeArr(char*);
-char* srchWord(char*);
+enum WORD_TYPE srchWord(char*);
 int isOpcode(char*);
 int isNumber(char*);
 int isRegistr(char*);
 int isData(char*);
 int isLabel(char*);
-void addDataLable(char* , int);
+void addData(char*);
+void scanData(char*);
 void checkLine(char*);
-void checkWord(char*);
+void checkWord(const char*);
 int checkNumberArr(char* );
-#endif //ASEMBLER_FIRSTSCAN_H
+#endif
 
 
