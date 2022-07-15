@@ -13,5 +13,7 @@
 #define ENTRY_FILE_SUFFIX ".ent"
 #define SPREAD_FILE_SUFFIX ".am"
 #define WORD_SIZE 10
+#define MAX_WORDS_PER_INSTRUCTION 5
+#define ENTRY_LABEL ".entry"
 
 #endif

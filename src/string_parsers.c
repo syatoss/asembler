@@ -54,7 +54,6 @@ char* cp_string(char* str) {
     char* str_cp;
     str_cp = str ? (char*)malloc(sizeof(char*) * (strlen(str) + 1))
                  : (char*)malloc(sizeof(char));
-    if (!str_cp) SYS_MEM_FAIL_EXIT(1);
     str ? strcpy(str_cp, str) : strcpy(str_cp, "");
     return str_cp;
 }
@@ -117,6 +116,13 @@ char* rtrim(char* s) {
     back++;
     *(back) = '\0';
     return s;
+}
+
+void printStrArr(StrArr* arr) {
+    int i;
+    for (i = 0; i < arr->length; i++) {
+        printf("arr[%d]: %s\n", i, arr->strings[i]);
+    }
 }
 
 char* trim(char* s) { return rtrim(ltrim(s)); }

@@ -9,9 +9,16 @@
 #include "../headers/constants.h"
 #include "../headers/label.h"
 #include "../headers/macro_regiester.h"
+#include "../headers/secondScan.h"
 #include "../headers/string_parsers.h"
 
 AsmDescriptor* ds;
+
+void runSecondScan(char* full_file_name) {
+    full_file_name = cat_strings(NULL, full_file_name, ASM_FILE_SUFFIX, NULL);
+    ds = new_asm_descriptor(full_file_name);
+    secondScan();
+}
 
 void for_each_cmd_param(char* cmd_param[], const int parm_count,
                         void callback(char*)) {
@@ -35,9 +42,6 @@ void run_pre_proc(char* asm_file_name) {
 }
 
 int main(int argc, char* argv[]) {
-    /* for_each_cmd_param(argv, argc, run_pre_proc); */
-    char* c = cat_strings("", "hello", " world ", "bitches", NULL);
-    printf("%s\n", c);
-    free(c);
+    for_each_cmd_param(argv, argc, runSecondScan);
     return 0;
 }
