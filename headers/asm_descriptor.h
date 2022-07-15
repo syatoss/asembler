@@ -23,7 +23,8 @@ typedef struct {
  * to run */
 AsmDescriptor* new_asm_descriptor(char*);
 /* reads the next line from the file in the AsmDescriptor and assignes it to the
- * line field in the variable, trurn true/false for sucsses or failure */
+ * line field in the variable, trurn true/false rather read was sucssefull false
+ * means file is done */
 int get_next_line(AsmDescriptor*);
 /* frees all allocated memmory for the AsmDescriptor */
 void free_asm_descriptor(AsmDescriptor*);
