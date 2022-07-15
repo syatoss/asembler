@@ -54,7 +54,6 @@ char* cp_string(char* str) {
     char* str_cp;
     str_cp = str ? (char*)malloc(sizeof(char*) * (strlen(str) + 1))
                  : (char*)malloc(sizeof(char));
-    if (!str_cp) SYS_MEM_FAIL_EXIT(1);
     str ? strcpy(str_cp, str) : strcpy(str_cp, "");
     return str_cp;
 }
