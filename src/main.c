@@ -65,5 +65,7 @@ int main(int argc, char* argv[]) {
     setARE(twelve, R);
     addTranslation(twelve, trans);
     printTranslation(trans);
+    printf("binary:%s\ndecimal:%d\n", intToBinary(12),
+           (int)binToDec(intToBinary(12)));
     return 0;
 }
