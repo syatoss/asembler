@@ -23,5 +23,6 @@ char* cat_string(char* target, char* str_to_append);
 target's newly alocated memmory takes NULL as a flag indicating last
   string  */
 char* cat_strings(char* target, ...);
+void printStrArr(StrArr* arr);
 
 #endif

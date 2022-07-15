@@ -9,9 +9,16 @@
 #include "../headers/constants.h"
 #include "../headers/label.h"
 #include "../headers/macro_regiester.h"
+#include "../headers/secondScan.h"
 #include "../headers/string_parsers.h"
 
 AsmDescriptor* ds;
+
+void runSecondScan(char* full_file_name) {
+    full_file_name = cat_strings(NULL, full_file_name, ASM_FILE_SUFFIX, NULL);
+    ds = new_asm_descriptor(full_file_name);
+    secondScan();
+}
 
 void for_each_cmd_param(char* cmd_param[], const int parm_count,
                         void callback(char*)) {
@@ -35,37 +42,6 @@ void run_pre_proc(char* asm_file_name) {
 }
 
 int main(int argc, char* argv[]) {
-    char* twelve;
-    Translation* trans = newTranslation();
-    addTranslation(aToBin('a'), trans);
-    addTranslation(NULL, trans);
-    twelve = intToBinary(12);
-    addTranslation(twelve, trans);
-    shiftLeft(twelve, 6);
-    addTranslation(twelve, trans);
-    twelve = intToBinary(12);
-    shiftLeft(twelve, 7);
-    addTranslation(twelve, trans);
-    twelve = intToBinary(-12);
-    addTranslation(twelve, trans);
-    printf(
-        "expected:"
-        "\n[0]:0001100001\n[1]:NULL\n[2]:0000001100\n[3]:1100000000\n[4]:"
-        "1000000000\n[5]:1111110100\n");
-    printf("actual value:\n");
-    printTranslation(trans);
-    printf("---------------\n");
-    updateTranslationAtIndex(trans, 1, aToBin('b'));
-    updateTranslationAtIndex(trans, 2, NULL);
-    setARE(trans->binary[3], A);
-    twelve = cp_string(trans->binary[3]);
-    updateTranslationAtIndex(trans, 3, twelve);
-    twelve = intToBinary(3);
-    shiftLeft(twelve, 2);
-    setARE(twelve, R);
-    addTranslation(twelve, trans);
-    printTranslation(trans);
-    printf("binary:%s\ndecimal:%d\n", intToBinary(12),
-           (int)binToDec(intToBinary(12)));
+    for_each_cmd_param(argv, argc, runSecondScan);
     return 0;
 }

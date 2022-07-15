@@ -118,6 +118,13 @@ char* rtrim(char* s) {
     return s;
 }
 
+void printStrArr(StrArr* arr) {
+    int i;
+    for (i = 0; i < arr->length; i++) {
+        printf("arr[%d]: %s\n", i, arr->strings[i]);
+    }
+}
+
 char* trim(char* s) { return rtrim(ltrim(s)); }
 
 char* substring(char* target, const char* source, int start, int n) {

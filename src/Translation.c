@@ -148,7 +148,7 @@ char* binaryToBase32(char* binary) {
     return cat_strings(base32String, ms32b, ls32b, NULL);
 }
 
-void addTranslation(char* bin, Translation* trans) {
+void addTranslation(char* bin, char* label, Translation* trans) {
     trans->binary = (char**)realloc(trans->binary,
                                     (sizeof(char*) * (trans->lineCount + 1)));
     trans->base32 = (char**)realloc(trans->base32,
@@ -156,29 +156,42 @@ void addTranslation(char* bin, Translation* trans) {
     if (bin == NULL) {
         (trans->base32)[trans->lineCount] = NULL;
         (trans->binary)[trans->lineCount] = NULL;
+        if (trans->lineCount < MAX_WORDS_PER_INSTRUCTION)
+            trans->nulls[trans->lineCount] = cp_string(label);
     } else {
         (trans->binary)[trans->lineCount] = cp_string(bin);
         (trans->base32)[trans->lineCount] = binaryToBase32(bin);
+        if (trans->lineCount < MAX_WORDS_PER_INSTRUCTION)
+            trans->nulls[trans->lineCount] = NULL;
     }
     trans->lineCount++;
 }
 
-void updateTranslationAtIndex(Translation* trans, int index, char* bin) {
+void updateTranslationAtIndex(Translation* trans, int index, char* bin,
+                              char* label) {
     if (index >= trans->lineCount) return;
     if (trans->binary[index] != NULL) free(trans->binary[index]);
     if (trans->base32[index] != NULL) free(trans->base32[index]);
     trans->binary[index] = NULL;
     trans->base32[index] = NULL;
+    if (label == NULL)
+        trans->nulls[index] = NULL;
+    else
+        trans->nulls[index] = cp_string(label);
     if (bin == NULL) return;
     trans->binary[index] = cp_string(bin);
     trans->base32[index] = binaryToBase32(bin);
 }
 
 Translation* newTranslation() {
+    int i;
     Translation* trans = (Translation*)malloc(sizeof(Translation));
     trans->binary = NULL;
     trans->base32 = NULL;
     trans->lineCount = 0;
+    for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
+        trans->nulls[i] = NULL;
+    }
     return trans;
 }
 
@@ -186,8 +199,11 @@ void freeTranslation(Translation* trans) {
     int i;
     if (!trans) return;
     for (i = 0; i < trans->lineCount; i++) {
-        free((trans->base32)[i]);
-        free((trans->binary)[i]);
+        if (trans->base32[i] != NULL) free((trans->base32)[i]);
+        if (trans->binary[i] != NULL) free((trans->binary)[i]);
+    }
+    for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
+        if (trans->nulls[i] != NULL) free(trans->nulls[i]);
     }
     free(trans->base32);
     free(trans->binary);
