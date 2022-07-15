@@ -44,4 +44,7 @@ test-macro-name: default
 test-macro-spread: default
 	$(EXE) $(TESTDIR)/macros/macro_spread
 
+test-file-read: default
+	$(EXE) $(TESTDIR)/secondScan/lineRead
+
 
