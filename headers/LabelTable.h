@@ -15,6 +15,8 @@ typedef struct {
 
 typedef struct {
     int entries;
+    int hasEntryLabels;
+    int hasExternalLabels;
     LabelList* rows;
 } LabelTable;
 

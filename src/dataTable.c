@@ -54,6 +54,7 @@ AsmTranslationTable* newAsmTranslationTable() {
         (AsmTranslationTable*)malloc(sizeof(AsmTranslationTable));
     table->rows = newAsmRowList();
     table->entries = 0;
+    table->translationCounter = 0;
     return table;
 }
 
@@ -89,6 +90,14 @@ AsmRowNode* getAsmRowNodeByStartLine(AsmRowList* list, int startLine) {
     return NULL;
 }
 
+void forEachRow(AsmTranslationTable* tb, void callback(AsmRow*)) {
+    AsmRowNode* currentNode = tb->rows->head;
+    while (currentNode != NULL) {
+        callback(currentNode->data);
+        currentNode = currentNode->next;
+    }
+}
+
 AsmRow* getAsmRowByStartLine(AsmTranslationTable* table, int startLine) {
     AsmRowNode* node = getAsmRowNodeByStartLine(table->rows, startLine);
     return node ? node->data : NULL;
@@ -105,9 +114,10 @@ void addAsmRowToListTail(AsmRow* data, AsmTranslationTable* table) {
     addAsmRowNodeToListTail(newAsmRowNode(data), table->rows);
 }
 
-void addAsmRowToTable(AsmRow* lable, AsmTranslationTable* table) {
-    addAsmRowToListTail(lable, table);
+void addAsmRowToTable(AsmRow* row, AsmTranslationTable* table) {
+    addAsmRowToListTail(row, table);
     table->entries++;
+    table->translationCounter += row->lineCount;
 }
 
 void printAsmRowNode(AsmRowNode* node) {

@@ -148,6 +148,15 @@ char* binaryToBase32(char* binary) {
     return cat_strings(base32String, ms32b, ls32b, NULL);
 }
 
+char* intToBase32(int num) {
+    char* binInt;
+    char* base32Int;
+    binInt = intToBinary(num);
+    base32Int = binaryToBase32(binInt);
+    free(binInt);
+    return base32Int;
+}
+
 void addTranslation(char* bin, char* label, Translation* trans) {
     trans->binary = (char**)realloc(trans->binary,
                                     (sizeof(char*) * (trans->lineCount + 1)));

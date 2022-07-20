@@ -28,5 +28,6 @@ void printTranslation(Translation* trans);
 void updateTranslationAtIndex(Translation* trans, int index, char* bin,
                               char* label);
 void setARE(char* bin, enum ARE are);
+char* intToBase32(int num);
 
 #endif
