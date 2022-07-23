@@ -22,7 +22,7 @@ typedef struct {
 } AsmRowList;
 
 typedef struct {
-    int entries;
+    int entries; /* row count */
     AsmRowList* rows;
     int translationCounter; /*ic or dc depending on context*/
 } AsmTranslationTable;
@@ -52,5 +52,7 @@ void printAsmRowNode(AsmRowNode* node);
 void printAsmRowList(AsmRowList* list);
 /* print the asm table for debuggin reasons */
 void printAsmTranslationTable(AsmTranslationTable* table);
+/* an interface for loopin the table rows */
+void forEachRow(AsmTranslationTable* tb, void callback(AsmRow*));
 
 #endif

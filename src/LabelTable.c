@@ -27,6 +27,8 @@ LabelTable* newLabelTable() {
     LabelTable* table = (LabelTable*)malloc(sizeof(LabelTable));
     table->rows = newLabelList();
     table->entries = 0;
+    table->hasEntryLabels = false;
+    table->hasExternalLabels = false;
     return table;
 }
 
@@ -85,6 +87,9 @@ void addLabelToListTail(Label* label, LabelTable* table) {
 void addLabelToTable(Label* lable, LabelTable* table) {
     addLabelToListTail(lable, table);
     table->entries++;
+    table->hasEntryLabels = table->hasEntryLabels || lable->status == INTERNAL;
+    table->hasExternalLabels =
+        table->hasExternalLabels || lable->status == EXTERNAL;
 }
 
 void printLabelNode(LabelNode* node) {

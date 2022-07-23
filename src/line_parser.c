@@ -10,3 +10,4 @@ int is_comment_line(char* line) {
     trimmed_line = trim(line);
     return strlen(trimmed_line) > 0 && trimmed_line[0] == COMMENT_LINE_TOKEN;
 }
+
