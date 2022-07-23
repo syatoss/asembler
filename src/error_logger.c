@@ -16,6 +16,7 @@ ErrorLogger* new_error_logger(FILE* print_target) {
     return el;
 }
 
+
 void log_error(ErrorLogger* logger, char* error) {
     add_str(logger->errors, error);
     logger->has_errors = true;
