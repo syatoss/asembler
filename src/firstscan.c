@@ -49,7 +49,6 @@ int firstscan () {
     if(opcodeNumber!=-1) newAsmRow(countWord,ic, trans, !emptyArr(label),label);
     addAsmRowToTable(row,table);
 
-
 }
 
 void checkLine(char *line) {
