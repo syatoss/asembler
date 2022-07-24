@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define addword()                                                              \
+#define addword                                                                \
   word[j] = '\0';                                                              \
   j = 0;                                                                       \
   countWord++;                                                                 \
@@ -42,4 +42,18 @@ void checkLine(char *);
 void checkWord(char *);
 int checkNumberArr(char *);
 int emptyArr(const char *arr);
+int checkDestinationOperand(int opcode, int type);
+void addPointOperand();
+int checkSourceOperand(int opcode, int type);
+void setDestinationOperand(char *bin, int);
+void setSourceOperand(char *bin, int n);
+int correctLabel(char *word);
+void addOperand(char *);
+int addString(const char *);
+void checkLine(char *);
+void checkWord(char *);
+int checkNumberArr(char *);
+int emptyArr(const char *arr);
+int checkHowOperand(const int);
+void checkOpcode(char *);
 #endif

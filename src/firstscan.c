@@ -13,29 +13,34 @@ char *opcodeTable[NUMOFOPCODE] = {"mov", "cmp", "add", "sub", "not", "clr",
 char *regTable[NUMOFREG] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
 char *dataCode[NUMOFDATACODE] = {".data", ".struct", ".string", ".entry",
                                  ".extern"};
-char *opcodeTwoOperand[5] = {"mov", "cmp", "add", "sub", "lea"};
-char *opcodeOneOperand[9] = {"not", "clr", "inc", "dec", "jmp",
-                             "bne", "get", "prn", "jsr"};
-enum WORD_TYPE wordType;
 
-char label[MAXLABELNAME] = {'\0'};
-char prevWord[N] = {'\0'};
+char label[MAXLABELNAME] = {0};
+char prevWord[N] = {};
 int dataCodeNumber = -1;
 int opcodeNumber = -1;
-char op1[MAXLABELNAME] = {'\0'};
-char op2[MAXLABELNAME] = {'\0'};
+char op1[MAXLABELNAME] = {};
+char op2[MAXLABELNAME] = {};
 int countWord = 0;
 
 void firstscan() {
-  char line[N] = {'\0'};
+  char line[N] = {};
+  Translation *trans = newTranslation();
+  AsmRow *row;
   while (get_next_line(ds)) {
-    strcpy(line, trim(ds->line));
+    strcpy(line, ds->line);
     checkLine(line);
   }
+  //    if(opcodeNumber!=-1) checkOpcode(trans->binary[0]);
+  if (!correctLabel(label))
+    printf("The label name is incorrect");
+  if (dataCodeNumber != -1) newAsmRow(countWord,dc,trans, !emptyArr(label)),label);
+  if (opcodeNumber != -1)
+    newAsmRow(countWord, ic, trans, !emptyArr(label), label);
+  addAsmRowToTable(row, table);
 }
 
 void checkLine(char *line) {
-  char word[N] = {'\0'};
+  char word[N] = {};
   char prevChar;
   int i = 0, j = 0;
   while (line[i] != '\0') {
@@ -44,7 +49,7 @@ void checkLine(char *line) {
     }
     if (isspace(line[i])) {
       if (dataCodeNumber == -1 && opcodeNumber == -1 && !emptyArr(word)) {
-        addword();
+        addword
       }
       prevChar = line[i];
       i++;
@@ -75,7 +80,7 @@ void checkLine(char *line) {
       }
       if (line[i] == '.') {
         if (!emptyArr(word)) {
-          addword();
+          addword
         }
         if (emptyArr(word)) {
           word[j] = line[i];
@@ -89,8 +94,7 @@ void checkLine(char *line) {
       }
       if (line[i] == ',') {
         if ((!isspace(prevChar) || !emptyArr(word)) && prevChar != ',') {
-          addword();
-          prevChar = line[i];
+          addword prevChar = line[i];
         } else
           printf("\nError ',' ");
         i++;
@@ -109,7 +113,7 @@ void checkLine(char *line) {
     }
   }
   if (!emptyArr(word)) {
-    addword();
+    addword
   }
   if (prevChar == ',')
     printf("\nError ','");
@@ -119,10 +123,21 @@ void checkLine(char *line) {
 
 int emptyArr(const char *arr) {
   if (arr[0] == '\0')
-    return 1;
-  return 0;
+    return true;
+  return false;
 }
-
+// void checkOpcode(char* bin, Translation* trans)
+//{
+//
+//     if(checkSourceOperand(opcodeNumber, type1)) {
+//         setSourceOperand(trans->binary[0], type1 );
+//     }
+//     if(checkDestinationOperand(opcodeNumber,))
+//
+//
+//
+//
+// }
 void freeArr(char *line) {
   int i;
   for (i = 0; i < N; i++) {
@@ -170,7 +185,7 @@ int isData(char *arr) {
 }
 
 int isNumber(char *arr) {
-  char buf[30] = {'\0'};
+  char buf[30] = {};
   strcpy(buf, arr);
   if (arr[0] == '.' || arr[0] == '#') {
     strcpy(buf, arr + 1);
@@ -179,7 +194,28 @@ int isNumber(char *arr) {
     return true;
   return false;
 }
-
+void addPointOperand() {
+  char buf[MAXLABELNAME] = {};
+  if (!emptyArr(op2)) {
+    strcpy(buf, op2);
+    strcpy(op2, ".\0");
+    strcat(op2, buf);
+  } else {
+    strcpy(buf, op1);
+    strcpy(op1, ".\0");
+    strcat(op1, buf);
+  }
+  return;
+}
+int checkTypeOperand(char *operand) {
+  if (isRegistr(operand))
+    return 3;
+  if (operand[0] == '.')
+    return 2;
+  if (operand[0] == '#')
+    return 0;
+  return 1;
+}
 int checkNumberArr(char *arr) {
   int i = 0;
   if (arr[i] == '-' || arr[i] == '+') {
@@ -204,26 +240,39 @@ int addString(char *str) {
     return -1;
   while (str[i] != '\0') {
     i++;
-
     if (str[i] == '\"') {
-      printf("\nadd char to DC code %s   ", aToBin('\0'));
+      addTranslation(aToBin('\0'), NULL, trans);
       return i - 2;
     }
-    printf("\nadd char to DC code %s   ", aToBin(str[i]));
+    addTranslation(aToBin(str[i]), NULL, trans);
   }
   return i - 2;
 }
 
 void addOperand(char *word) {
-  if (emptyArr(op1)) {
-    strcpy(op1, word);
+  if (emptyArr(op1) && checkHowOperand(opcodeNumber) >= 1) {
+    if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 1)
+      strcpy(op2, word);
+    else
+      strcpy(op1, word);
 
   } else {
-    if (emptyArr(op2)) {
+    if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) {
       strcpy(op2, word);
     } else
       printf(" \nOperand error");
   }
+}
+
+int checkHowOperand(const int opcode) {
+
+  if ((opcode >= 0 && opcode <= 3) || opcode == 6)
+    return 2;
+  if (opcode >= 4 && opcode <= 13)
+    return 1;
+  if (opcode >= 14 && opcode <= 15)
+    return 0;
+  return 2;
 }
 
 int correctChar(char ch) {
@@ -233,7 +282,85 @@ int correctChar(char ch) {
     return false;
   return true;
 }
-
+int correctLabel(char *word) {
+  if ((isOpcode(word) == -1) && (isRegistr(word) == -1) &&
+      (isData(word) == -1) && (strcmp(word, "psw") != 0))
+    return true;
+  return false;
+}
+int checkDestinationOperand(int opcode, int type) {
+  if (checkHowOperand(opcode) >= 1 && type >= 1)
+    return true;
+  if ((opcode == isOpcode("cmp\0") || opcode == isOpcode("prn\0")) && type == 0)
+    return true;
+  return false;
+}
+int checkSourceOperand(int opcode, int type) {
+  if ((checkHowOperand(opcode) == 2) && (opcode != isOpcode("lea\0")))
+    return true;
+  if ((opcode == isOpcode("lea\0")) && (type == 1 || type == 2))
+    return true;
+  return false;
+}
+void setDestinationOperand(char *bin, int n) {
+  if (n == 0) {
+    bin[4] = '0';
+    bin[5] = '0';
+    return;
+  }
+  if (n == 1) {
+    bin[4] = '0';
+    bin[5] = '1';
+    return;
+  }
+  if (n == 2) {
+    bin[4] = '1';
+    bin[5] = '0';
+    return;
+  }
+  if (n == 3) {
+    bin[4] = '1';
+    bin[5] = '1';
+    return;
+  }
+  printf("Operand destination error");
+  return;
+}
+void setSecondRegistr(char *bin, char *reg) {
+  char *buf;
+  int i;
+  if (emptyArr(reg))
+    return;
+  strcpy(buf, intToBinary(isRegistr(reg)));
+  for (i = 1; i < 4; i++) {
+    bin[WORD_SIZE - (i + 2)] = buf[WORD_SIZE - i];
+  }
+  return;
+}
+void setSourceOperand(char *bin, int n) {
+  if (n == 0) {
+    bin[6] = '0';
+    bin[7] = '0';
+    return;
+  }
+  if (n == 1) {
+    bin[6] = '0';
+    bin[7] = '1';
+    return;
+  }
+  if (n == 2) {
+    bin[6] = '1';
+    bin[7] = '0';
+    return;
+  }
+  if (n == 3) {
+    bin[6] = '1';
+    bin[7] = '1';
+    return;
+  }
+  printf("Operand source error");
+  return;
+}
 void checkWord(char *word) {
   enum WORD_TYPE wordType;
   char *bin[WORD_SIZE];
@@ -241,22 +368,26 @@ void checkWord(char *word) {
   switch (wordType) {
 
   case ISDATA:
+
     dataCodeNumber = isData(word);
+
     break;
 
   case ISNUMBER:
+
     if (word[0] == '.' || word[0] == '#') {
       if (isNumber(prevWord)) {
         printf("\nError number: just natural numbers");
         break;
       }
-      if (word[0] == '#') {
+      if (word[0] == '#')
         addOperand(word);
-      } else {
-        strcpy(*bin, intToBinary(atoi(word + 1)));
-        shiftLeft(*bin, 2);
-        printf("\nadd num  to IC code  %s", *bin);
-      }
+      if (word[0] == '.')
+        addPointOperand();
+      strcpy(*bin, intToBinary(atoi(word + 1)));
+      shiftLeft(*bin, 2);
+      addTranslation(*bin, NULL, trans);
+
     } else {
       if (dataCodeNumber == 0 || dataCodeNumber == 1) {
         strcpy(*bin, intToBinary(atoi(word)));
@@ -266,48 +397,82 @@ void checkWord(char *word) {
           } else
             printf("\nError struct");
         }
-        printf("\nadd num  to DC code %s   ", *bin);
+
+        addTranslation(*bin, NULL, trans);
       } else
         printf("\nError code");
     }
+
     break;
 
   case ISOPCODE:
+
     if (opcodeNumber == -1) {
       opcodeNumber = isOpcode(word);
-      printf("\nThe word is opcode %s %d ", word, opcodeNumber);
+      strcpy(*bin, intToBinary(opcodeNumber));
+      shiftLeft(*bin, 6);
+      addTranslation(*bin, NULL, trans);
     } else
-      printf("\nopcode error");
+      printf("\nOpcode error");
     break;
 
   case ISREGISTR:
+
     addOperand(word);
     if (!emptyArr(op1) && emptyArr(op2)) {
-      printf("\nadd registr number to 1-4 bit in binary code");
+      strcpy(*bin, intToBinary(isRegistr(word)));
+      shiftLeft(*bin, 6);
+      addTranslation(*bin, NULL, trans);
     }
     if (!emptyArr(op1) && !emptyArr(op2)) {
-      if (isRegistr(op1) != -1)
-        printf("\nadd registr number to 5-8 bit in prev binary code");
-      else
-        printf("\nadd registr number to 5-8 bit in new binary code");
+      if (isRegistr(op1) != -1) {
+        setSecondRegistr(trans->binary[countWord - 1], word);
+      } else {
+        strcpy(*bin, intToBinary(isRegistr(word)));
+        shiftLeft(*bin, 2);
+        addTranslation(*bin, NULL, trans);
+      }
     }
     break;
 
   case UNKNOWN:
+
     addOperand(word);
-    int i = 0;
+    int i;
     if ((dataCodeNumber == 1 && !emptyArr(op2)) ||
         (dataCodeNumber == 2 && !emptyArr(op1))) {
       if (dataCodeNumber == 1)
         i = addString(op2);
-      if (dataCodeNumber == 2)
-        i = addString(op1);
+      else
+        (dataCodeNumber == 2) i = addString(op1);
       if (i == -1)
         printf("\nError string");
       else
         countWord += i;
     } else
-      printf(" \nadd word to IC code  Null");
+      addTranslation("NULL", label, trans);
     break;
   }
 }
+
+// void addDataLable(char* arr, int numOfData)
+//{
+//     switch (numOfData) {
+//         case 0: addLabelToTable(newLabel(arr,ds, NONE, DATA), labelTable);
+//             break;
+//         case 1: addLabelToTable(newLabel(arr, ds, NONE, DATA), labelTable);
+//             break;
+//         case 2: addLabelToTable(newLabel(arr, ds, INTERNAL, DATA),
+//         labelTable);
+//             break;
+//         case 3: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION),
+//         labelTable);
+//             break;
+//         case 4: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION),
+//         labelTable);
+//             break;
+//         default: printf("Error addDataLable");
+//
+//     }
+// }
+
