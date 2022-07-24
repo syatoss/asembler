@@ -41,15 +41,10 @@ void run_pre_proc(char *asm_file_name) {
   free(full_file_name);
   free_asm_descriptor(ds);
 }
+
+void assembler(char *cmd_param) {}
+
 int main(int argc, char *argv[]) {
-  /* for_each_cmd_param(argv, argc, runSecondScan); */
-  char *fivec = intToBinary(5);
-  char *minFivec = intToBinary(-5);
-  printf("5 0000000101: %s\n", fivec);
-  printf("-5 1111111011: %s\n", minFivec);
-  shiftLeft(fivec, 2);
-  shiftLeft(minFivec, 2);
-  printf("5 shifted 0000010100: %s\n", fivec);
-  printf("-5 shifted 1111101100: %s\n", minFivec);
+  for_each_cmd_param(argv, argc, runSecondScan);
   return 0;
 }
