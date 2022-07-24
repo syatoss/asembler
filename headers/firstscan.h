@@ -23,15 +23,19 @@ int isNumber( char*);
 int isRegistr( char*);
 int isData( char*);
 int correctChar(char);
-int isLabel( char*);
-void addDataLable(char*, int);
-void scanData(char*);
+int checkDestinationOperand(int opcode, int type);
+int checkSourceOperand(int opcode, int type);
+void setDestinationOperand(char* bin, int );
+void setSourceOperand(char* bin, int n);
+int correctLabel(char* word);
 void addOperand(char*);
-int addString(char* );
+int addString(const char* );
 void checkLine(char*);
 void checkWord( char*);
 int checkNumberArr(char* );
 int emptyArr(const char* arr);
+int checkHowOperand(const int);
+void checkOpcode(char*);
 #endif
 
 
