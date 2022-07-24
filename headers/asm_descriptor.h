@@ -19,7 +19,7 @@ typedef struct {
     AsmTranslationTable* data_tb;
 } AsmDescriptor;
 
-/* creates a new strunt that holds all the information needed for the assembler
+/* creates a new struct that holds all the information needed for the assembler
  * to run */
 AsmDescriptor* new_asm_descriptor(char*);
 /* reads the next line from the file in the AsmDescriptor and assignes it to the
