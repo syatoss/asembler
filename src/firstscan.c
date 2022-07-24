@@ -43,6 +43,7 @@ int firstscan () {
         strcpy(line, ds->line);
         checkLine(line);
     }
+//    if(opcodeNumber!=-1) checkOpcode(trans->binary[0]);
     if(!correctLabel(label)) printf("The label name is incorrect");
     if(dataCodeNumber!=-1) newAsmRow(countWord,dc,trans, !emptyArr(label)),label);
     if(opcodeNumber!=-1) newAsmRow(countWord,ic, trans, !emptyArr(label),label);
@@ -131,11 +132,18 @@ int emptyArr(const char *arr) {
     if (arr[0] == '\0') return true;
     return false;
 }
-void checkOpcode(char* bin)
-{
-
-
-}
+//void checkOpcode(char* bin, Translation* trans)
+//{
+//
+//    if(checkSourceOperand(opcodeNumber, type1)) {
+//        setSourceOperand(trans->binary[0], type1 );
+//    }
+//    if(checkDestinationOperand(opcodeNumber,))
+//
+//
+//
+//
+//}
 void freeArr(char *line) {
     int i;
     for (i = 0; i < N; i++) {
@@ -185,7 +193,27 @@ int isNumber(char *arr) {
     if (checkNumberArr(buf)) return true;
     return false;
 }
-
+void addPointOperand()
+{
+    char buf[MAXLABELNAME]={};
+    if(!emptyArr(op2)) {
+        strcpy(buf, op2);
+        strcpy(op2, ".\0");
+        strcat(op2,buf);
+    } else {
+        strcpy(buf, op1);
+        strcpy(op1, ".\0");
+        strcat(op1, buf);
+    }
+    return;
+}
+int checkTypeOperand(char* operand)
+{
+    if(isRegistr(operand)) return 3;
+    if(operand[0]=='.') return 2;
+    if(operand[0]=='#') return 0;
+    return 1;
+}
 int checkNumberArr(char *arr) {
     int i = 0;
     if (arr[i] == '-' || arr[i] == '+') {
@@ -315,6 +343,7 @@ void checkWord(char *word) {
                     break;
                 }
                 if (word[0] == '#') addOperand(word);
+                if(word[0] == '.') addPointOperand();
                 strcpy(*bin, intToBinary(atoi(word + 1)));
                 shiftLeft(*bin, 2);
                 addTranslation(*bin, NULL, trans);

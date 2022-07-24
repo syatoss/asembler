@@ -24,6 +24,7 @@ int isRegistr( char*);
 int isData( char*);
 int correctChar(char);
 int checkDestinationOperand(int opcode, int type);
+void addPointOperand();
 int checkSourceOperand(int opcode, int type);
 void setDestinationOperand(char* bin, int );
 void setSourceOperand(char* bin, int n);
