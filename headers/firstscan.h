@@ -13,15 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdlib.h>
-#include "./label.h"
-#include "./main.h"
-#include "./LabelTabel.h"
-#include "./asm_descriptor.h"
-#include "./DataTable.h"
-#include "./Translation.h"
-#include "./constants.h"
-extern ds;
+extern AsmDescriptor *ds;
 
 #define addword                                                                \
   word[j] = '\0';                                                              \
@@ -65,4 +57,5 @@ int checkNumberArr(char *);
 int emptyArr(const char *arr);
 int checkHowOperand(const int);
 void checkOpcode(char *);
+int checkTypeOperand(char *operand);
 #endif
