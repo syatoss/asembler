@@ -218,5 +218,9 @@ void writeAsmOutput(AsmDescriptor *ds) {
 void secondScan() {
   completeEntryLabelsFromSrcCode(ds);
   completeInstructionTranslation(ds);
+  if (ds->err_log->has_errors) {
+    print_all_logger_errors(ds->err_log);
+    return;
+  }
   writeAsmOutput(ds);
 }
