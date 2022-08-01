@@ -49,7 +49,7 @@ void setDestinationOperand(char *bin, int);
 void setSourceOperand(char *bin, int n);
 int correctLabel(char *word);
 void addOperand(char *);
-int addString(const char *);
+int addString(char *);
 void checkLine(char *);
 void checkWord(char *);
 int checkNumberArr(char *);

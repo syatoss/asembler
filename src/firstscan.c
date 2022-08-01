@@ -16,27 +16,43 @@ char *dataCode[NUMOFDATACODE] = {".data", ".struct", ".string", ".entry",
 
 char label[MAXLABELNAME] = {0};
 char prevWord[N] = {};
-int dataCodeNumber = -1;
+int dataCodeNumber =
+    -1; /*0 - .data, 1 - .struct, 2 - .string, 3 - .entry, 4 - .extern*/
 int opcodeNumber = -1;
 char op1[MAXLABELNAME] = {};
 char op2[MAXLABELNAME] = {};
 int countWord = 0;
+Translation *trans;
 
 void firstscan() {
   char line[N] = {};
-  Translation *trans = newTranslation();
   AsmRow *row;
+  char *err;
+  AsmTranslationTable *table;
   while (get_next_line(ds)) {
+    trans = newTranslation();
     strcpy(line, ds->line);
     checkLine(line);
+    //    if(opcodeNumber!=-1) checkOpcode(trans->binary[0]);
+    if (!correctLabel(label)) {
+      err = cat_strings(NULL, "Error in file ", ds->file_name,
+                        " invalid name for label: ", label, NULL);
+      log_error(ds->err_log, err);
+      freeTranslation(trans);
+      free(err);
+      continue;
+    }
+    if (dataCodeNumber != -1) { // checks if data instruction
+      table = ds->data_tb;
+      row = newAsmRow(countWord, table->translationCounter, trans,
+                      !emptyArr(label), label);
+    } else {
+      table = ds->instructions_tb;
+      row = newAsmRow(countWord, table->translationCounter, trans,
+                      !emptyArr(label), label);
+    }
+    addAsmRowToTable(row, table);
   }
-  //    if(opcodeNumber!=-1) checkOpcode(trans->binary[0]);
-  if (!correctLabel(label))
-    printf("The label name is incorrect");
-  if (dataCodeNumber != -1) newAsmRow(countWord,dc,trans, !emptyArr(label)),label);
-  if (opcodeNumber != -1)
-    newAsmRow(countWord, ic, trans, !emptyArr(label), label);
-  addAsmRowToTable(row, table);
 }
 
 void checkLine(char *line) {
@@ -233,20 +249,22 @@ int checkNumberArr(char *arr) {
   }
   return true;
 }
-
+/* returns the length of the string, not including the "", -1 for invalid string
+ */
 int addString(char *str) {
-  int i = 0;
-  if (str[i] != '\"')
+  int current = 0;
+  int last = strlen(str) - 1;
+  if (str[current++] == '\"' || str[last] == '\"')
     return -1;
-  while (str[i] != '\0') {
-    i++;
-    if (str[i] == '\"') {
-      addTranslation(aToBin('\0'), NULL, trans);
-      return i - 2;
-    }
-    addTranslation(aToBin(str[i]), NULL, trans);
+  str[last] = '\0';
+  while (str[current] != '\0') {
+    if (str[current] == '\"')
+      return -1;
+    addTranslation(aToBin(str[current]), NULL, trans);
+    current++;
   }
-  return i - 2;
+  addTranslation(aToBin('\0'), NULL, trans);
+  return current - 2;
 }
 
 void addOperand(char *word) {
@@ -361,13 +379,18 @@ void setSourceOperand(char *bin, int n) {
   printf("Operand source error");
   return;
 }
+
 void checkWord(char *word) {
   enum WORD_TYPE wordType;
   char *bin[WORD_SIZE];
+  char *err;
+  int binTransLen;
+  int INVALID = -1;
+  int isReadingString;
   wordType = srchWord(word);
   switch (wordType) {
 
-  case ISDATA:
+  case ISDATA: /*.data/.string/.struct/.entry/.extren*/
 
     dataCodeNumber = isData(word);
 
@@ -435,22 +458,32 @@ void checkWord(char *word) {
     }
     break;
 
-  case UNKNOWN:
+    /* Stas: .extern/.entry */
+    /* .extern Stas */
+    /*stas: stas stas*/
 
+  case UNKNOWN: /* reading body of .string or .entry or .extern or .struct or
+                 body of operation (label of operation valid or invalid)
+                 */
     addOperand(word);
-    int i;
-    if ((dataCodeNumber == 1 && !emptyArr(op2)) ||
-        (dataCodeNumber == 2 && !emptyArr(op1))) {
-      if (dataCodeNumber == 1)
-        i = addString(op2);
-      else
-        (dataCodeNumber == 2) i = addString(op1);
-      if (i == -1)
-        printf("\nError string");
-      else
-        countWord += i;
-    } else
-      addTranslation("NULL", label, trans);
+    isReadingString = (dataCodeNumber == 1 && !emptyArr(op2)) ||
+                      (dataCodeNumber == 2 && !emptyArr(op1));
+    if (!isReadingString) {
+      addTranslation(NULL, label, trans);
+      break;
+    }
+
+    if (dataCodeNumber == 1)
+      binTransLen = addString(op2);
+    else if (dataCodeNumber == 2)
+      binTransLen = addString(op1);
+    if (binTransLen == INVALID) {
+      err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
+                        ds->line_num, "invalid string definition", NULL);
+      log_error(ds->err_log, err);
+      free(err);
+    }
+    countWord += binTransLen;
     break;
   }
 }
@@ -475,4 +508,3 @@ void checkWord(char *word) {
 //
 //     }
 // }
-
