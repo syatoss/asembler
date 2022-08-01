@@ -37,6 +37,7 @@ int checkNumberArr(char* );
 int emptyArr(const char* arr);
 int checkHowOperand(const int);
 void checkOpcode(char*);
+int checkTypeOperand(char* operand);
 #endif
 
 

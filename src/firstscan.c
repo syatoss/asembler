@@ -131,18 +131,17 @@ int emptyArr(const char *arr) {
     if (arr[0] == '\0') return true;
     return false;
 }
-//void checkOpcode(char* bin, Translation* trans)
-//{
-//
-//    if(checkSourceOperand(opcodeNumber, type1)) {
-//        setSourceOperand(trans->binary[0], type1 );
-//    }
-//    if(checkDestinationOperand(opcodeNumber,))
-//
-//
-//
-//
-//}
+void checkOpcode(char* bin, Translation* trans)
+{
+
+    if(checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
+        setSourceOperand(trans->binary[0], checkTypeOperand(op1) );
+    }
+    if(checkDestinationOperand(opcodeNumber, checkTypeOperand(op2))){
+        setDestinationOperand(trans->binary[0], checkTypeOperand(op2));
+    }
+    return;
+}
 void freeArr(char *line) {
     int i;
     for (i = 0; i < N; i++) {
@@ -408,26 +407,4 @@ void checkWord(char *word) {
     }
 
 }
-
-
-//void addDataLable(char* arr, int numOfData)
-//{
-//    switch (numOfData) {
-//        case 0: addLabelToTable(newLabel(arr,ds, NONE, DATA), labelTable);
-//            break;
-//        case 1: addLabelToTable(newLabel(arr, ds, NONE, DATA), labelTable);
-//            break;
-//        case 2: addLabelToTable(newLabel(arr, ds, INTERNAL, DATA), labelTable);
-//            break;
-//        case 3: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION), labelTable);
-//            break;
-//        case 4: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION), labelTable);
-//            break;
-//        default: printf("Error addDataLable");
-//
-//    }
-//}
-
-
-
 
