@@ -8,47 +8,52 @@
 #define NUMOFREG 8
 #define NUMOFDATACODE 5
 
-#define addword \
-    word[j] = '\0';\
-    j = 0;\
-    countWord++;\
-    checkWord(word);\
-    strcpy(prevWord, word);\
-    freeArr(word);
+char *opcodeTable[NUMOFOPCODE] = {"mov", "cmp", "add", "sub", "not", "clr",
+                                  "lea", "inc", "dec", "jmp", "bne", "get",
+                                  "prn", "jsr", "rts", "hlt"};
+char *regTable[NUMOFREG] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
+char *dataCode[NUMOFDATACODE] = {".data", ".struct", ".string", ".entry",
+                                 ".extern"};
 
+char label[MAXLABELNAME] = {0};
+char prevWord[N] = {0};
+int dataCodeNumber =
+    -1; /*0 - .data, 1 - .struct, 2 - .string, 3 - .entry, 4 - .extern*/
+int opcodeNumber = -1;
+char op1[MAXLABELNAME] = {0};
+char op2[MAXLABELNAME] = {0};
+int countWord = 0;
+Translation *trans;
 
-enum WORD_TYPE { ISDATA, ISOPCODE, ISREGISTR, ISNUMBER, UNKNOWN };
-
-
-char *opcodeTable[NUMOFOPCODE]={"mov\0","cmp\0","add\0","sub\0","not\0","clr\0", "lea\0", "inc\0","dec\0",
-                                "jmp\0", "bne\0", "get\0", "prn\0", "jsr\0", "rts\0", "hlt\0"};
-char *regTable[NUMOFREG]={"r0\0","r1\0","r2\0","r3\0","r4\0","r5\0","r6\0","r7\0"};
-char *dataCode[NUMOFDATACODE]={".data\0",".struct\0",".string\0",".entry\0", ".extern\0"};
-
-
-char label[MAXLABELNAME]={0};
-char prevWord[N]={};
-int dataCodeNumber=-1;
-int opcodeNumber=-1;
-char op1[MAXLABELNAME]={};
-char op2[MAXLABELNAME]={};
-int countWord=0;
-
-int firstscan () {
-    char line[N]={};
-    Translation *trans = newTranslation();
-    AsmRow *row;
-    while(get_next_line(*ds))
-    {
-        strcpy(line, ds->line);
-        checkLine(line);
+void firstscan() {
+  char line[N] = {0};
+  AsmRow *row;
+  char *err;
+  AsmTranslationTable *table;
+  while (get_next_line(ds)) {
+    trans = newTranslation();
+    strcpy(line, ds->line);
+    checkLine(line);
+    /* if(opcodeNumber!=-1) checkOpcode(trans->binary[0]); */
+    if (!correctLabel(label)) {
+      err = cat_strings(NULL, "Error in file ", ds->file_name,
+                        " invalid name for label: ", label, NULL);
+      log_error(ds->err_log, err);
+      freeTranslation(trans);
+      free(err);
+      continue;
     }
-//    if(opcodeNumber!=-1) checkOpcode(trans->binary[0]);
-    if(!correctLabel(label)) printf("The label name is incorrect");
-    if(dataCodeNumber!=-1) newAsmRow(countWord,dc,trans, !emptyArr(label)),label);
-    if(opcodeNumber!=-1) newAsmRow(countWord,ic, trans, !emptyArr(label),label);
-    addAsmRowToTable(row,table);
-
+    if (dataCodeNumber != -1) { /*checks if data instruction*/
+      table = ds->data_tb;
+      row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
+                      !emptyArr(label), label);
+    } else {
+      table = ds->instructions_tb;
+      row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
+                      !emptyArr(label), label);
+    }
+    addAsmRowToTable(row, table);
+  }
 }
 
 void checkLine(char *line) {
@@ -228,19 +233,22 @@ int checkNumberArr(char *arr) {
     }
     return true;
 }
-
-int addString(const char* str) {
-    int i = 0;
-    if (str[i] != '\"') return -1;
-    while (str[i] != '\0') {
-        i++;
-        if (str[i] == '\"') {
-            addTranslation(aToBin('\0'), NULL, trans);
-            return i - 2;
-        }
-        addTranslation(aToBin(str[i]), NULL, trans);
-    }
-    return i - 2;
+/* returns the length of the string, not including the "", -1 for invalid string
+ */
+int addString(char *str) {
+  int current = 0;
+  int last = strlen(str) - 1;
+  if (str[current++] == '\"' || str[last] == '\"')
+    return -1;
+  str[last] = '\0';
+  while (str[current] != '\0') {
+    if (str[current] == '\"')
+      return -1;
+    addTranslation(aToBin(str[current]), NULL, trans);
+    current++;
+  }
+  addTranslation(aToBin('\0'), NULL, trans);
+  return current - 2;
 }
 
 void addOperand(char *word) {
@@ -299,16 +307,21 @@ void setDestinationOperand(char* bin, int n)
     printf("Operand destination error");
     return;
 }
-void setSecondRegistr(char* bin, char* reg)
-{
-    char* buf;
-    int i;
-    if(emptyArr(reg)) return;
-    strcpy(buf, intToBinary(isRegistr(reg)));
-    for(i=1; i<4; i++)
-    {
-        bin[WORD_SIZE-(i+2)]=buf[WORD_SIZE-i];
-    }
+void setSecondRegistr(char *bin, char *reg) {
+  char buf[MAXLABELNAME];
+  int i;
+  if (emptyArr(reg))
+    return;
+  strcpy(buf, intToBinary(isRegistr(reg)));
+  for (i = 1; i < 4; i++) {
+    bin[WORD_SIZE - (i + 2)] = buf[WORD_SIZE - i];
+  }
+  return;
+}
+void setSourceOperand(char *bin, int n) {
+  if (n == 0) {
+    bin[6] = '0';
+    bin[7] = '0';
     return;
 }
 void setSourceOperand(char* bin, int n)
@@ -327,7 +340,7 @@ void checkWord(char *word) {
     wordType = srchWord(word);
     switch (wordType) {
 
-        case ISDATA:
+  case ISDATA: /*.data/.string/.struct/.entry/.extren*/
 
             dataCodeNumber = isData(word);
 
@@ -391,20 +404,55 @@ void checkWord(char *word) {
             }
             break;
 
-        case UNKNOWN:
+    /* Stas: .extern/.entry */
+    /* .extern Stas */
+    /*stas: stas stas*/
 
-            addOperand(word);
-            int i;
-            if ((dataCodeNumber == 1 && !emptyArr(op2)) || (dataCodeNumber == 2 && !emptyArr(op1))) {
-                if (dataCodeNumber == 1) i = addString(op2);
-                else (dataCodeNumber == 2) i = addString(op1);
-                if (i == -1) printf("\nError string");
-                else countWord += i;
-            } else addTranslation("NULL", label, trans);
-            break;
-
-
+  case UNKNOWN: /* reading body of .string or .entry or .extern or .struct or
+                 body of operation (label of operation valid or invalid)
+                 */
+    addOperand(word);
+    isReadingString = (dataCodeNumber == 1 && !emptyArr(op2)) ||
+                      (dataCodeNumber == 2 && !emptyArr(op1));
+    if (!isReadingString) {
+      addTranslation(NULL, label, trans);
+      break;
     }
 
+    if (dataCodeNumber == 1)
+      binTransLen = addString(op2);
+    else if (dataCodeNumber == 2)
+      binTransLen = addString(op1);
+    if (binTransLen == INVALID) {
+      err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
+                        ds->line_num, "invalid string definition", NULL);
+      log_error(ds->err_log, err);
+      free(err);
+    }
+    countWord += binTransLen;
+    break;
+  }
 }
+
+
+//void addDataLable(char* arr, int numOfData)
+//{
+//    switch (numOfData) {
+//        case 0: addLabelToTable(newLabel(arr,ds, NONE, DATA), labelTable);
+//            break;
+//        case 1: addLabelToTable(newLabel(arr, ds, NONE, DATA), labelTable);
+//            break;
+//        case 2: addLabelToTable(newLabel(arr, ds, INTERNAL, DATA), labelTable);
+//            break;
+//        case 3: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION), labelTable);
+//            break;
+//        case 4: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION), labelTable);
+//            break;
+//        default: printf("Error addDataLable");
+//
+//    }
+//}
+
+
+
 

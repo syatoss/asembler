@@ -71,15 +71,22 @@ int translationNeedsCompletion(Translation *trans) {
   return false;
 }
 
-void addMissingLabelAdresses(Translation *trans) {
+void addMissingLabelAdresses(AsmRow *row) {
   int i;
   Label *currentLabel;
+  char *err;
+  Translation *trans = row->translation;
   for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
     if (trans->nulls[i] == NULL)
       continue;
     currentLabel = getLabelByName(ds->lable_tb, trans->nulls[i]);
-    if (!currentLabel)
-      continue;
+    if (!currentLabel) {
+      err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
+                        row->lineNumInAsmFile, " undefined label ",
+                        trans->nulls[i], NULL);
+      log_error(ds->err_log, err);
+      free(err);
+    }
     trans->binary[i] =
         intToBinary(currentLabel->lineOfApearance +
                     ds->instructions_tb->translationCounter + START_ADDRESS);
@@ -89,7 +96,7 @@ void addMissingLabelAdresses(Translation *trans) {
 
 void completeRowTranslation(AsmRow *row) {
   if (translationNeedsCompletion(row->translation))
-    addMissingLabelAdresses(row->translation);
+    addMissingLabelAdresses(row);
 }
 
 void completeInstructionTranslation(AsmDescriptor *ds) {
@@ -211,5 +218,9 @@ void writeAsmOutput(AsmDescriptor *ds) {
 void secondScan() {
   completeEntryLabelsFromSrcCode(ds);
   completeInstructionTranslation(ds);
+  if (ds->err_log->has_errors) {
+    print_all_logger_errors(ds->err_log);
+    return;
+  }
   writeAsmOutput(ds);
 }
