@@ -391,7 +391,7 @@ void setSourceOperand(char *bin, int n) {
 
 void checkWord(char *word) {
   enum WORD_TYPE wordType;
-  char *bin[WORD_SIZE];
+  char bin[WORD_SIZE];
   int isReadingString = false;
   int binTransLen;
   char *err;
@@ -416,13 +416,13 @@ void checkWord(char *word) {
         addOperand(word);
       if (word[0] == '.')
         addPointOperand();
-      strcpy(*bin, intToBinary(atoi(word + 1)));
-      shiftLeft(*bin, 2);
-      addTranslation(*bin, NULL, trans);
+      strcpy(bin, intToBinary(atoi(word + 1)));
+      shiftLeft(bin, 2);
+      addTranslation(bin, NULL, trans);
 
     } else {
       if (dataCodeNumber == 0 || dataCodeNumber == 1) {
-        strcpy(*bin, intToBinary(atoi(word)));
+        strcpy(bin, intToBinary(atoi(word)));
         if (dataCodeNumber == 1) {
           if (emptyArr(op1)) {
             strcpy(op1, word);
@@ -430,7 +430,7 @@ void checkWord(char *word) {
             printf("\nError struct");
         }
 
-        addTranslation(*bin, NULL, trans);
+        addTranslation(bin, NULL, trans);
       } else
         printf("\nError code");
     }
@@ -441,9 +441,9 @@ void checkWord(char *word) {
 
     if (opcodeNumber == -1) {
       opcodeNumber = isOpcode(word);
-      strcpy(*bin, intToBinary(opcodeNumber));
-      shiftLeft(*bin, 6);
-      addTranslation(*bin, NULL, trans);
+      strcpy(bin, intToBinary(opcodeNumber));
+      shiftLeft(bin, 6);
+      addTranslation(bin, NULL, trans);
     } else
       printf("\nOpcode error");
     break;
@@ -452,17 +452,17 @@ void checkWord(char *word) {
 
     addOperand(word);
     if (!emptyArr(op1) && emptyArr(op2)) {
-      strcpy(*bin, intToBinary(isRegistr(word)));
-      shiftLeft(*bin, 6);
-      addTranslation(*bin, NULL, trans);
+      strcpy(bin, intToBinary(isRegistr(word)));
+      shiftLeft(bin, 6);
+      addTranslation(bin, NULL, trans);
     }
     if (!emptyArr(op1) && !emptyArr(op2)) {
       if (isRegistr(op1) != -1) {
         setSecondRegistr(trans->binary[countWord - 1], word);
       } else {
-        strcpy(*bin, intToBinary(isRegistr(word)));
-        shiftLeft(*bin, 2);
-        addTranslation(*bin, NULL, trans);
+        strcpy(bin, intToBinary(isRegistr(word)));
+        shiftLeft(bin, 2);
+        addTranslation(bin, NULL, trans);
       }
     }
     break;

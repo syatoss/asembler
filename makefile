@@ -48,4 +48,7 @@ test-macro-spread: default
 test-file-read: default
 	$(EXE) $(TESTDIR)/secondScan/lineRead
 
+e2e: default
+	$(EXE) $(TESTDIR)/e2e/test
+
 

@@ -40,7 +40,6 @@ void run_pre_proc(char *spread_file_name) {
     print_all_logger_errors(ds->err_log);
   /* free(spread_file_name); */
   /* free(full_file_name); */
-  free_asm_descriptor(ds);
 }
 
 void assembler(char *asm_file_name) {
@@ -58,7 +57,7 @@ void assembler(char *asm_file_name) {
     exit(1);
   }
   free_asm_descriptor(ds);
-  ds = new_asm_descriptor(full_file_name);
+  ds = new_asm_descriptor(spread_file_name);
   firstscan();
   if (ds->err_log->has_errors) {
     print_all_logger_errors(ds->err_log);

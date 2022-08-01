@@ -187,7 +187,7 @@ void writeInstructionAndDataLengthsToFile(AsmDescriptor *ds, FILE *targetFile) {
       intToBase32(ds->instructions_tb->translationCounter);
   base32DataLenght = intToBase32(ds->data_tb->translationCounter);
   lineToWrite =
-      cat_strings(NULL, base32InstructionLenght, " ", base32DataLenght);
+      cat_strings(NULL, base32InstructionLenght, " ", base32DataLenght, NULL);
   fputs(lineToWrite, targetFile);
   free(base32InstructionLenght);
   free(base32DataLenght);
