@@ -44,11 +44,11 @@ void firstscan() {
     }
     if (dataCodeNumber != -1) { // checks if data instruction
       table = ds->data_tb;
-      row = newAsmRow(countWord, table->translationCounter, trans,
+      row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                       !emptyArr(label), label);
     } else {
       table = ds->instructions_tb;
-      row = newAsmRow(countWord, table->translationCounter, trans,
+      row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                       !emptyArr(label), label);
     }
     addAsmRowToTable(row, table);

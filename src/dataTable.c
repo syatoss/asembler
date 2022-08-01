@@ -11,13 +11,14 @@
 void addAsmRowNodeToListTail(AsmRowNode *node, AsmRowList *list);
 void addAsmRowToListTail(AsmRow *data, AsmTranslationTable *table);
 
-AsmRow *newAsmRow(int lineCount, int startLine, Translation *translation,
-                  int hasLabel, char *labelName) {
+AsmRow *newAsmRow(int lineCount, int startLine, int lineNumInAsmFile,
+                  Translation *translation, int hasLabel, char *labelName) {
   AsmRow *data = (AsmRow *)malloc(sizeof(AsmRow));
   data->lineCount = lineCount;
   data->startLine = startLine;
   data->translation = translation;
   data->hasLabel = hasLabel;
+  data->lineNumInAsmFile = lineNumInAsmFile;
   data->labelName = NULL;
   if (data->hasLabel) {
     data->labelName = (char *)malloc(sizeof(char) * strlen(labelName) + 1);
