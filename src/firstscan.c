@@ -15,17 +15,17 @@ char *dataCode[NUMOFDATACODE] = {".data", ".struct", ".string", ".entry",
                                  ".extern"};
 
 char label[MAXLABELNAME] = {0};
-char prevWord[N] = {};
+char prevWord[N] = {0};
 int dataCodeNumber =
     -1; /*0 - .data, 1 - .struct, 2 - .string, 3 - .entry, 4 - .extern*/
 int opcodeNumber = -1;
-char op1[MAXLABELNAME] = {};
-char op2[MAXLABELNAME] = {};
+char op1[MAXLABELNAME] = {0};
+char op2[MAXLABELNAME] = {0};
 int countWord = 0;
 Translation *trans;
 
 void firstscan() {
-  char line[N] = {};
+  char line[N] = {0};
   AsmRow *row;
   char *err;
   AsmTranslationTable *table;
@@ -33,7 +33,7 @@ void firstscan() {
     trans = newTranslation();
     strcpy(line, ds->line);
     checkLine(line);
-    //    if(opcodeNumber!=-1) checkOpcode(trans->binary[0]);
+    /* if(opcodeNumber!=-1) checkOpcode(trans->binary[0]); */
     if (!correctLabel(label)) {
       err = cat_strings(NULL, "Error in file ", ds->file_name,
                         " invalid name for label: ", label, NULL);
@@ -42,7 +42,7 @@ void firstscan() {
       free(err);
       continue;
     }
-    if (dataCodeNumber != -1) { // checks if data instruction
+    if (dataCodeNumber != -1) { /*checks if data instruction*/
       table = ds->data_tb;
       row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                       !emptyArr(label), label);
@@ -56,7 +56,7 @@ void firstscan() {
 }
 
 void checkLine(char *line) {
-  char word[N] = {};
+  char word[N] = {0};
   char prevChar;
   int i = 0, j = 0;
   while (line[i] != '\0') {
@@ -142,18 +142,15 @@ int emptyArr(const char *arr) {
     return true;
   return false;
 }
-// void checkOpcode(char* bin, Translation* trans)
-//{
-//
-//     if(checkSourceOperand(opcodeNumber, type1)) {
-//         setSourceOperand(trans->binary[0], type1 );
-//     }
-//     if(checkDestinationOperand(opcodeNumber,))
-//
-//
-//
-//
-// }
+/* void checkOpcode(char* bin, Translation* trans) */
+/* { */
+
+/*     if(checkSourceOperand(opcodeNumber, type1)) { */
+/*         setSourceOperand(trans->binary[0], type1 ); */
+/*     } */
+/*     if(checkDestinationOperand(opcodeNumber,)) */
+
+/* } */
 void freeArr(char *line) {
   int i;
   for (i = 0; i < N; i++) {
@@ -201,7 +198,7 @@ int isData(char *arr) {
 }
 
 int isNumber(char *arr) {
-  char buf[30] = {};
+  char buf[30] = {0};
   strcpy(buf, arr);
   if (arr[0] == '.' || arr[0] == '#') {
     strcpy(buf, arr + 1);
@@ -211,7 +208,7 @@ int isNumber(char *arr) {
   return false;
 }
 void addPointOperand() {
-  char buf[MAXLABELNAME] = {};
+  char buf[MAXLABELNAME] = {0};
   if (!emptyArr(op2)) {
     strcpy(buf, op2);
     strcpy(op2, ".\0");
@@ -345,7 +342,7 @@ void setDestinationOperand(char *bin, int n) {
   return;
 }
 void setSecondRegistr(char *bin, char *reg) {
-  char *buf;
+  char buf[MAXLABELNAME];
   int i;
   if (emptyArr(reg))
     return;
@@ -488,23 +485,24 @@ void checkWord(char *word) {
   }
 }
 
-// void addDataLable(char* arr, int numOfData)
-//{
-//     switch (numOfData) {
-//         case 0: addLabelToTable(newLabel(arr,ds, NONE, DATA), labelTable);
-//             break;
-//         case 1: addLabelToTable(newLabel(arr, ds, NONE, DATA), labelTable);
-//             break;
-//         case 2: addLabelToTable(newLabel(arr, ds, INTERNAL, DATA),
-//         labelTable);
-//             break;
-//         case 3: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION),
-//         labelTable);
-//             break;
-//         case 4: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION),
-//         labelTable);
-//             break;
-//         default: printf("Error addDataLable");
-//
-//     }
-// }
+/* void addDataLable(char* arr, int numOfData) */
+/* { */
+/*     switch (numOfData) { */
+/*         case 0: addLabelToTable(newLabel(arr,ds, NONE, DATA), labelTable); */
+/*             break; */
+/*         case 1: addLabelToTable(newLabel(arr, ds, NONE, DATA), labelTable);
+ */
+/*             break; */
+/*         case 2: addLabelToTable(newLabel(arr, ds, INTERNAL, DATA), */
+/*         labelTable); */
+/*             break; */
+/*         case 3: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION), */
+/*         labelTable); */
+/*             break; */
+/*         case 4: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION), */
+/*         labelTable); */
+/*             break; */
+/*         default: printf("Error addDataLable"); */
+
+/*     } */
+/* } */
