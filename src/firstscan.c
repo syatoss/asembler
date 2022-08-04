@@ -33,7 +33,7 @@ void firstscan() {
     trans = newTranslation();
     strcpy(line, ds->line);
     checkLine(line);
-    /* if(opcodeNumber!=-1) checkOpcode(trans->binary[0]); */
+    if(opcodeNumber!=-1) checkOpcode();
     if (!correctLabel(label)) {
       err = cat_strings(NULL, "Error in file ", ds->file_name,
                         " invalid name for label: ", label, NULL);
@@ -72,7 +72,7 @@ void checkLine(char *line) {
       continue;
     } else {
       if (line[i] == ':') {
-        if (isalnum(prevChar) && prevChar != ':' && emptyArr(label)) {
+        if (isalnum(prevChar) && prevChar != ':' && emptyArr(label) && emptyArr(prevWord)) {
           word[j] = '\0';
           j = 0;
           strcpy(label, word);
@@ -143,7 +143,7 @@ int emptyArr(const char *arr) {
   return false;
 }
 
-void checkOpcode(char *bin) {
+void checkOpcode() {
 
   if (checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
     setSourceOperand(trans->binary[0], checkTypeOperand(op1));
@@ -329,23 +329,23 @@ int checkSourceOperand(int opcode, int type) {
 
 void setDestinationOperand(char *bin, int n) {
   if (n == 0) {
-    bin[4] = '0';
-    bin[5] = '0';
+    bin[6] = '0';
+    bin[7] = '0';
     return;
   }
   if (n == 1) {
-    bin[4] = '0';
-    bin[5] = '1';
+    bin[6] = '0';
+    bin[7] = '1';
     return;
   }
   if (n == 2) {
-    bin[4] = '1';
-    bin[5] = '0';
+    bin[6] = '1';
+    bin[7] = '0';
     return;
   }
   if (n == 3) {
-    bin[4] = '1';
-    bin[5] = '1';
+    bin[6] = '1';
+    bin[7] = '1';
     return;
   }
   printf("Operand destination error");
@@ -366,23 +366,23 @@ void setSecondRegistr(char *bin, char *reg) {
 
 void setSourceOperand(char *bin, int n) {
   if (n == 0) {
-    bin[6] = '0';
-    bin[7] = '0';
+    bin[4] = '0';
+    bin[5] = '0';
     return;
   }
   if (n == 1) {
-    bin[6] = '0';
-    bin[7] = '1';
+    bin[4] = '0';
+    bin[5] = '1';
     return;
   }
   if (n == 2) {
-    bin[6] = '1';
-    bin[7] = '0';
+    bin[4] = '1';
+    bin[5] = '0';
     return;
   }
   if (n == 3) {
-    bin[6] = '1';
-    bin[7] = '1';
+    bin[4] = '1';
+    bin[5] = '1';
     return;
   }
   printf("Operand source error");
