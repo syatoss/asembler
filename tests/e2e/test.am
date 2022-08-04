@@ -1,2 +1,1 @@
-STR: .string "as"
-add r2,STR
+add r2,r2
