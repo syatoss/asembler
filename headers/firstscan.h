@@ -56,6 +56,6 @@ void checkWord(char *);
 int checkNumberArr(char *);
 int emptyArr(const char *arr);
 int checkHowOperand(const int);
-void checkOpcode(char *);
+void checkOpcode();
 int checkTypeOperand(char *operand);
 #endif
