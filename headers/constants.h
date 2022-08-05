@@ -17,5 +17,11 @@
 #define MAX_WORDS_PER_INSTRUCTION 5
 #define START_ADDRESS 100
 #define ENTRY_LABEL ".entry"
+#define EXTERN_LABEL ".extern"
+#define NUM_OF_RESERVED_WORDS 26
+#define NUM_OF_OPERATORS 16
+#define NUM_OF_REGISTERS 8
+#define NUM_OF_DATA_TYPES 3
+#define NUM_OF_LABEL_STATUSES 2
 
 #endif

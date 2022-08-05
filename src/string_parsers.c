@@ -128,7 +128,16 @@ void printStrArr(StrArr *arr) {
   }
 }
 
-char *trim(char *s) { return rtrim(ltrim(s)); }
+char *trim(char *s) {
+  char *new;
+  char *pivot;
+  new = cp_string(s);
+  pivot = new;
+  new = rtrim(ltrim(new));
+  new = cp_string(new);
+  free(pivot);
+  return new;
+}
 
 char *substring(char *source, int start, int n) {
   char *target = (char *)malloc(sizeof(char) * n - start + 1);
