@@ -60,11 +60,12 @@ void checkLine(char *line) {
   char prevChar;
   int i = 0, j = 0;
   while (line[i] != '\0') {
-    if (line[i] == ';' && i == 0) {
+
+      if (line[i] == ';' && emptyArr(prevWord) && (!isalnum(prevChar))) {
       return;
     }
     if (isspace(line[i])) {
-      if (dataCodeNumber == -1 && opcodeNumber == -1 && !emptyArr(word)) {
+      if ((dataCodeNumber == -1) && (opcodeNumber == -1) && (!emptyArr(word))) {
         addword
       }
       prevChar = line[i];
@@ -72,7 +73,7 @@ void checkLine(char *line) {
       continue;
     } else {
       if (line[i] == ':') {
-        if (isalnum(prevChar) && prevChar != ':' && emptyArr(label) && emptyArr(prevWord)) {
+        if ((isalnum(prevChar)) && (prevChar != ':') && (emptyArr(label)) && (emptyArr(prevWord)) ){
           word[j] = '\0';
           j = 0;
           strcpy(label, word);
@@ -151,6 +152,8 @@ void checkOpcode() {
   if (checkDestinationOperand(opcodeNumber, checkTypeOperand(op2))) {
     setDestinationOperand(trans->binary[0], checkTypeOperand(op2));
   }
+  if((checkHowOperand(opcodeNumber)==2) && (emptyArr(op1) || emptyArr(op2))) printf("\nNot enough operands");
+  if(checkHowOperand(opcodeNumber)==1 && emptyArr(op2)) printf("\nNot enough operands");
   return;
 }
 
@@ -225,7 +228,7 @@ void addPointOperand() {
 }
 
 int checkTypeOperand(char *operand) {
-  if (isRegistr(operand))
+  if (isRegistr(operand)!=-1)
     return 3;
   if (operand[0] == '.')
     return 2;
@@ -257,7 +260,7 @@ int checkNumberArr(char *arr) {
 int addString(char *str) {
   int current = 0;
   int last = strlen(str) - 1;
-  if (str[current++] == '\"' || str[last] == '\"')
+  if (str[current++] != '\"' || str[last] != '\"')
     return -1;
   str[last] = '\0';
   while (str[current] != '\0') {
@@ -272,10 +275,9 @@ int addString(char *str) {
 
 void addOperand(char *word) {
   if (emptyArr(op1) && checkHowOperand(opcodeNumber) >= 1) {
-    if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 1)
+    if (emptyArr(op2) && (checkHowOperand(opcodeNumber) == 1))
       strcpy(op2, word);
-    else
-      strcpy(op1, word);
+    else {if (checkHowOperand(opcodeNumber)>1) strcpy(op1, word);}
 
   } else {
     if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) {
@@ -287,12 +289,12 @@ void addOperand(char *word) {
 
 int checkHowOperand(const int opcode) {
 
-  if ((opcode >= 0 && opcode <= 3) || opcode == 6)
-    return 2;
-  if (opcode >= 4 && opcode <= 13)
-    return 1;
-  if (opcode >= 14 && opcode <= 15)
-    return 0;
+  if ((opcode >= 0 && opcode <= 3) || opcode == 6){
+    return 2;}
+  if (opcode >= 4 && opcode <= 13){
+    return 1;}
+  if (opcode >= 14 && opcode <= 15){
+    return 0;}
   return 2;
 }
 
@@ -353,7 +355,7 @@ void setDestinationOperand(char *bin, int n) {
 }
 
 void setSecondRegistr(char *bin, char *reg) {
-  char buf[MAXLABELNAME];
+  char buf[WORD_SIZE];
   int i;
   if (emptyArr(reg))
     return;
@@ -393,7 +395,7 @@ void checkWord(char *word) {
   enum WORD_TYPE wordType;
   char bin[WORD_SIZE];
   int isReadingString = false;
-  int binTransLen;
+  int binTransLen=0;
   char *err;
   const int INVALID = -1;
   wordType = srchWord(word);
@@ -402,6 +404,7 @@ void checkWord(char *word) {
   case ISDATA: /*.data/.string/.struct/.entry/.extren*/
 
     dataCodeNumber = isData(word);
+    countWord--;
 
 
     break;
@@ -468,9 +471,7 @@ void checkWord(char *word) {
     }
     break;
 
-    /* Stas: .extern/.entry */
-    /* .extern Stas */
-    /*stas: stas stas*/
+
 
   case UNKNOWN: /* reading body of .string or .entry or .extern or .struct or
                  body of operation (label of operation valid or invalid)
@@ -485,7 +486,7 @@ void checkWord(char *word) {
 
     if (dataCodeNumber == 1)
       binTransLen = addString(op2);
-    else if (dataCodeNumber == 2)
+    if (dataCodeNumber == 2)
       binTransLen = addString(op1);
     if (binTransLen == INVALID) {
       err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
@@ -497,27 +498,3 @@ void checkWord(char *word) {
     break;
   }
 }
-
-/* void addDataLable(char* arr, int numOfData) */
-/* { */
-/*     switch (numOfData) { */
-/*         case 0: addLabelToTable(newLabel(arr,ds, NONE, DATA), labelTable);
- */
-/*             break; */
-/*         case 1: addLabelToTable(newLabel(arr, ds, NONE, DATA), labelTable);
- */
-/*             break; */
-/*         case 2: addLabelToTable(newLabel(arr, ds, INTERNAL, DATA), */
-/*         labelTable); */
-/*             break; */
-/*         case 3: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION),
- */
-/*         labelTable); */
-/*             break; */
-/*         case 4: addLabelToTable(newLabel(arr, ds, INTERNAL, INSTRUCTION),
- */
-/*         labelTable); */
-/*             break; */
-/*         default: printf("Error addDataLable"); */
-/* } */
-/* } */
