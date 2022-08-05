@@ -1,4 +1,5 @@
 #include "../headers/firstScan2.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,6 +33,17 @@ int isWordEndDelimiter(char c) {
       return true;
   }
   return false;
+}
+
+int isInstructionName(char *word) {
+  int i;
+  int isOperator = false;
+  word = trim(word);
+  for (i = 0; i < NUM_OF_OPERATORS; i++) {
+    isOperator = isOperator || (strcmp(word, OPERATORS[i]) == 0);
+  }
+  free(word);
+  return isOperator;
 }
 
 int isDataDef(char *word) {
@@ -68,17 +80,6 @@ int isEntryExtern(char *word) {
   return isEntOrExt;
 }
 
-int isOperator(char *word) {
-  int i;
-  int isOperator = false;
-  word = trim(word);
-  for (i = 0; i < NUM_OF_OPERATORS; i++) {
-    isOperator = isOperator || (strcmp(word, OPERATORS[i]) == 0);
-  }
-  free(word);
-  return isOperator;
-}
-
 int isRegister(char *word) {
   int isRegister = false;
   int i;
@@ -91,7 +92,7 @@ int isRegister(char *word) {
 }
 
 int isLanguageReservedWord(char *word) {
-  return isRegister(word) || isOperator(word) || isEntryExtern(word) ||
+  return isRegister(word) || isInstructionName(word) || isEntryExtern(word) ||
          isDataDef(word);
 }
 
@@ -107,18 +108,101 @@ int isLabelDef(char *word) {
   return true;
 }
 
+enum DATA_TYPES getDataType(char *dataType) {
+  if (strcmp(dataType, ".data") == 0)
+    return NUMBER;
+  if (strcmp(dataType, ".string") == 0)
+    return STRING;
+  return STRUCT;
+}
+
 void readEntryExtern(char *line, Label *currentLabel) {}
 
 void setLabelDefFlag(AsmDescriptor *ds, int isLabelDef) {}
 
-int isDataDefinition(char *word) { return true; }
-
 int getLabelDefFlag() { return true; }
 
-void readRestOfDataLine(char *line, int *lastReadCharIndexa,
-                        Label *currentLabel) {}
+void pushInt(int **intArrPtr, int num, int arrSize) {
+  int *new = (int *)realloc(*intArrPtr, arrSize + 1);
+  *intArrPtr = new;
+}
 
-int isInstructionName(char *word) { return true; }
+int *getNumbersFromLine(char *line, int *lastReadCharIndex) {
+  int expectSeperator = false;
+  char currntNumberString[MAX_LABEL_LENGHT];
+  int currentNumberStringIndex = 0;
+  int numCount = 0;
+  int currntNumberInt;
+  int *numbers = NULL;
+  while (is_white_space(line[*lastReadCharIndex]))
+    (*lastReadCharIndex)++;
+  while (line[*lastReadCharIndex] != '\0' || line[*lastReadCharIndex] != '\n') {
+    while (is_white_space(line[*lastReadCharIndex]))
+      (*lastReadCharIndex)++;
+    if (expectSeperator) {
+      if (line[*lastReadCharIndex] != ',') {
+        printf("invalid number error");
+      }
+      (*lastReadCharIndex)++;
+      expectSeperator = false;
+      continue;
+    }
+
+    if (line[*lastReadCharIndex] == '-' || line[*lastReadCharIndex] == '+') {
+      currntNumberString[currentNumberStringIndex] = line[*lastReadCharIndex];
+      currentNumberStringIndex++;
+      (*lastReadCharIndex)++;
+    }
+    while (isdigit(line[*lastReadCharIndex])) {
+      currntNumberString[currentNumberStringIndex] = line[*lastReadCharIndex];
+      currentNumberStringIndex++;
+      (*lastReadCharIndex)++;
+    }
+    if (line[*lastReadCharIndex] == ' ') {
+      expectSeperator = true;
+    }
+    if (line[*lastReadCharIndex] == ',') {
+      expectSeperator = false;
+    }
+    currntNumberString[currentNumberStringIndex] = '\0';
+    currntNumberInt = atoi(currntNumberString);
+    pushInt(&numbers, currntNumberInt, numCount++);
+    currentNumberStringIndex = 0;
+  }
+
+  pushInt(&numbers, INT_ARR_END_DELIMITER, numCount);
+  return numbers;
+}
+
+void readRestOfNumberLine(char *line, int *lastReadCharIndex,
+                          Label *currentLabel) {
+  int *numbers;
+  Translation *trans = newTranslation();
+  numbers = getNumbersFromLine(line, lastReadCharIndex);
+}
+
+void readRestOfStringLine(char *line, int *lastReadCharIndex,
+                          Label *currentLabel) {}
+void readRestOfStructLine(char *line, int *lastReadCharIndex,
+                          Label *currentLabel) {}
+
+void readRestOfDataLine(char *line, char *dataType, int *lastReadCharIndex,
+                        Label *currentLabel) {
+  enum DATA_TYPES type = getDataType(dataType);
+  switch (type) {
+  case NUMBER:
+    readRestOfNumberLine(line, lastReadCharIndex, currentLabel);
+    break;
+  case STRING:
+    readRestOfStringLine(line, lastReadCharIndex, currentLabel);
+    break;
+  case STRUCT:
+    readRestOfStructLine(line, lastReadCharIndex, currentLabel);
+    break;
+  default:
+    break;
+  }
+}
 
 void readRestOfInstruction(char *line, int *lastReadCharIndex,
                            Label *currentLabel) {}
@@ -138,7 +222,7 @@ void firstScan(AsmDescriptor *ds) {
 
     if (isLabelDef(word)) {
       setLabelDefFlag(ds, true);
-      labelName = cp_string(getLabelNameFromDefinition(word));
+      labelName = getLabelNameFromDefinition(word);
       word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
       if (getLabelByName(ds->lable_tb, labelName)) {
         err = cat_strings("Error in file ", ds->file_name, " in line ",
@@ -154,15 +238,15 @@ void firstScan(AsmDescriptor *ds) {
 
     if (isEntryExtern(word)) {
       readEntryExtern(ds->line, currentLabel);
-      freeMem(word, NULL);
+      freeMem(word, labelName);
       continue;
     }
 
-    if (isDataDefinition(word)) {
+    if (isDataDef(word)) {
       if (getLabelDefFlag() == true)
         currentLabel->type = DATA;
-      readRestOfDataLine(ds->line, &lastReadCharIndex, currentLabel);
-      freeMem(word, NULL);
+      readRestOfDataLine(ds->line, word, &lastReadCharIndex, currentLabel);
+      freeMem(word, labelName);
       continue;
     }
 
@@ -170,7 +254,7 @@ void firstScan(AsmDescriptor *ds) {
       if (getLabelDefFlag() == true)
         currentLabel->type = INSTRUCTION;
       readRestOfInstruction(ds->line, &lastReadCharIndex, currentLabel);
-      freeMem(word, NULL);
+      freeMem(word, labelName);
       continue;
     } else {
       err = cat_strings("Error in file ", ds->file_name, " in line ",
