@@ -1,5 +1,6 @@
 
 #include "../headers/firstscan.h"
+#include "../headers/line_paser.h"
 
 #define N 80
 #define MAXLABELNAME 30
@@ -13,7 +14,6 @@ char *opcodeTable[NUMOFOPCODE] = {"mov", "cmp", "add", "sub", "not", "clr",
 char *regTable[NUMOFREG] = {"r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7"};
 char *dataCode[NUMOFDATACODE] = {".data", ".struct", ".string", ".entry",
                                  ".extern"};
-
 char label[MAXLABELNAME] = {0};
 char prevWord[N] = {0};
 int dataCodeNumber =
@@ -32,9 +32,7 @@ void firstscan() {
   while (get_next_line(ds)) {
     trans = newTranslation();
     strcpy(line, ds->line);
-    checkLine(line);
-    if (opcodeNumber != -1)
-      checkOpcode();
+    checkLine(line); /*does all the line processing*/
     if (!correctLabel(label)) {
       err = cat_strings(NULL, "Error in file ", ds->file_name,
                         " invalid name for label: ", label, NULL);
@@ -43,12 +41,17 @@ void firstscan() {
       free(err);
       continue;
     }
-    if (dataCodeNumber != -1) { /*checks if data instruction*/
-      table = ds->data_tb;
+    if (opcodeNumber != -1) { /*if not -1 its an instruction line*/
+      checkOpcode();
+      if (!emptyArr(label))
+        addLabelToTable(newLabel(label, ds->line_num, NONE, INSTRUCTION),
+                        ds->lable_tb);
+      table = ds->instructions_tb;
       row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                       !emptyArr(label), label);
-    } else {
-      table = ds->instructions_tb;
+    }
+    if (dataCodeNumber != -1) { /*checks if data */
+      table = ds->data_tb;
       row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                       !emptyArr(label), label);
     }
@@ -60,10 +63,11 @@ void checkLine(char *line) {
   char word[N] = {0};
   char prevChar;
   int i = 0, j = 0;
+  if (is_comment_line(line))
+    return;
+  while (is_white_space(line[i++]))
+    ;
   while (line[i] != '\0') {
-    if (line[i] == ';' && i == 0) {
-      return;
-    }
     if (isspace(line[i])) {
       if (dataCodeNumber == -1 && opcodeNumber == -1 && !emptyArr(word)) {
         addword
@@ -260,7 +264,7 @@ int checkNumberArr(char *arr) {
 int addString(char *str) {
   int current = 0;
   int last = strlen(str) - 1;
-  if (str[current++] == '\"' || str[last] == '\"')
+  if (str[current++] != '\"' || str[last] != '\"')
     return -1;
   str[last] = '\0';
   while (str[current] != '\0') {

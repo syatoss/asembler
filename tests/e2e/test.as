@@ -1,6 +1,2 @@
-macro stas
-;jmp #2
-.string "kjashd"
-endmacro
+.data 3,3
 
-stas

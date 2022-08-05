@@ -48,6 +48,7 @@ void setInternalLabel(char *line) {
   labelName = getEntryLabelNameFromLine(line);
   label = getLabelByName(ds->lable_tb, labelName);
   label->status = INTERNAL;
+  free(labelName);
 }
 
 void handleAsmLine() {
