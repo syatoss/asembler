@@ -403,6 +403,7 @@ void checkWord(char *word) {
 
     dataCodeNumber = isData(word);
 
+
     break;
 
   case ISNUMBER:
