@@ -33,7 +33,8 @@ void firstscan() {
     trans = newTranslation();
     strcpy(line, ds->line);
     checkLine(line);
-    if(opcodeNumber!=-1) checkOpcode();
+    if (opcodeNumber != -1)
+      checkOpcode();
     if (!correctLabel(label)) {
       err = cat_strings(NULL, "Error in file ", ds->file_name,
                         " invalid name for label: ", label, NULL);
@@ -72,7 +73,8 @@ void checkLine(char *line) {
       continue;
     } else {
       if (line[i] == ':') {
-        if (isalnum(prevChar) && prevChar != ':' && emptyArr(label) && emptyArr(prevWord)) {
+        if (isalnum(prevChar) && prevChar != ':' && emptyArr(label) &&
+            emptyArr(prevWord)) {
           word[j] = '\0';
           j = 0;
           strcpy(label, word);
@@ -408,7 +410,14 @@ void checkWord(char *word) {
   case ISNUMBER:
 
     if (word[0] == '.' || word[0] == '#') {
-      if (isNumber(prevWord)) {
+      if (isNumber(prevWord) && word[0] == '.') {
+
+        /* err = */
+        /*     cat_strings(NULL, "Error in file ", ds->raw_file_name, " in line
+         * ", */
+        /*                 ds->line_num_str, " only integers alowed", NULL); */
+        /* log_error(ds->err_log, err); */
+        /* free(err); */
         printf("\nError number: just natural numbers");
         break;
       }

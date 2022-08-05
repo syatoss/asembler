@@ -145,15 +145,19 @@ char *intToBinary(int num) {
 
 char *binaryToBase32(char *binary) {
   char *base32String = NULL;
-  char msb[6];
-  char lsb[6];
+  char *b32;
+  char *msb;
+  char *lsb;
   char *ms32b;
   char *ls32b;
-  substring(msb, binary, 0, 5);
-  substring(lsb, binary, 5, 5);
+  msb = substring(binary, 0, 5);
+  lsb = substring(binary, 5, 5);
   ms32b = base32[binToDec(msb)];
   ls32b = base32[binToDec(lsb)];
-  return cat_strings(base32String, ms32b, ls32b, NULL);
+  b32 = cat_strings(base32String, ms32b, ls32b, NULL);
+  free(msb);
+  free(lsb);
+  return b32;
 }
 
 char *intToBase32(int num) {

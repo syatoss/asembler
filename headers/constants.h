@@ -7,6 +7,7 @@
 #define true 1
 #define false 0
 #define COMMENT_LINE_TOKEN ';'
+#define MAX_INT_DIGITS 20
 #define ASM_FILE_SUFFIX ".as"
 #define OBJECT_FILE_SUFFIX ".ob"
 #define EXTERN_FILE_SUFFIX ".ext"

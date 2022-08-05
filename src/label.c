@@ -1,4 +1,5 @@
 #include "../headers/label.h"
+#include "../headers/string_parsers.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +21,12 @@ void freeLabel(Label *label) {
     return;
   free(label->name);
   free(label);
+}
+
+char *getLabelNameFromDefinition(char *labelDefinition) {
+  labelDefinition = trim(labelDefinition);
+  labelDefinition[strlen(labelDefinition) - 1] = '\0';
+  return labelDefinition;
 }
 
 void printLabel(Label *label) {
