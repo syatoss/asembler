@@ -33,7 +33,8 @@ void firstscan() {
     trans = newTranslation();
     strcpy(line, ds->line);
     checkLine(line);
-    if(opcodeNumber!=-1) checkOpcode();
+    if (opcodeNumber != -1)
+      checkOpcode();
     if (!correctLabel(label)) {
       err = cat_strings(NULL, "Error in file ", ds->file_name,
                         " invalid name for label: ", label, NULL);
@@ -72,7 +73,8 @@ void checkLine(char *line) {
       continue;
     } else {
       if (line[i] == ':') {
-        if (isalnum(prevChar) && prevChar != ':' && emptyArr(label) && emptyArr(prevWord)) {
+        if (isalnum(prevChar) && prevChar != ':' && emptyArr(label) &&
+            emptyArr(prevWord)) {
           word[j] = '\0';
           j = 0;
           strcpy(label, word);
@@ -144,7 +146,6 @@ int emptyArr(const char *arr) {
 }
 
 void checkOpcode() {
-
   if (checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
     setSourceOperand(trans->binary[0], checkTypeOperand(op1));
   }
@@ -225,6 +226,8 @@ void addPointOperand() {
 }
 
 int checkTypeOperand(char *operand) {
+  if (emptyArr(operand))
+    return 0;
   if (isRegistr(operand))
     return 3;
   if (operand[0] == '.')
@@ -400,13 +403,10 @@ void checkWord(char *word) {
   switch (wordType) {
 
   case ISDATA: /*.data/.string/.struct/.entry/.extren*/
-
     dataCodeNumber = isData(word);
-
     break;
 
   case ISNUMBER:
-
     if (word[0] == '.' || word[0] == '#') {
       if (isNumber(prevWord)) {
         printf("\nError number: just natural numbers");
@@ -487,10 +487,13 @@ void checkWord(char *word) {
     else if (dataCodeNumber == 2)
       binTransLen = addString(op1);
     if (binTransLen == INVALID) {
-      err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
-                        ds->line_num, "invalid string definition", NULL);
-      log_error(ds->err_log, err);
-      free(err);
+      printf("some error in string def\n");
+      break;
+      /* err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
+       */
+      /*                   ds->line_num, "invalid string definition", NULL); */
+      /* log_error(ds->err_log, err); */
+      /* free(err); */
     }
     countWord += binTransLen;
     break;

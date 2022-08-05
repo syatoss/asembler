@@ -160,7 +160,7 @@ void writeRowTranslationToFile(AsmRow *row, FILE *targetFile,
         intToBase32(startingAddress + row->startLine + currentMemoryWord);
     lineToWrite =
         cat_strings(NULL, base32Address, " ",
-                    row->translation->base32[currentMemoryWord], NULL);
+                    row->translation->binary[currentMemoryWord], "\n", NULL);
     fputs(lineToWrite, targetFile);
     free(lineToWrite);
     free(base32Address);
@@ -186,8 +186,8 @@ void writeInstructionAndDataLengthsToFile(AsmDescriptor *ds, FILE *targetFile) {
   base32InstructionLenght =
       intToBase32(ds->instructions_tb->translationCounter);
   base32DataLenght = intToBase32(ds->data_tb->translationCounter);
-  lineToWrite =
-      cat_strings(NULL, base32InstructionLenght, " ", base32DataLenght, NULL);
+  lineToWrite = cat_strings(NULL, base32InstructionLenght, " ",
+                            base32DataLenght, "\n", NULL);
   fputs(lineToWrite, targetFile);
   free(base32InstructionLenght);
   free(base32DataLenght);

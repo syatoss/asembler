@@ -1,1 +1,6 @@
-add r2,r2
+macro stas
+;jmp #2
+.string "kjashd"
+endmacro
+
+stas
