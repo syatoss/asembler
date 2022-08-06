@@ -277,7 +277,8 @@ void addOperand(char *word) {
   if (emptyArr(op1) && checkHowOperand(opcodeNumber) >= 1) {
     if (emptyArr(op2) && (checkHowOperand(opcodeNumber) == 1))
       strcpy(op2, word);
-    else {if (checkHowOperand(opcodeNumber)>1) strcpy(op1, word);}
+    else {if (checkHowOperand(opcodeNumber)>1) strcpy(op1, word);
+        else printf("\nOperand error");}
 
   } else {
     if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) {
