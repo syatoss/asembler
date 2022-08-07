@@ -1,2 +1,2 @@
-STR: .string "as"
-add r2,STR
+.data 3,3
+
