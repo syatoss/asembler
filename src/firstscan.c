@@ -24,6 +24,17 @@ char op2[MAXLABELNAME] = {0};
 int countWord = 0;
 Translation *trans;
 
+void clearPrevValues() {
+  freeArr(op1);
+  freeArr(op2);
+  freeArr(label);
+  freeArr(prevWord);
+  dataCodeNumber = -1;
+  opcodeNumber = -1;
+  countWord = 0;
+  trans = NULL;
+}
+
 void firstscan() {
     char line[N] = {0};
     AsmRow *row;
@@ -63,6 +74,7 @@ void firstscan() {
 void checkLine(char *line) {
   char word[N] = {0};
   char prevChar;
+  char *pivot;
   int i = 0, j = 0;
   while (line[i] != '\0') {
 
@@ -70,6 +82,7 @@ void checkLine(char *line) {
       return;
     }
     if (isspace(line[i])) {
+      /* add the word if no data or instruction has been read */
       if ((dataCodeNumber == -1) && (opcodeNumber == -1) && (!emptyArr(word))) {
         addword
       }
@@ -164,15 +177,19 @@ void checkData()
 }
 void checkOpcode() {
 
-    if (checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
-        setSourceOperand(trans->binary[0], checkTypeOperand(op1));
-    } else if(!emptyArr(op1)) printf("\nSource operand incorrect");
-    if (checkDestinationOperand(opcodeNumber, checkTypeOperand(op2))) {
-        setDestinationOperand(trans->binary[0], checkTypeOperand(op2));
-    } else if(!emptyArr(op2)) printf("\nDestination operand incorrect");
-    if((checkHowOperand(opcodeNumber)==2) && (emptyArr(op1) || emptyArr(op2))) printf("\nNot enough operands");
-    if((checkHowOperand(opcodeNumber)==1) && (emptyArr(op2))) printf("\nNot enough operands");
-    return;
+  if (checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
+    setSourceOperand(trans->binary[0], checkTypeOperand(op1));
+  } else if (!emptyArr(op1))
+    printf("\nSource operand incorrect");
+  if (checkDestinationOperand(opcodeNumber, checkTypeOperand(op2))) {
+    setDestinationOperand(trans->binary[0], checkTypeOperand(op2));
+  } else if (!emptyArr(op2))
+    printf("\nDestination operand incorrect");
+  if ((checkHowOperand(opcodeNumber) == 2) && (emptyArr(op1) || emptyArr(op2)))
+    printf("\nNot enough operands");
+  if ((checkHowOperand(opcodeNumber) == 1) && (emptyArr(op2)))
+    printf("\nNot enough operands");
+  return;
 }
 
 void freeArr(char *line) {
@@ -387,7 +404,7 @@ void setDestinationOperand(char *bin, int n) {
 }
 
 void setSecondRegistr(char *bin, char *reg) {
-  char buf[WORD_SIZE]={0};
+  char buf[WORD_SIZE + 1] = {0};
   int i;
   if (emptyArr(reg))
     return;

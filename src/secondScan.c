@@ -79,6 +79,7 @@ void addMissingLabelAdresses(AsmRow *row) {
   int i;
   Label *currentLabel;
   char *err;
+  /* char *asmLineString; */
   Translation *trans = row->translation;
   for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
     if (trans->nulls[i] == NULL)
@@ -90,6 +91,7 @@ void addMissingLabelAdresses(AsmRow *row) {
                         trans->nulls[i], NULL);
       log_error(ds->err_log, err);
       free(err);
+      /* free(asmLineString); */
     }
     trans->binary[i] =
         intToBinary(currentLabel->lineOfApearance +
@@ -219,7 +221,14 @@ void writeAsmOutput(AsmDescriptor *ds) {
   writeMachineCodeFile(ds);
 }
 
-void secondScan() {
+void testPrint() {
+  printf("Instruction table: ");
+  printAsmTranslationTable(ds->instructions_tb);
+  printf("Data table: ");
+  printAsmTranslationTable(ds->data_tb);
+}
+
+void actualSecondScan() {
   completeEntryLabelsFromSrcCode(ds);
   completeInstructionTranslation(ds);
   if (ds->err_log->has_errors) {
@@ -227,4 +236,9 @@ void secondScan() {
     return;
   }
   writeAsmOutput(ds);
+}
+
+void secondScan() {
+  testPrint();
+  /* actualSecondScan(); */
 }
