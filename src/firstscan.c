@@ -474,7 +474,7 @@ void checkWord(char *word) {
   case ISDATA: /*.data/.string/.struct/.entry/.extren*/
 
     dataCodeNumber = isData(word);
-    if (dataCodeNumber == DATA)
+    if (dataCodeNumber == DATAWORD)
       countWord--;
     break;
 
@@ -494,7 +494,7 @@ void checkWord(char *word) {
       addTranslation(bin, NULL, trans);
 
     } else {
-      if (dataCodeNumber == DATA || dataCodeNumber == STRUCT) {
+      if (dataCodeNumber == DATAWORD || dataCodeNumber == STRUCT) {
         strcpy(bin, intToBinary(atoi(word)));
         if (dataCodeNumber == STRUCT) {
           if (emptyArr(op1)) {

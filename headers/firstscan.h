@@ -25,7 +25,7 @@ extern AsmDescriptor *ds;
 #define INVALID -1
 extern AsmDescriptor *ds;
 enum WORD_TYPE { ISDATA, ISOPCODE, ISREGISTR, ISNUMBER, UNKNOWN };
-enum DATA_TYPE { DATA, STRUCT, STRING, ENTRY, EXTERN};
+enum DATA_TYPE { DATAWORD=0, STRUCT, STRING, ENTRY, EXTERN};
 
 
 void freeArr(char *);
