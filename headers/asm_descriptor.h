@@ -10,8 +10,10 @@
 
 typedef struct {
   FILE *fp;
-  char *file_name; /* line in the assembly file*/
-  char *line;      /* line in the assembly file*/
+  char *file_name;     /* the full file name*/
+  char *raw_file_name; /* the file name without the exstnssion*/
+  char *line;          /* line in the assembly file*/
+  char *line_num_string;
   int line_num;
   ErrorLogger *err_log;
   LabelTable *lable_tb;
@@ -21,10 +23,10 @@ typedef struct {
 
 /* creates a new struct that holds all the information needed for the assembler
  * to run */
-AsmDescriptor *new_asm_descriptor(char *);
-/* reads the next line from the file in the AsmDescriptor and assignes it to the
- * line field in the variable, trurn true/false rather read was sucssefull false
- * means file is done */
+AsmDescriptor *new_asm_descriptor(char *raw_file_name, char *file_extennsion);
+/* reads the next line from the file in the AsmDescriptor and assignes it to
+ * the line field in the variable, trurn true/false rather read was sucssefull
+ * false means file is done */
 int get_next_line(AsmDescriptor *);
 /* frees all allocated memmory for the AsmDescriptor */
 void free_asm_descriptor(AsmDescriptor *);
