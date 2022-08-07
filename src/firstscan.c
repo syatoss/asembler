@@ -1,6 +1,7 @@
 
 #include "../headers/firstscan.h"
 
+#define EMPTYSTRING -2
 #define N 80
 #define MAXLABELNAME 30
 #define NUMOFOPCODE 16
@@ -309,7 +310,7 @@ int addString(char *str) {
     current++;
   }
   addTranslation(aToBin('\0'), NULL, trans);
-  if(current ==1) return -2;
+  if(current ==1) return EMPTYSTRING;
   return current - 2;
 }
 
@@ -513,7 +514,7 @@ void checkWord(char *word) {
     }
     if (!emptyArr(op1) && !emptyArr(op2)) {
       if (isRegistr(op1) != -1) {
-        setSecondRegistr(trans->binary[countWord - 1], word);
+        setSecondRegistr(trans->binary[countWord - 2], word);
       } else {
         strcpy(bin, intToBinary(isRegistr(word)));
         shiftLeft(bin, 2);
@@ -539,7 +540,7 @@ void checkWord(char *word) {
       binTransLen = addString(op2);
     if (dataCodeNumber == 2)
       binTransLen = addString(op1);
-    if (binTransLen == -2) countWord++;
+    if (binTransLen == EMPTYSTRING) countWord++;
     if (binTransLen == INVALID) {
       err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
                         ds->line_num, "invalid string definition", NULL);
