@@ -12,7 +12,7 @@
 #define EXTERN_FILE_SUFFIX ".ext"
 #define ENTRY_FILE_SUFFIX ".ent"
 #define SPREAD_FILE_SUFFIX ".am"
-#define WORD_SIZE 11
+#define WORD_SIZE 10
 #define MAX_WORDS_PER_INSTRUCTION 5
 #define START_ADDRESS 100
 #define ENTRY_LABEL ".entry"

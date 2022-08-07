@@ -57,11 +57,14 @@ void firstscan() {
             table = ds->data_tb;
             row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                             !emptyArr(label), label);
+            if(!emptyArr(label) && dataCodeNumber!=3 && dataCodeNumber !=4 ) addLabelToTable(newLabel(label,ds->line_num, NONE, DATA), ds->lable_tb);
+
         }
         if(opcodeNumber!=-1){
                 table = ds->instructions_tb;
                 row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                                 !emptyArr(label), label);
+            if(!emptyArr(label) ) addLabelToTable(newLabel(label,ds->line_num, NONE, INSTRUCTION), ds->lable_tb);
             }
         if(opcodeNumber==-1 && dataCodeNumber==-1)
         {
@@ -151,7 +154,8 @@ void checkLine(char *line) {
     }
   }
   if (!emptyArr(word)) {
-      word= trim(word);
+      pivot= trim(word);
+      strcpy(word, pivot);
       addword
 
   }
@@ -454,8 +458,6 @@ void checkWord(char *word) {
 
     dataCodeNumber = isData(word);
     if(dataCodeNumber==0) countWord--;
-
-
     break;
 
   case ISNUMBER:
