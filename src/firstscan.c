@@ -71,7 +71,11 @@ void firstscan() {
                         ds->lable_tb);
     }
     if (opcodeNumber == -1 && dataCodeNumber == -1) {
-      printf("Error the line not complite instruction or data");
+      err = cat_strings("Error in file ", ds->file_name, " in line ",
+                        ds->line_num_string, " missing instruction or data",
+                        NULL);
+      log_error(ds->err_log, err);
+      free(err);
     }
     addAsmRowToTable(row, table);
   }
@@ -81,6 +85,8 @@ void checkLine(char *line) {
   char word[N] = {0};
   char prevChar;
   char *pivot;
+  char *err = NULL;
+  char singleChar[2] = {'\0', '\0'};
   int i = 0, j = 0;
   while (line[i] != '\0') {
 
@@ -108,15 +114,26 @@ void checkLine(char *line) {
           strcpy(label, word);
           freeArr(word);
           prevChar = ':';
-        } else
-          printf("\nError ':' ");
+        } else {
+          err = cat_strings("Error in file ", ds->file_name, " in line ",
+                            ds->line_num_string, " invalid char \':\'", NULL);
+          log_error(ds->err_log, err);
+          free(err);
+          err = NULL;
+        }
         i++;
         continue;
       }
       if (isdigit(line[i])) {
-        if (emptyArr(word) && dataCodeNumber == -1)
-          printf("\nError number no data");
-        else {
+        if (emptyArr(word) && dataCodeNumber == -1) {
+          err =
+              cat_strings("Error in file ", ds->file_name, " in line ",
+                          ds->line_num_string, " invalid use of number ", NULL);
+          log_error(ds->err_log, err);
+          free(err);
+          err = NULL;
+
+        } else {
           word[j] = line[i];
           j++;
         }
@@ -132,41 +149,72 @@ void checkLine(char *line) {
           word[j] = line[i];
           j++;
         }
-        if (prevChar == '.' || prevChar == ':')
-          printf("\nError '.' ");
-        prevChar = line[i];
+        if (prevChar == '.' || prevChar == ':') {
+          if (emptyArr(word) && dataCodeNumber == -1) {
+            err = cat_strings("Error in file ", ds->file_name, " in line ",
+                              ds->line_num_string,
+                              " invalid use of char \'.\' ", NULL);
+            log_error(ds->err_log, err);
+            free(err);
+            err = NULL;
+          }
+          prevChar = line[i];
+          i++;
+          continue;
+        }
+        if (line[i] == ',') {
+          if ((!isspace(prevChar) || !emptyArr(word)) && prevChar != ',') {
+            addword prevChar = line[i];
+          } else {
+            err = cat_strings("Error in file ", ds->file_name, " in line ",
+                              ds->line_num_string,
+                              " invalid use of char \',\' ", NULL);
+            log_error(ds->err_log, err);
+            free(err);
+            err = NULL;
+          }
+          i++;
+          continue;
+        }
+        if (!correctChar(line[i])) {
+          singleChar[0] = line[i];
+          err = cat_strings("Error in file ", ds->file_name, " in line ",
+                            ds->line_num_string, " invalid use of char \'",
+                            singleChar, "\'", NULL);
+          log_error(ds->err_log, err);
+          free(err);
+          err = NULL;
+        }
+        if (prevChar == ':') {
+          err = cat_strings("Error in file ", ds->file_name, " in line ",
+                            ds->line_num_string, " invalid use of char \',\' ",
+                            NULL);
+          log_error(ds->err_log, err);
+          free(err);
+          err = NULL;
+        } else {
+          word[j] = line[i];
+          j++;
+          prevChar = line[i];
+        }
         i++;
-        continue;
       }
-      if (line[i] == ',') {
-        if ((!isspace(prevChar) || !emptyArr(word)) && prevChar != ',') {
-          addword prevChar = line[i];
-        } else
-          printf("\nError ',' ");
-        i++;
-        continue;
-      }
-      if (!correctChar(line[i]))
-        printf("\nError char");
-      if (prevChar == ':')
-        printf("\nError string");
-      else {
-        word[j] = line[i];
-        j++;
-        prevChar = line[i];
-      }
-      i++;
     }
+    if (!emptyArr(word)) {
+      pivot = trim(word);
+      strcpy(word, pivot);
+      addword
+    }
+    if (prevChar == ',') {
+      err = cat_strings("Error in file ", ds->file_name, " in line ",
+                        ds->line_num_string, " trailing \',\' ", NULL);
+      log_error(ds->err_log, err);
+      free(err);
+      err = NULL;
+    }
+    freeArr(word);
+    return;
   }
-  if (!emptyArr(word)) {
-    pivot = trim(word);
-    strcpy(word, pivot);
-    addword
-  }
-  if (prevChar == ',')
-    printf("\nError ','");
-  freeArr(word);
-  return;
 }
 
 int emptyArr(const char *arr) {
@@ -175,31 +223,75 @@ int emptyArr(const char *arr) {
   return false;
 }
 void checkData() {
-  if (dataCodeNumber == 1 && (emptyArr(op1) || emptyArr(op2)))
-    printf("\nNot enough data to struct");
-  if (dataCodeNumber == 2 && emptyArr(op1))
-    printf("\nNot enough data to string");
+  char *err;
+  if (dataCodeNumber == 1 && (emptyArr(op1) || emptyArr(op2))) {
+    err = cat_strings("Error in file ", ds->file_name, " in line ",
+                      ds->line_num_string, " struct definition missing data ",
+                      NULL);
+    log_error(ds->err_log, err);
+    free(err);
+    err = NULL;
+  }
+  if (dataCodeNumber == 2 && emptyArr(op1)) {
+    err = cat_strings("Error in file ", ds->file_name, " in line ",
+                      ds->line_num_string, " string definition missing data ",
+                      NULL);
+    log_error(ds->err_log, err);
+    free(err);
+    err = NULL;
+  }
   if (dataCodeNumber == 4) {
-    if (emptyArr(op1) && !emptyArr(op2))
-      printf("Error extern ");
-    else
-      printf("Add extern label");
+    if (emptyArr(op1) && !emptyArr(op2)) {
+      err = cat_strings("Error in file ", ds->file_name, " in line ",
+                        ds->line_num_string, " invalid use of extern ", NULL);
+      log_error(ds->err_log, err);
+      free(err);
+      err = NULL;
+    } else {
+      addLabelToTable(newLabel(label, ds->line_num, EXTERNAL, DATA),
+                      ds->lable_tb);
+    }
   }
 }
 void checkOpcode() {
+  char *err;
 
   if (checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
     setSourceOperand(trans->binary[0], checkTypeOperand(op1));
-  } else if (!emptyArr(op1))
-    printf("\nSource operand incorrect");
+  } else if (!emptyArr(op1)) {
+    err = cat_strings("Error in file ", ds->file_name, " in line ",
+                      ds->line_num_string, " invalid source operand ", NULL);
+    log_error(ds->err_log, err);
+    free(err);
+    err = NULL;
+  }
   if (checkDestinationOperand(opcodeNumber, checkTypeOperand(op2))) {
     setDestinationOperand(trans->binary[0], checkTypeOperand(op2));
-  } else if (!emptyArr(op2))
-    printf("\nDestination operand incorrect");
-  if ((checkHowOperand(opcodeNumber) == 2) && (emptyArr(op1) || emptyArr(op2)))
-    printf("\nNot enough operands");
-  if ((checkHowOperand(opcodeNumber) == 1) && (emptyArr(op2)))
-    printf("\nNot enough operands");
+  } else if (!emptyArr(op2)) {
+    err =
+        cat_strings("Error in file ", ds->file_name, " in line ",
+                    ds->line_num_string, " invalid destination operand ", NULL);
+    log_error(ds->err_log, err);
+    free(err);
+    err = NULL;
+  }
+  if ((checkHowOperand(opcodeNumber) == 2) &&
+      (emptyArr(op1) || emptyArr(op2))) {
+    err =
+        cat_strings("Error in file ", ds->file_name, " in line ",
+                    ds->line_num_string, " invalid number of operands ", NULL);
+    log_error(ds->err_log, err);
+    free(err);
+    err = NULL;
+  }
+  if ((checkHowOperand(opcodeNumber) == 1) && (emptyArr(op2))) {
+    err =
+        cat_strings("Error in file ", ds->file_name, " in line ",
+                    ds->line_num_string, " invalid number of operands ", NULL);
+    log_error(ds->err_log, err);
+    free(err);
+    err = NULL;
+  }
   return;
 }
 
@@ -285,9 +377,14 @@ int checkTypeOperand(char *operand) {
 
 int checkNumberArr(char *arr) {
   int i = 0;
+  char *err;
   if (arr[i] == '-' || arr[i] == '+') {
     if (arr[i + 1] == '\0') {
-      printf("Error number incorrect");
+      err = cat_strings("Error in file ", ds->file_name, " in line ",
+                        ds->line_num_string, " invalid number ", NULL);
+      log_error(ds->err_log, err);
+      free(err);
+      err = NULL;
       return false;
     }
     i++;
@@ -301,7 +398,8 @@ int checkNumberArr(char *arr) {
   return true;
 }
 
-/* returns the length of the string, not including the "", -1 for invalid string
+/* returns the length of the string, not including the "", -1 for invalid
+ * string
  */
 int addString(char *str) {
   int current = 0;
@@ -322,21 +420,32 @@ int addString(char *str) {
 }
 
 void addOperand(char *word) {
+  char *err;
   if (emptyArr(op1) && checkHowOperand(opcodeNumber) >= 1) {
     if (emptyArr(op2) && (checkHowOperand(opcodeNumber) == 1))
       strcpy(op2, word);
     else {
       if (checkHowOperand(opcodeNumber) > 1)
         strcpy(op1, word);
-      else
-        printf("\nOperand error");
+      else {
+        err = cat_strings("Error in file ", ds->file_name, " in line ",
+                          ds->line_num_string, " invalid operand ", NULL);
+        log_error(ds->err_log, err);
+        free(err);
+        err = NULL;
+      }
     }
 
   } else {
     if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) {
       strcpy(op2, word);
-    } else
-      printf(" \nOperand error");
+    } else {
+      err = cat_strings("Error in file ", ds->file_name, " in line ",
+                        ds->line_num_string, " invalid operand ", NULL);
+      log_error(ds->err_log, err);
+      free(err);
+      err = NULL;
+    }
   }
 }
 
@@ -397,6 +506,7 @@ int checkSourceOperand(int opcode, int type) {
 }
 
 void setDestinationOperand(char *bin, int n) {
+  char *err;
   if (n == 0) {
     bin[6] = '0';
     bin[7] = '0';
@@ -417,7 +527,11 @@ void setDestinationOperand(char *bin, int n) {
     bin[7] = '1';
     return;
   }
-  printf("Operand destination error");
+  err = cat_strings("Error in file ", ds->file_name, " in line ",
+                    ds->line_num_string, " invalid destination operand ", NULL);
+  log_error(ds->err_log, err);
+  free(err);
+  err = NULL;
   return;
 }
 
@@ -434,6 +548,7 @@ void setSecondRegistr(char *bin, char *reg) {
 }
 
 void setSourceOperand(char *bin, int n) {
+  char *err;
   if (n == 0) {
     bin[4] = '0';
     bin[5] = '0';
@@ -454,7 +569,11 @@ void setSourceOperand(char *bin, int n) {
     bin[5] = '1';
     return;
   }
-  printf("Operand source error");
+  err = cat_strings("Error in file ", ds->file_name, " in line ",
+                    ds->line_num_string, " invalid source operand ", NULL);
+  log_error(ds->err_log, err);
+  free(err);
+  err = NULL;
   return;
 }
 
@@ -479,7 +598,12 @@ void checkWord(char *word) {
 
     if (word[0] == '.' || word[0] == '#') {
       if (isNumber(prevWord)) {
-        printf("\nError number: just natural numbers");
+        err = cat_strings("Error in file ", ds->file_name, " in line ",
+                          ds->line_num_string,
+                          " float point numbers not allowed ", NULL);
+        log_error(ds->err_log, err);
+        free(err);
+        err = NULL;
         break;
       }
       if (word[0] == '#')
@@ -496,13 +620,24 @@ void checkWord(char *word) {
         if (dataCodeNumber == 1) {
           if (emptyArr(op1)) {
             strcpy(op1, word);
-          } else
-            printf("\nError struct");
+          } else {
+            err = cat_strings("Error in file ", ds->file_name, " in line ",
+                              ds->line_num_string,
+                              " invalid struct definition ", NULL);
+            log_error(ds->err_log, err);
+            free(err);
+            err = NULL;
+          }
         }
 
         addTranslation(bin, NULL, trans);
-      } else
-        printf("\nError code");
+      } else {
+        err = cat_strings("Error in file ", ds->file_name, " in line ",
+                          ds->line_num_string, " invalid use of number ", NULL);
+        log_error(ds->err_log, err);
+        free(err);
+        err = NULL;
+      }
     }
 
     break;
@@ -514,8 +649,13 @@ void checkWord(char *word) {
       strcpy(bin, intToBinary(opcodeNumber));
       shiftLeft(bin, 6);
       addTranslation(bin, NULL, trans);
-    } else
-      printf("\nOpcode error");
+    } else {
+      err = cat_strings("Error in file ", ds->file_name, " in line ",
+                        ds->line_num_string, " duplicate instruction ", NULL);
+      log_error(ds->err_log, err);
+      free(err);
+      err = NULL;
+    }
     break;
 
   case ISREGISTR:
