@@ -165,10 +165,10 @@ void checkData()
 void checkOpcode() {
 
     if (checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
-        setSourceOperand(setOP, checkTypeOperand(op1));
+        setSourceOperand(trans->binary[0], checkTypeOperand(op1));
     } else if(!emptyArr(op1)) printf("\nSource operand incorrect");
     if (checkDestinationOperand(opcodeNumber, checkTypeOperand(op2))) {
-        setDestinationOperand(setOP, checkTypeOperand(op2));
+        setDestinationOperand(trans->binary[0], checkTypeOperand(op2));
     } else if(!emptyArr(op2)) printf("\nDestination operand incorrect");
     if((checkHowOperand(opcodeNumber)==2) && (emptyArr(op1) || emptyArr(op2))) printf("\nNot enough operands");
     if((checkHowOperand(opcodeNumber)==1) && (emptyArr(op2))) printf("\nNot enough operands");
@@ -387,7 +387,7 @@ void setDestinationOperand(char *bin, int n) {
 }
 
 void setSecondRegistr(char *bin, char *reg) {
-  char buf[WORD_SIZE];
+  char buf[WORD_SIZE]={0};
   int i;
   if (emptyArr(reg))
     return;
