@@ -53,9 +53,12 @@ void setInternalLabel(char *line) {
 
 void handleAsmLine() {
   char *line = trim(ds->line);
-  if (shouldSkipLine(line))
+  if (shouldSkipLine(line)) {
+    free(line);
     return;
+  }
   setInternalLabel(line);
+  free(line);
 }
 
 void completeEntryLabelsFromSrcCode(AsmDescriptor *ds) {
