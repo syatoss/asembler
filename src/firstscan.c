@@ -61,6 +61,7 @@ void firstscan() {
       if (!emptyArr(label) && dataCodeNumber != 3 && dataCodeNumber != 4)
         addLabelToTable(newLabel(label, ds->line_num, NONE, DATA),
                         ds->lable_tb);
+      addAsmRowToTable(row, table);
     }
     if (opcodeNumber != -1) {
       table = ds->instructions_tb;
@@ -69,6 +70,7 @@ void firstscan() {
       if (!emptyArr(label))
         addLabelToTable(newLabel(label, ds->line_num, NONE, INSTRUCTION),
                         ds->lable_tb);
+      addAsmRowToTable(row, table);
     }
     if (opcodeNumber == -1 && dataCodeNumber == -1) {
       err = cat_strings("Error in file ", ds->file_name, " in line ",
@@ -77,7 +79,7 @@ void firstscan() {
       log_error(ds->err_log, err);
       free(err);
     }
-    addAsmRowToTable(row, table);
+    /* addAsmRowToTable(row, table); */
   }
 }
 
@@ -355,11 +357,11 @@ void addPointOperand() {
   char buf[MAXLABELNAME] = {0};
   if (!emptyArr(op2)) {
     strcpy(buf, op2);
-    strcpy(op2, ".\0");
+    strcpy(op2, ".");
     strcat(op2, buf);
   } else {
     strcpy(buf, op1);
-    strcpy(op1, ".\0");
+    strcpy(op1, ".");
     strcat(op1, buf);
   }
   return;
@@ -579,10 +581,11 @@ void setSourceOperand(char *bin, int n) {
 
 void checkWord(char *word) {
   enum WORD_TYPE wordType;
-  char bin[WORD_SIZE];
+  char bin[WORD_SIZE + 1];
   int isReadingString = false;
   int binTransLen = 0;
   char *err;
+  char *pivot;
   const int INVALID = -1;
   wordType = srchWord(word);
   switch (wordType) {
@@ -670,9 +673,11 @@ void checkWord(char *word) {
       if (isRegistr(op1) != -1) {
         setSecondRegistr(trans->binary[countWord - 2], word);
       } else {
-        strcpy(bin, intToBinary(isRegistr(word)));
+        pivot = intToBinary(isRegistr(word));
+        strcpy(bin, pivot);
         shiftLeft(bin, 2);
         addTranslation(bin, NULL, trans);
+        free(pivot);
       }
     }
     break;
