@@ -46,13 +46,14 @@ void firstscan() {
             table = ds->data_tb;
             row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                             !emptyArr(label), label);
-        } else {
-            if(opcodeNumber!=-1){
+        }
+        if(opcodeNumber!=-1){
                 table = ds->instructions_tb;
                 row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                                 !emptyArr(label), label);
             }
-        } else {
+        if(opcodeNumber==-1 && dataCodeNumber==-1)
+        {
             printf("Error the line not complite instruction or data");
         }
         addAsmRowToTable(row, table);
@@ -138,7 +139,7 @@ void checkLine(char *line) {
   }
   if (!emptyArr(word)) {
       word= trim(word);
-    addword
+      addword
 
   }
   if (prevChar == ',')
