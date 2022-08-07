@@ -22,9 +22,11 @@ extern AsmDescriptor *ds;
   checkWord(word);                                                             \
   strcpy(prevWord, word);                                                      \
   freeArr(word);
-
+#define INVALID -1
 extern AsmDescriptor *ds;
 enum WORD_TYPE { ISDATA, ISOPCODE, ISREGISTR, ISNUMBER, UNKNOWN };
+enum DATA_TYPE { DATA, STRUCT, STRING, ENTRY, EXTERN};
+
 
 void freeArr(char *);
 void firstscan();
