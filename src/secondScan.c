@@ -48,13 +48,17 @@ void setInternalLabel(char *line) {
   labelName = getEntryLabelNameFromLine(line);
   label = getLabelByName(ds->lable_tb, labelName);
   label->status = INTERNAL;
+  free(labelName);
 }
 
 void handleAsmLine() {
   char *line = trim(ds->line);
-  if (shouldSkipLine(line))
+  if (shouldSkipLine(line)) {
+    free(line);
     return;
+  }
   setInternalLabel(line);
+  free(line);
 }
 
 void completeEntryLabelsFromSrcCode(AsmDescriptor *ds) {
@@ -75,6 +79,7 @@ void addMissingLabelAdresses(AsmRow *row) {
   int i;
   Label *currentLabel;
   char *err;
+  /* char *asmLineString; */
   Translation *trans = row->translation;
   for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
     if (trans->nulls[i] == NULL)
@@ -86,6 +91,7 @@ void addMissingLabelAdresses(AsmRow *row) {
                         trans->nulls[i], NULL);
       log_error(ds->err_log, err);
       free(err);
+      /* free(asmLineString); */
     }
     trans->binary[i] =
         intToBinary(currentLabel->lineOfApearance +
@@ -160,7 +166,7 @@ void writeRowTranslationToFile(AsmRow *row, FILE *targetFile,
         intToBase32(startingAddress + row->startLine + currentMemoryWord);
     lineToWrite =
         cat_strings(NULL, base32Address, " ",
-                    row->translation->base32[currentMemoryWord], NULL);
+                    row->translation->binary[currentMemoryWord], "\n", NULL);
     fputs(lineToWrite, targetFile);
     free(lineToWrite);
     free(base32Address);
@@ -186,8 +192,8 @@ void writeInstructionAndDataLengthsToFile(AsmDescriptor *ds, FILE *targetFile) {
   base32InstructionLenght =
       intToBase32(ds->instructions_tb->translationCounter);
   base32DataLenght = intToBase32(ds->data_tb->translationCounter);
-  lineToWrite =
-      cat_strings(NULL, base32InstructionLenght, " ", base32DataLenght, NULL);
+  lineToWrite = cat_strings(NULL, base32InstructionLenght, " ",
+                            base32DataLenght, "\n", NULL);
   fputs(lineToWrite, targetFile);
   free(base32InstructionLenght);
   free(base32DataLenght);
@@ -215,7 +221,14 @@ void writeAsmOutput(AsmDescriptor *ds) {
   writeMachineCodeFile(ds);
 }
 
-void secondScan() {
+void testPrint() {
+  printf("Instruction table: ");
+  printAsmTranslationTable(ds->instructions_tb);
+  printf("Data table: ");
+  printAsmTranslationTable(ds->data_tb);
+}
+
+void actualSecondScan() {
   completeEntryLabelsFromSrcCode(ds);
   completeInstructionTranslation(ds);
   if (ds->err_log->has_errors) {
@@ -223,4 +236,9 @@ void secondScan() {
     return;
   }
   writeAsmOutput(ds);
+}
+
+void secondScan() {
+  testPrint();
+  /* actualSecondScan(); */
 }
