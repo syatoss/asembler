@@ -40,7 +40,7 @@ int get_next_line(AsmDescriptor *ds) {
   if (was_successful) {
     ds->line_num++;
     free(ds->line_num_string);
-    itoa(ds->line_num, 10);
+    ds->line_num_string = itoa(ds->line_num, 10);
     strcpy(ds->line, line);
     free(line);
   }
