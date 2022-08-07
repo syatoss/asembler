@@ -137,6 +137,7 @@ void checkLine(char *line) {
     }
   }
   if (!emptyArr(word)) {
+      word= trim(word);
     addword
 
   }
