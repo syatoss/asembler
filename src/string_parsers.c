@@ -88,9 +88,12 @@ void free_str_arr(StrArr *arr) {
 
 char *cp_string(char *str) {
   char *str_cp;
-  str_cp = str ? (char *)malloc(sizeof(char *) * (strlen(str) + 1))
-               : (char *)malloc(sizeof(char));
-  str ? strcpy(str_cp, str) : strcpy(str_cp, "");
+  int new;
+  new = str == NULL;
+  str_cp = !new ? (char *)malloc(sizeof(char) * (strlen(str) + 1))
+                : (char *)malloc(sizeof(char));
+  /* str_cp = (char *)realloc(str_cp, sizeof(char) * (strlen(str) + 1)); */
+  !new ? strcpy(str_cp, str) : strcpy(str_cp, "");
   return str_cp;
 }
 
@@ -127,16 +130,13 @@ StrArr *split(char *str, char *delimiter) {
   StrArr *arr;
   char *token;
   char *pivot = NULL;
-  char *str_cp;
-  /* char *str_cp = (char *)malloc(sizeof(char) * (strlen(str) + 1)); */
-  /* str_cp = strcpy(str_cp, str); */
-  /* pivot = str_cp; */
+  char *str_cp = NULL;
   str_cp = trim(str);
   arr = new_str_arr();
   token = strtok(str_cp, delimiter);
   while (token != NULL) {
     pivot = trim(token);
-    push_next_string(arr, pivot);
+    push_next_string(arr, token);
     token = strtok(NULL, delimiter);
     free(pivot);
     pivot = NULL;

@@ -126,7 +126,8 @@ void writeEntryFile(AsmDescriptor *ds) {
   char *entriesFileName;
   FILE *entriesFile = NULL;
   LabelNode *currentRow = NULL;
-  entriesFileName = cat_strings(NULL, ds->file_name, ENTRY_FILE_SUFFIX, NULL);
+  entriesFileName =
+      cat_strings(NULL, ds->raw_file_name, ENTRY_FILE_SUFFIX, NULL);
   entriesFile = fopen(entriesFileName, "w");
   currentRow = ds->lable_tb->rows->head;
   while (currentRow) {
@@ -143,7 +144,7 @@ void writeExtrenalsFile(AsmDescriptor *ds) {
   FILE *externalsFile = NULL;
   LabelNode *currentRow = NULL;
   externalsFileName =
-      cat_strings(NULL, ds->file_name, EXTERN_FILE_SUFFIX, NULL);
+      cat_strings(NULL, ds->raw_file_name, EXTERN_FILE_SUFFIX, NULL);
   externalsFile = fopen(externalsFileName, "w");
   currentRow = ds->lable_tb->rows->head;
   while (currentRow) {
@@ -204,7 +205,8 @@ void writeMachineCodeFile(AsmDescriptor *ds) {
   char *outputFileName;
   FILE *outputFile;
   int padding;
-  outputFileName = cat_strings(NULL, ds->file_name, OBJECT_FILE_SUFFIX, NULL);
+  outputFileName =
+      cat_strings(NULL, ds->raw_file_name, OBJECT_FILE_SUFFIX, NULL);
   outputFile = fopen(outputFileName, "w");
   padding = START_ADDRESS;
   writeInstructionAndDataLengthsToFile(ds, outputFile);
@@ -239,6 +241,6 @@ void actualSecondScan() {
 }
 
 void secondScan() {
-  testPrint();
-  /* actualSecondScan(); */
+  /* testPrint(); */
+  actualSecondScan();
 }
