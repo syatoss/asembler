@@ -24,12 +24,24 @@ char op2[MAXLABELNAME] = {0};
 int countWord = 0;
 Translation *trans;
 
+void clearPrevValues() {
+  freeArr(op1);
+  freeArr(op2);
+  freeArr(label);
+  freeArr(prevWord);
+  dataCodeNumber = -1;
+  opcodeNumber = -1;
+  countWord = 0;
+  trans = NULL;
+}
+
 void firstscan() {
   char line[N] = {0};
   AsmRow *row;
   char *err;
   AsmTranslationTable *table;
   while (get_next_line(ds)) {
+    clearPrevValues();
     trans = newTranslation();
     strcpy(line, ds->line);
     checkLine(line);
@@ -55,23 +67,25 @@ void firstscan() {
     }
     if (opcodeNumber == -1 && dataCodeNumber == -1) {
       printf("Error the line not complite instruction or data");
+      continue;
     }
     addAsmRowToTable(row, table);
   }
-  addAsmRowToTable(row, table);
-}
+  /* addAsmRowToTable(row, table); */
 }
 
 void checkLine(char *line) {
   char word[N] = {0};
   char prevChar;
+  char *pivot;
   int i = 0, j = 0;
   while (line[i] != '\0') {
-
+    pivot = NULL;
     if (line[i] == ';' && emptyArr(prevWord) && (!isalnum(prevChar))) {
       return;
     }
     if (isspace(line[i])) {
+      /* add the word if no data or instruction has been read */
       if ((dataCodeNumber == -1) && (opcodeNumber == -1) && (!emptyArr(word))) {
         addword
       }
@@ -142,7 +156,9 @@ void checkLine(char *line) {
     }
   }
   if (!emptyArr(word)) {
-    word = trim(word);
+    pivot = trim(word);
+    strcpy(word, pivot);
+    free(pivot);
     addword
   }
   if (prevChar == ',')
@@ -171,11 +187,11 @@ void checkData() {
 void checkOpcode() {
 
   if (checkSourceOperand(opcodeNumber, checkTypeOperand(op1))) {
-    setSourceOperand(setOP, checkTypeOperand(op1));
+    setSourceOperand(trans->binary[0], checkTypeOperand(op1));
   } else if (!emptyArr(op1))
     printf("\nSource operand incorrect");
   if (checkDestinationOperand(opcodeNumber, checkTypeOperand(op2))) {
-    setDestinationOperand(setOP, checkTypeOperand(op2));
+    setDestinationOperand(trans->binary[0], checkTypeOperand(op2));
   } else if (!emptyArr(op2))
     printf("\nDestination operand incorrect");
   if ((checkHowOperand(opcodeNumber) == 2) && (emptyArr(op1) || emptyArr(op2)))
@@ -187,7 +203,8 @@ void checkOpcode() {
 
 void freeArr(char *line) {
   int i;
-  for (i = 0; i < N; i++) {
+  int len = strlen(line);
+  for (i = 0; i < len; i++) {
     line[i] = '\0';
   }
 }
@@ -404,13 +421,14 @@ void setDestinationOperand(char *bin, int n) {
 }
 
 void setSecondRegistr(char *bin, char *reg) {
-  char buf[WORD_SIZE];
+  char buf[WORD_SIZE + 1] = {0};
   int i;
   if (emptyArr(reg))
     return;
   strcpy(buf, intToBinary(isRegistr(reg)));
-  for (i = 1; i < 4; i++) {
-    bin[WORD_SIZE - (i + 2)] = buf[WORD_SIZE - i];
+  shiftLeft(buf, 2);
+  for (i = 4; i < 8; i++) {
+    bin[i] = buf[i];
   }
   return;
 }
@@ -442,7 +460,7 @@ void setSourceOperand(char *bin, int n) {
 
 void checkWord(char *word) {
   enum WORD_TYPE wordType;
-  char bin[WORD_SIZE];
+  char bin[WORD_SIZE + 1];
   int isReadingString = false;
   int binTransLen = 0;
   char *err;
@@ -469,7 +487,7 @@ void checkWord(char *word) {
         addOperand(word);
       if (word[0] == '.')
         addPointOperand();
-      strcpy(bin, intToBinary(atoi(word + 1)));
+      strcpy(bin, intToBinary(atoi(word + 1))); /*memory leak*/
       shiftLeft(bin, 2);
       addTranslation(bin, NULL, trans);
 
@@ -511,7 +529,7 @@ void checkWord(char *word) {
     }
     if (!emptyArr(op1) && !emptyArr(op2)) {
       if (isRegistr(op1) != -1) {
-        setSecondRegistr(trans->binary[countWord - 1], word);
+        setSecondRegistr(trans->binary[countWord - 2], word);
       } else {
         strcpy(bin, intToBinary(isRegistr(word)));
         shiftLeft(bin, 2);

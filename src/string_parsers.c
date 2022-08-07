@@ -1,5 +1,6 @@
 #include "./../headers/string_parsers.h"
 
+#include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,6 +44,38 @@ char *cat_string(char *target, char *str_to_append) {
   appended = strcat(appended, str_to_append);
   free(target);
   return appended;
+}
+
+void reverseInPlace(char *s) {
+  int first = 0;
+  char pivot;
+  int last;
+  last = strlen(s);
+  while (first < last) {
+    pivot = s[first];
+    s[first] = s[last];
+    s[last] = pivot;
+    first++;
+    last++;
+  }
+}
+
+char *itoa(int num, int base) {
+  char *stringNum = NULL;
+  int digits = 0;
+  int numCopy = num;
+  int i;
+  do {
+    numCopy = numCopy / base;
+    digits++;
+  } while (numCopy);
+  stringNum = (char *)malloc(sizeof(char) * (digits + 1));
+  for (i = 0; i < digits; i++) {
+    stringNum[i] = '0' + (num % (int)(pow(base, digits - 1 - i)));
+    num = num / ((int)(pow(base, digits - 1 - i)));
+  }
+  stringNum[i] = '\0';
+  return stringNum;
 }
 
 void free_str_arr(StrArr *arr) {
@@ -93,7 +126,7 @@ char *get_str_at_index(StrArr *array, int index) {
 StrArr *split(char *str, char *delimiter) {
   StrArr *arr;
   char *token;
-  char *pivot;
+  char *pivot = NULL;
   char *str_cp;
   /* char *str_cp = (char *)malloc(sizeof(char) * (strlen(str) + 1)); */
   /* str_cp = strcpy(str_cp, str); */
@@ -106,6 +139,7 @@ StrArr *split(char *str, char *delimiter) {
     push_next_string(arr, pivot);
     token = strtok(NULL, delimiter);
     free(pivot);
+    pivot = NULL;
   }
   if (pivot != NULL)
     free(pivot);

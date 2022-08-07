@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -ansi -g -Wall -pedantic
+CFLAGS = -ansi -g -Wall -pedantic -lm
 MAIN = main
 BIN = bin
 SRC = src
