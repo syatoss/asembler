@@ -63,14 +63,20 @@ char *itoa(int num, int base) {
   int digits = 0;
   int numCopy = num;
   int i;
+  int currntDigit;
+  int powerResult;
   do {
     numCopy = numCopy / base;
     digits++;
   } while (numCopy);
   stringNum = (char *)malloc(sizeof(char) * (digits + 1));
   for (i = 0; i < digits; i++) {
-    stringNum[i] = '0' + (num % (int)(pow(base, digits - 1 - i)));
-    num = num / ((int)(pow(base, digits - 1 - i)));
+    powerResult = (int)(pow(base, digits - 1 - i));
+    if (powerResult == 0)
+      powerResult = 1;
+    currntDigit = (num / powerResult);
+    stringNum[i] = '0' + currntDigit;
+    num = num % powerResult;
   }
   stringNum[i] = '\0';
   return stringNum;

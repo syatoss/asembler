@@ -53,3 +53,10 @@ dkms.conf
 
 # ignore undo dir
 ~/*
+
+# vim specific env setup
+.vimspector
+
+# all binary files
+bin/
+
