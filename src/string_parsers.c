@@ -39,9 +39,7 @@ char *cat_string(char *target, char *str_to_append) {
   char *appended = cp_string(target);
   appended = (char *)realloc(
       appended, sizeof(char) * (strlen(appended) + strlen(str_to_append) + 1));
-  if (!appended)
-    SYS_MEM_FAIL_EXIT(1);
-  appended = strcat(appended, str_to_append);
+  strcat(appended, str_to_append);
   free(target);
   return appended;
 }
