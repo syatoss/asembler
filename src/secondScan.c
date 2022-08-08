@@ -246,6 +246,6 @@ void actualSecondScan() {
 }
 
 void secondScan() {
-  /* testPrint(); */
-  actualSecondScan();
+  testPrint();
+  /* actualSecondScan(); */
 }

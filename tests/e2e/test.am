@@ -1,1 +1,4 @@
 inc  K
+END:      hlt
+      .string "abcdef"
+       .string "ab"
