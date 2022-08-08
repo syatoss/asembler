@@ -1,1 +1,10 @@
+MAIN:     mov S1.1 ,LENGTH
+add r2,STR
+LOOP:     jmp  END
+prn #-5
+sub  r1, r4
 inc  K
+      .string "abcdef"
+LENGTH:   .data 6,-9,15
+K:        .data 22
+       .string "ab"

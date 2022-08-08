@@ -434,17 +434,20 @@ void addOperand(char *word) {
   char *err;
   if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 1) {
     strcpy(op2, word);
-    if(checkTypeOperand(op2)==1) addTranslation(NULL, op2, trans);
+    if (checkTypeOperand(op2) == 1)
+      addTranslation(NULL, op2, trans);
     return;
   }
   if (emptyArr(op1) && checkHowOperand(opcodeNumber) == 2) {
     strcpy(op1, word);
-    if(checkTypeOperand(op1)==1) addTranslation(NULL, op1, trans);
+    if (checkTypeOperand(op1) == 1)
+      addTranslation(NULL, op1, trans);
     return;
   }
   if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) {
     strcpy(op2, word);
-    if(checkTypeOperand(op2)==1) addTranslation(NULL, op2, trans);
+    if (checkTypeOperand(op2) == 1)
+      addTranslation(NULL, op2, trans);
     return;
   }
   err = cat_strings("Error in file ", ds->file_name, " in line ",
@@ -703,8 +706,9 @@ void checkWord(char *word) {
     if (binTransLen == EMPTY)
       countWord++;
     if (binTransLen == INVALID) {
-      err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
-                        ds->line_num_string, "invalid string definition", NULL);
+      err =
+          cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
+                      ds->line_num_string, " invalid string definition", NULL);
       log_error(ds->err_log, err);
       free(err);
     }
