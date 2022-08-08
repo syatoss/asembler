@@ -59,6 +59,7 @@ void firstscan() {
     }
     if (dataCodeNumber != INVALID) { /*checks if data instruction*/
       table = ds->data_tb;
+        printf("\n\nLabel %s", label);
       if (!emptyArr(label) && dataCodeNumber != 3 && dataCodeNumber != 4) {
         addLabelToTable(newLabel(label, ds->line_num, NONE, DATA),
                         ds->lable_tb);
@@ -71,6 +72,7 @@ void firstscan() {
     }
     if (opcodeNumber != INVALID) {
       table = ds->instructions_tb;
+        printf("\n\nLabel %s", label);
       if (!emptyArr(label)) {
         addLabelToTable(newLabel(label, ds->line_num, NONE, INSTRUCTION),
                         ds->lable_tb);
@@ -434,19 +436,19 @@ void addOperand(char *word) {
   char *err;
   if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 1) {
     strcpy(op2, word);
-    if (checkTypeOperand(op2) == 1)
+    if (checkTypeOperand(op2) == 1 && dataCodeNumber==INVALID)
       addTranslation(NULL, op2, trans);
     return;
   }
   if (emptyArr(op1) && checkHowOperand(opcodeNumber) == 2) {
     strcpy(op1, word);
-    if (checkTypeOperand(op1) == 1)
+    if (checkTypeOperand(op1) == 1 && dataCodeNumber==INVALID)
       addTranslation(NULL, op1, trans);
     return;
   }
   if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) {
     strcpy(op2, word);
-    if (checkTypeOperand(op2) == 1)
+    if (checkTypeOperand(op2) == 1 && dataCodeNumber==INVALID)
       addTranslation(NULL, op2, trans);
     return;
   }

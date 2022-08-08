@@ -4,10 +4,13 @@ LOOP:     jmp  END
 prn #-5
 sub  r1, r4
 inc  K
-mov S1.2 , r3
+
+mov S1.2, r3
 bne LOOP
 END:      hlt
-      .string "abcdef"
+STR:      .string "abcdef"
 LENGTH:   .data 6,-9,15
 K:        .data 22
-       .string "ab"
+S1:       .struct 8, "ab"
+
+
