@@ -74,7 +74,6 @@ void firstscan() {
       if (!emptyArr(label)) {
         addLabelToTable(newLabel(label, ds->line_num, NONE, INSTRUCTION),
                         ds->lable_tb);
-        countWord--;
       }
       row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
                       !emptyArr(label), label);
@@ -429,20 +428,23 @@ int addString(char *str) {
   addTranslation(aToBin('\0'), NULL, trans);
   if (current == 1)
     return EMPTY;
-  return current - 2;
+  return current - 1;
 }
 void addOperand(char *word) {
   char *err;
   if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 1) {
     strcpy(op2, word);
+    if(checkTypeOperand(op2)==1) addTranslation(NULL, op2, trans);
     return;
   }
   if (emptyArr(op1) && checkHowOperand(opcodeNumber) == 2) {
     strcpy(op1, word);
+    if(checkTypeOperand(op1)==1) addTranslation(NULL, op1, trans);
     return;
   }
   if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) {
     strcpy(op2, word);
+    if(checkTypeOperand(op2)==1) addTranslation(NULL, op2, trans);
     return;
   }
   err = cat_strings("Error in file ", ds->file_name, " in line ",
@@ -691,7 +693,6 @@ void checkWord(char *word) {
     isReadingString = (dataCodeNumber == STRUCT && !emptyArr(op2)) ||
                       (dataCodeNumber == STRING && !emptyArr(op1));
     if (!isReadingString) {
-      addTranslation(NULL, label, trans);
       break;
     }
 
