@@ -46,7 +46,6 @@ void firstscan() {
         trans = newTranslation();
         strcpy(line, ds->line);
         checkLine(line);
-        printf("\n\nLabel %s", label);
         if (opcodeNumber != INVALID)
             checkOpcode();
         if (!correctLabel(label)) {
@@ -691,7 +690,7 @@ void checkWord(char *word) {
                 countWord++;
             if (binTransLen == INVALID) {
                 err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
-                                  ds->line_num, "invalid string definition", NULL);
+                                  ds->line_num_string, "invalid string definition", NULL);
                 log_error(ds->err_log, err);
                 free(err);
             }
