@@ -16,7 +16,7 @@ AsmDescriptor *new_asm_descriptor(char *raw_file_name, char *file_extennsion) {
   ds->fp = fopen(file_path, "r");
   ds->line = (char *)malloc(sizeof(char) * STRING_BUFFER_SIZE);
   ds->file_name = file_path;
-  ds->line_num = 0;
+  ds->line_num = 1;
   ds->raw_file_name = cp_string(raw_file_name);
   ds->line_num_string = itoa(ds->line_num, 10);
   ds->err_log = new_error_logger(stderr);
@@ -41,6 +41,7 @@ int get_next_line(AsmDescriptor *ds) {
     ds->line_num++;
     free(ds->line_num_string);
     ds->line_num_string = itoa(ds->line_num, 10);
+    /* printf("line num:%s\n", ds->line_num_string); */
     strcpy(ds->line, line);
     free(line);
   }

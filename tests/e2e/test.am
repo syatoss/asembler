@@ -1,1 +1,4 @@
-          mov S1.2 , r3
+inc  K
+
+K:        .data 22
+S1:       .struct 8, "ab""
