@@ -64,21 +64,21 @@ char *itoa(int num, int base) {
   int numCopy = num;
   int i;
   int currntDigit;
-  num = 22;
-  printf("start of itoa (num=%d, base=%d): \n", num, base);
+  int powerResult;
   do {
     numCopy = numCopy / base;
     digits++;
   } while (numCopy);
   stringNum = (char *)malloc(sizeof(char) * (digits + 1));
   for (i = 0; i < digits; i++) {
-    currntDigit = (num % ((int)(pow(base, digits - 1 - i))));
-    printf("digit of the %d iteration: %d\n", i, currntDigit);
+    powerResult = (int)(pow(base, digits - 1 - i));
+    if (powerResult == 0)
+      powerResult = 1;
+    currntDigit = (num / powerResult);
     stringNum[i] = '0' + currntDigit;
-    num = num / ((int)(pow(base, digits - 1 - i)));
+    num = num % powerResult;
   }
   stringNum[i] = '\0';
-  printf("end of itoa: \n\n\n");
   return stringNum;
 }
 
