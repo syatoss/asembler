@@ -78,7 +78,8 @@ int translationNeedsCompletion(Translation *trans) {
 void addMissingLabelAdresses(AsmRow *row) {
   int i;
   Label *currentLabel;
-  char *err;
+  char *err = NULL;
+  char *rowInAsmFile = NULL;
   /* char *asmLineString; */
   Translation *trans = row->translation;
   for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
@@ -86,11 +87,15 @@ void addMissingLabelAdresses(AsmRow *row) {
       continue;
     currentLabel = getLabelByName(ds->lable_tb, trans->nulls[i]);
     if (!currentLabel) {
-      err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
-                        row->lineNumInAsmFile, " undefined label ",
-                        trans->nulls[i], NULL);
+      rowInAsmFile = itoa(row->lineNumInAsmFile, 10);
+      err =
+          cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
+                      rowInAsmFile, " undefined label ", trans->nulls[i], NULL);
       log_error(ds->err_log, err);
       free(err);
+      free(rowInAsmFile);
+      err = NULL;
+      rowInAsmFile = NULL;
       /* free(asmLineString); */
     }
     trans->binary[i] =

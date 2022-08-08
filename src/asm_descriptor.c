@@ -41,7 +41,7 @@ int get_next_line(AsmDescriptor *ds) {
     ds->line_num++;
     free(ds->line_num_string);
     ds->line_num_string = itoa(ds->line_num, 10);
-    /* printf("line num:%s\n", ds->line_num_string); */
+    printf("line num:%s\n", ds->line_num_string);
     strcpy(ds->line, line);
     free(line);
   }
