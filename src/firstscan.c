@@ -59,20 +59,23 @@ void firstscan() {
         }
         if (dataCodeNumber != INVALID) { /*checks if data instruction*/
             table = ds->data_tb;
-            row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
-                            !emptyArr(label), label);
             if (!emptyArr(label) && dataCodeNumber != 3 && dataCodeNumber != 4){
                 addLabelToTable(newLabel(label, ds->line_num, NONE, DATA),
-                                ds->lable_tb);}
+                                ds->lable_tb); countWord--;}
+            row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
+                            !emptyArr(label), label);
+
+
             addAsmRowToTable(row, table);
         }
         if (opcodeNumber != INVALID) {
             table = ds->instructions_tb;
-            row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
-                            !emptyArr(label), label);
             if (!emptyArr(label)){
                 addLabelToTable(newLabel(label, ds->line_num, NONE, INSTRUCTION),
-                                ds->lable_tb);}
+                                ds->lable_tb); countWord--;}
+            row = newAsmRow(countWord, table->translationCounter, ds->line_num, trans,
+                            !emptyArr(label), label);
+
             addAsmRowToTable(row, table);
         }
         if ((opcodeNumber == INVALID) && (dataCodeNumber == INVALID) && (!emptyArr(label)) ){
@@ -426,7 +429,7 @@ int addString(char *str) {
 }
 void addOperand(char *word) {
     char *err;
-    if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 1) { strcpy(op2, word);/*printf("\n\nOP2 in addoperand %s ", op2);*/ return;}
+    if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 1) { strcpy(op2, word); return;}
     if (emptyArr(op1) && checkHowOperand(opcodeNumber) == 2) { strcpy(op1, word); return;}
     if (emptyArr(op2) && checkHowOperand(opcodeNumber) == 2) { strcpy(op2, word); return;}
     err = cat_strings("Error in file ", ds->file_name, " in line ",
@@ -672,11 +675,7 @@ void checkWord(char *word) {
         case UNKNOWN: /* reading body of .string or .entry or .extern or .struct or
                  body of operation (label of operation valid or invalid)
                  */
-            /*printf("\n\nTHe code %d \n", opcodeNumber);
-            printf("\n\n The word %s", word);
-            printf("\n\nOP2 before %s ", op2);*/
             addOperand(word);
-            /* printf("\n\nOP2 after %s ", op2);*/
             isReadingString = (dataCodeNumber == STRUCT && !emptyArr(op2)) ||
                               (dataCodeNumber == STRING && !emptyArr(op1));
             if (!isReadingString) {
