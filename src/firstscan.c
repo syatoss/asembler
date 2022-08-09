@@ -44,7 +44,6 @@ void firstscan() {
   AsmTranslationTable *table;
   while (get_next_line(ds)) {
     clearPrevValues();
-
     trans = newTranslation();
     strcpy(line, ds->line);
     checkLine(line);
@@ -60,8 +59,9 @@ void firstscan() {
     }
     if (dataCodeNumber != INVALID) { /*checks if data instruction*/
       table = ds->data_tb;
+      checkData();
 
-      if (!emptyArr(label) && dataCodeNumber != 3 && dataCodeNumber != 4) {
+      if (!emptyArr(label) && dataCodeNumber != ENTRY && dataCodeNumber != EXTERN) {
         addLabelToTable(newLabel(label, ds->line_num, NONE, DATA),
                         ds->lable_tb);
         if(dataCodeNumber!=DATAWORD) countWord--;
@@ -128,6 +128,7 @@ void checkLine(char *line) {
           strcpy(label, word);
           freeArr(word);
           prevChar = ':';
+
         } else {
           err = cat_strings("Error in file ", ds->file_name, " in line ",
                             ds->line_num_string, " invalid char \':\'", NULL);
@@ -254,6 +255,7 @@ void checkData() {
     err = NULL;
   }
   if (dataCodeNumber == EXTERN) {
+
     if (!emptyArr(op1) && !emptyArr(op2)) {
       err = cat_strings("Error in file ", ds->file_name, " in line ",
                         ds->line_num_string, " invalid use of extern ", NULL);
@@ -261,6 +263,7 @@ void checkData() {
       free(err);
       err = NULL;
     } else {
+
       addLabelToTable(newLabel(op1, ds->line_num, EXTERNAL, DATA),
                       ds->lable_tb);
     }
@@ -600,7 +603,7 @@ void checkWord(char *word) {
   case ISDATA: /*.data/.string/.struct/.entry/.extren*/
 
     dataCodeNumber = isData(word);
-    if (dataCodeNumber == 0)
+    if (dataCodeNumber == DATAWORD)
       countWord--;
     break;
 
