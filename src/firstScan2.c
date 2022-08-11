@@ -281,9 +281,10 @@ void readRestOfNumberLine(char *line, int *lastReadCharIndex,
   numbers = getNumbersFromLine(line, lastReadCharIndex);
   if (numbers == NULL) {
     err = cat_strings("Error in file ", ds->file_name, " in line ",
-                      ds->line_num_string, " invalid .data definition");
+                      ds->line_num_string, " invalid .data definition", NULL);
     log_error(ds->err_log, err);
     freeMem(err, err);
+    return;
   }
   trans = newTranslation();
   labelName = currentLabel == NULL ? NULL : currentLabel->name;
@@ -337,7 +338,7 @@ void firstScan(AsmDescriptor *ds) {
       if (getLabelByName(ds->lable_tb, labelName)) {
         err = cat_strings("Error in file ", ds->file_name, " in line ",
                           ds->line_num_string, " duplicate definition of \"",
-                          labelName, "\"", "\n", NULL);
+                          labelName, "\"", NULL);
         log_error(ds->err_log, err);
         freeMem(err, labelName);
         continue;
@@ -369,8 +370,7 @@ void firstScan(AsmDescriptor *ds) {
       continue;
     } else {
       err = cat_strings("Error in file ", ds->file_name, " in line ",
-                        ds->line_num_string, " invalid label definition", "\n",
-                        NULL);
+                        ds->line_num_string, " invalid label definition", NULL);
 
       log_error(ds->err_log, err);
       freeMem(err, err);
