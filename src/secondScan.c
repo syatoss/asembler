@@ -48,13 +48,17 @@ void setInternalLabel(char *line) {
   labelName = getEntryLabelNameFromLine(line);
   label = getLabelByName(ds->lable_tb, labelName);
   label->status = INTERNAL;
+  free(labelName);
 }
 
 void handleAsmLine() {
   char *line = trim(ds->line);
-  if (shouldSkipLine(line))
+  if (shouldSkipLine(line)) {
+    free(line);
     return;
+  }
   setInternalLabel(line);
+  free(line);
 }
 
 void completeEntryLabelsFromSrcCode(AsmDescriptor *ds) {
@@ -74,18 +78,28 @@ int translationNeedsCompletion(Translation *trans) {
 void addMissingLabelAdresses(AsmRow *row) {
   int i;
   Label *currentLabel;
-  char *err;
+  char *err = NULL;
+  char *rowInAsmFile = NULL;
+  /* char *asmLineString; */
   Translation *trans = row->translation;
+  AsmDescriptor *d;
+  d = ds;
   for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
     if (trans->nulls[i] == NULL)
       continue;
     currentLabel = getLabelByName(ds->lable_tb, trans->nulls[i]);
     if (!currentLabel) {
-      err = cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
-                        row->lineNumInAsmFile, " undefined label ",
-                        trans->nulls[i], NULL);
+      rowInAsmFile = itoa(row->lineNumInAsmFile, 10);
+      err =
+          cat_strings(NULL, "Error in file ", ds->file_name, " in line ",
+                      rowInAsmFile, " undefined label ", trans->nulls[i], NULL);
       log_error(ds->err_log, err);
       free(err);
+      free(rowInAsmFile);
+      err = NULL;
+      rowInAsmFile = NULL;
+      continue;
+      /* free(asmLineString); */
     }
     trans->binary[i] =
         intToBinary(currentLabel->lineOfApearance +
@@ -217,7 +231,14 @@ void writeAsmOutput(AsmDescriptor *ds) {
   writeMachineCodeFile(ds);
 }
 
-void secondScan() {
+void testPrint() {
+  printf("Instruction table: ");
+  printAsmTranslationTable(ds->instructions_tb);
+  printf("Data table: ");
+  printAsmTranslationTable(ds->data_tb);
+}
+
+void actualSecondScan() {
   completeEntryLabelsFromSrcCode(ds);
   completeInstructionTranslation(ds);
   if (ds->err_log->has_errors) {
@@ -225,4 +246,9 @@ void secondScan() {
     return;
   }
   writeAsmOutput(ds);
+}
+
+void secondScan() {
+  /* testPrint(); */
+  actualSecondScan();
 }

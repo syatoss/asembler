@@ -1,5 +1,6 @@
 #include "./../headers/string_parsers.h"
 
+#include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,9 +39,47 @@ char *cat_string(char *target, char *str_to_append) {
   char *appended = cp_string(target);
   appended = (char *)realloc(
       appended, sizeof(char) * (strlen(appended) + strlen(str_to_append) + 1));
-  appended = strcat(appended, str_to_append);
+  strcat(appended, str_to_append);
   free(target);
   return appended;
+}
+
+void reverseInPlace(char *s) {
+  int first = 0;
+  char pivot;
+  int last;
+  last = strlen(s);
+  while (first < last) {
+    pivot = s[first];
+    s[first] = s[last];
+    s[last] = pivot;
+    first++;
+    last++;
+  }
+}
+
+char *itoa(int num, int base) {
+  char *stringNum = NULL;
+  int digits = 0;
+  int numCopy = num;
+  int i;
+  int currntDigit;
+  int powerResult;
+  do {
+    numCopy = numCopy / base;
+    digits++;
+  } while (numCopy);
+  stringNum = (char *)malloc(sizeof(char) * (digits + 1));
+  for (i = 0; i < digits; i++) {
+    powerResult = (int)(pow(base, digits - 1 - i));
+    if (powerResult == 0)
+      powerResult = 1;
+    currntDigit = (num / powerResult);
+    stringNum[i] = '0' + currntDigit;
+    num = num % powerResult;
+  }
+  stringNum[i] = '\0';
+  return stringNum;
 }
 
 void free_str_arr(StrArr *arr) {
@@ -102,7 +141,9 @@ StrArr *split(char *str, char *delimiter) {
     push_next_string(arr, trim(token));
     token = strtok(NULL, delimiter);
   }
-  free(pivot);
+  if (pivot != NULL)
+    free(pivot);
+  free(str_cp);
   return arr;
 }
 
@@ -129,18 +170,17 @@ void printStrArr(StrArr *arr) {
 }
 
 char *trim(char *s) {
-  char *new;
+  char *trimmed;
   char *pivot;
-  new = cp_string(s);
-  pivot = new;
-  new = rtrim(ltrim(new));
-  new = cp_string(new);
+  trimmed = cp_string(s);
+  pivot = trimmed;
+  trimmed = rtrim(ltrim(s));
+  trimmed = cp_string(trimmed);
   free(pivot);
-  return new;
+  return trimmed;
 }
 
-char *substring(char *source, int start, int n) {
-  char *target = (char *)malloc(sizeof(char) * n - start + 1);
+char *substring(char *target, const char *source, int start, int n) {
   while (n > 0) {
     *target = *(source + start);
     target++;

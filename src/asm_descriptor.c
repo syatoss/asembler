@@ -8,38 +8,28 @@
 #include "../headers/constants.h"
 #include "../headers/string_parsers.h"
 
-AsmDescriptor *new_asm_descriptor(char *file_path) {
+AsmDescriptor *new_asm_descriptor(char *raw_file_name, char *file_extennsion) {
   AsmDescriptor *ds;
-  char *fullName;
-  char *rawName;
-  fullName = cp_string(file_path);
-  rawName =
-      substring(file_path, 0, strlen(file_path) - strlen(ASM_FILE_SUFFIX));
+  char *err;
+  char *file_path;
+  file_path = cat_strings(raw_file_name, file_extennsion, NULL);
   ds = (AsmDescriptor *)malloc(sizeof(AsmDescriptor));
   ds->fp = fopen(file_path, "r");
   ds->line = (char *)malloc(sizeof(char) * STRING_BUFFER_SIZE);
-  ds->file_name = fullName;
+  ds->file_name = file_path;
   ds->line_num = 0;
-  ds->line_num_str = itoa(0);
-  ds->raw_file_name = rawName;
+  ds->raw_file_name = cp_string(raw_file_name);
+  ds->line_num_string = itoa(ds->line_num, 10);
   ds->err_log = new_error_logger(stderr);
   ds->lable_tb = newLabelTable();
   ds->data_tb = newAsmTranslationTable();
   ds->instructions_tb = newAsmTranslationTable();
-  return ds;
-}
-
-char *itoa(int num) {
-  int i;
-  int digit;
-  int powers[3] = {100, 10, 1};
-  char *result = cp_string("000");
-  for (i = 0; i < 3; i++) {
-    digit = num / powers[i];
-    result[i] = '0' + digit;
-    num = num % powers[i];
+  if (!ds->fp) {
+    err = cat_strings("Error, cant find ", ds->file_name, NULL);
+    log_error(ds->err_log, err);
+    free(err);
   }
-  return result;
+  return ds;
 }
 
 int get_next_line(AsmDescriptor *ds) {
@@ -50,8 +40,9 @@ int get_next_line(AsmDescriptor *ds) {
   was_successful = line == NULL ? false : true;
   if (was_successful) {
     ds->line_num++;
-    free(ds->line_num_str);
-    ds->line_num_str = itoa(ds->line_num);
+    free(ds->line_num_string);
+    ds->line_num_string = NULL;
+    ds->line_num_string = itoa(ds->line_num, 10);
     strcpy(ds->line, line);
     free(line);
   }
@@ -88,13 +79,17 @@ void free_asm_descriptor(AsmDescriptor *ds) {
     free(ds->line);
   if (ds->fp != NULL)
     fclose(ds->fp);
-  /* if (ds->line_num_str != NULL) */
-  /* free(ds->line_num_str); */
-  if (!ds->raw_file_name)
-    free(ds->raw_file_name);
-  if (ds->file_name != NULL)
+  if (ds->err_log != NULL)
+    clear_logger(ds->err_log);
+  if (ds->line_num_string != NULL) {
+    free(ds->line_num_string);
+  }
+  if (ds->file_name) {
     free(ds->file_name);
-  clear_logger(ds->err_log);
+  }
+  if (ds->raw_file_name) {
+    free(ds->raw_file_name);
+  }
   freeLabelTable(ds->lable_tb);
   freeAsmTranslationTable(ds->data_tb);
   freeAsmTranslationTable(ds->instructions_tb);

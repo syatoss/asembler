@@ -36,7 +36,7 @@ void freeAsmRow(AsmRow *data) {
   free(data);
 }
 
-void printAsmRow(AsmRow *data) {}
+void printAsmRow(AsmRow *data) { printTranslation(data->translation); }
 
 AsmRowNode *newAsmRowNode(AsmRow *data) {
   AsmRowNode *node = (AsmRowNode *)malloc(sizeof(AsmRowNode));

@@ -10,7 +10,7 @@ char *rtrim(char *);
 int is_white_space(char);
 char *ltrim(char *);
 char *trim(char *s);
-char *substring(char *source, int start, int n);
+char *substring(char *target, const char *source, int start, int n);
 StrArr *split(char *string, char *delimiter);
 StrArr *new_str_arr();
 char *get_str_at_index(StrArr *array, int index);
@@ -24,5 +24,7 @@ target's newly alocated memmory takes NULL as a flag indicating last
   string  */
 char *cat_strings(char *target, ...);
 void printStrArr(StrArr *arr);
+char *itoa(int num, int base);
+void reverseInPlace(char *s);
 
 #endif
