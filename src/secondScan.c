@@ -82,8 +82,6 @@ void addMissingLabelAdresses(AsmRow *row) {
   char *rowInAsmFile = NULL;
   /* char *asmLineString; */
   Translation *trans = row->translation;
-  AsmDescriptor *d;
-  d = ds;
   for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
     if (trans->nulls[i] == NULL)
       continue;

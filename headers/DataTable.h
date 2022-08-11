@@ -48,7 +48,7 @@ AsmRowNode *getAsmRowNodeByStartLine(AsmRowList *list, int startLine);
 AsmRow *getAsmRowByStartLine(AsmTranslationTable *table, int startLine);
 void addAsmRowNodeToListTail(AsmRowNode *node, AsmRowList *list);
 void addAsmRowToListTail(AsmRow *data, AsmTranslationTable *table);
-void addAsmRowToTable(AsmRow *lable, AsmTranslationTable *table);
+void addAsmRowToTable(AsmRow *row, AsmTranslationTable *table);
 void printAsmRowNode(AsmRowNode *node);
 void printAsmRowList(AsmRowList *list);
 /* print the asm table for debuggin reasons */

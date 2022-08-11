@@ -7,7 +7,7 @@
 #include "../headers/Translation.h"
 #include "../headers/asm_descriptor.h"
 #include "../headers/constants.h"
-#include "../headers/firstscan.h"
+#include "../headers/firstScan2.h"
 #include "../headers/label.h"
 #include "../headers/macro_regiester.h"
 #include "../headers/secondScan.h"
@@ -53,7 +53,7 @@ void assembler(char *asm_file_name) {
 
   /* attempt to run the first scan */
   ds = new_asm_descriptor(asm_file_name, SPREAD_FILE_SUFFIX);
-  firstscan();
+  firstScan(ds);
   if (ds->err_log->has_errors) {
     print_all_logger_errors(ds->err_log);
     free_asm_descriptor(ds);

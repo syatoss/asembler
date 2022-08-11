@@ -180,7 +180,11 @@ char *trim(char *s) {
   return trimmed;
 }
 
-char *substring(char *target, const char *source, int start, int n) {
+char *substring(char *source, int start, int n) {
+  char *target = NULL;
+  char *targetStart = NULL;
+  target = (char *)malloc(sizeof(char) * (n + 1));
+  targetStart = target;
   while (n > 0) {
     *target = *(source + start);
     target++;
@@ -188,5 +192,5 @@ char *substring(char *target, const char *source, int start, int n) {
     n--;
   }
   *target = '\0';
-  return target;
+  return targetStart;
 }

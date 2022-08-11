@@ -65,7 +65,7 @@ char *getNextWordWithWordEndDelimiter(char *line, int *lastReadCharIndex) {
   startIndex = *lastReadCharIndex;
   while (!isWordEndDelimiter(line[(*lastReadCharIndex)++]))
     ;
-  word = substring(line, startIndex, *lastReadCharIndex);
+  word = substring(line, startIndex, *lastReadCharIndex - startIndex);
   return word;
 }
 
@@ -100,7 +100,7 @@ int isLabelDef(char *word) {
   if (word[strlen(word) - 1] != ' ')
     return false;
   word = trim(word);
-  if (word[strlen(word) - 1 != ':'])
+  if (word[strlen(word) - 1] != ':')
     return false;
   if (isLanguageReservedWord(word))
     return false;
@@ -127,64 +127,175 @@ void pushInt(int **intArrPtr, int num, int arrSize) {
   *intArrPtr = new;
 }
 
-int *getNumbersFromLine(char *line, int *lastReadCharIndex) {
-  int expectSeperator = false;
-  char currntNumberString[MAX_LABEL_LENGHT];
-  int currentNumberStringIndex = 0;
-  int numCount = 0;
-  int currntNumberInt;
-  int *numbers = NULL;
-  while (is_white_space(line[*lastReadCharIndex]))
-    (*lastReadCharIndex)++;
-  while (line[*lastReadCharIndex] != '\0' || line[*lastReadCharIndex] != '\n') {
-    while (is_white_space(line[*lastReadCharIndex]))
-      (*lastReadCharIndex)++;
-    if (expectSeperator) {
-      if (line[*lastReadCharIndex] != ',') {
-        printf("invalid number error");
+int isInt(char *word) {
+  int i = 0;
+  int len;
+  len = strlen(word);
+  if (len < 1)
+    return false;
+  if (word[i] == '+' || word[i] == '-')
+    i++;
+  for (; i < len; i++) {
+    if (!isdigit(word[i]))
+      return false;
+  }
+  return true;
+}
+
+int getLineValidityForDataDef(char *line) {
+  int delimiterExpected = false;
+  int currentCharIndex = 0;
+  int numberExpected = true;
+  int currentWordCharIndex = 0;
+  char delimiter = ',';
+  char currentWord[MAX_LABEL_LENGHT] = {0};
+  while (is_white_space(line[currentCharIndex]))
+    currentCharIndex++;
+  for (; line[currentCharIndex] != '\n' && line[currentCharIndex] != '\0';
+       currentCharIndex++) {
+    if (numberExpected) {
+      /* if space is read its assumed that the next word is read */
+      if (line[currentCharIndex] == ' ') {
+        delimiterExpected = true;
+        numberExpected = false;
+        currentWord[currentWordCharIndex] = '\0';
+        currentWordCharIndex = 0;
+        if (!isInt(currentWord))
+          return false;
+        continue;
       }
-      (*lastReadCharIndex)++;
-      expectSeperator = false;
+      /* if unexpected delimiter is encountered than the numver def is invalid*/
+      if (line[currentCharIndex] == delimiter && !delimiterExpected)
+        return false;
+      /* if an expected delimiter is encountered the current word is regarded as
+       * copletely read */
+      else if (line[currentCharIndex] == delimiter && delimiterExpected) {
+        currentWord[currentWordCharIndex++] = '\0';
+        currentWordCharIndex = 0;
+        if (!isInt(currentWord))
+          return false;
+        delimiterExpected = false;
+        numberExpected = true;
+        continue;
+      }
+      currentWord[currentWordCharIndex++] = line[currentCharIndex];
+      /*epxect delimiter if a whole nuber could have been read*/
+      delimiterExpected = ((currentWord[0] != '+' && currentWord[0] != '-') ||
+                           currentWordCharIndex > 1);
       continue;
     }
-
-    if (line[*lastReadCharIndex] == '-' || line[*lastReadCharIndex] == '+') {
-      currntNumberString[currentNumberStringIndex] = line[*lastReadCharIndex];
-      currentNumberStringIndex++;
-      (*lastReadCharIndex)++;
+    if (delimiterExpected && !numberExpected) {
+      if (line[currentCharIndex] == ' ') {
+        continue;
+      }
+      if (line[currentCharIndex] != ',')
+        return false;
+      delimiterExpected = false;
+      numberExpected = true;
     }
-    while (isdigit(line[*lastReadCharIndex])) {
-      currntNumberString[currentNumberStringIndex] = line[*lastReadCharIndex];
-      currentNumberStringIndex++;
-      (*lastReadCharIndex)++;
-    }
-    if (line[*lastReadCharIndex] == ' ') {
-      expectSeperator = true;
-    }
-    if (line[*lastReadCharIndex] == ',') {
-      expectSeperator = false;
-    }
-    currntNumberString[currentNumberStringIndex] = '\0';
-    currntNumberInt = atoi(currntNumberString);
-    pushInt(&numbers, currntNumberInt, numCount++);
-    currentNumberStringIndex = 0;
   }
+  /* checks that the the line did not end in a delimiter */
+  return delimiterExpected;
+}
 
-  pushInt(&numbers, INT_ARR_END_DELIMITER, numCount);
-  return numbers;
+StrArr *getNumbersFromLine(char *line, int *lastReadCharIndex) {
+  int validDataDef = false;
+  validDataDef = getLineValidityForDataDef(line + *lastReadCharIndex);
+  if (!validDataDef)
+    return NULL;
+  return split(line, ",");
+  /* int expectSeperator = false; */
+  /* char currntNumberString[MAX_LABEL_LENGHT]; */
+  /* int currentNumberStringIndex = 0; */
+  /* int singRead = false; */
+  /* int numCount = 0; */
+  /* int currntNumberInt; */
+  /* int *numbers = NULL; */
+  /* while (is_white_space(line[*lastReadCharIndex])) */
+  /*   (*lastReadCharIndex)++; */
+  /* while (line[*lastReadCharIndex] != '\0' || line[*lastReadCharIndex] !=
+   * '\n') { */
+  /*   while (is_white_space(line[*lastReadCharIndex])) */
+  /*     (*lastReadCharIndex)++; */
+  /*   if (expectSeperator) { */
+  /*     if (line[*lastReadCharIndex] != ',') { */
+  /*       printf("missing \",\" in data definition"); */
+  /*     } */
+  /*     (*lastReadCharIndex)++; */
+  /*     expectSeperator = false; */
+  /*     continue; */
+  /*   } */
+
+  /*   if ((line[*lastReadCharIndex] == '-' || line[*lastReadCharIndex] == '+')
+   * && */
+  /*       !singRead) { */
+  /*     currntNumberString[currentNumberStringIndex] =
+   * line[*lastReadCharIndex]; */
+  /*     currentNumberStringIndex++; */
+  /*     (*lastReadCharIndex)++; */
+  /*     singRead = true; */
+  /*   } */
+  /*   if ((line[*lastReadCharIndex] == '-' || line[*lastReadCharIndex] == '+')
+   * && */
+  /*       singRead) { */
+  /*     printf("duplicate use of sing"); */
+  /*     continue; */
+  /*   } */
+  /*   while (isdigit(line[*lastReadCharIndex])) { */
+  /*     currntNumberString[currentNumberStringIndex] =
+   * line[*lastReadCharIndex]; */
+  /*     currentNumberStringIndex++; */
+  /*     (*lastReadCharIndex)++; */
+  /*   } */
+  /*   if (line[*lastReadCharIndex] == ' ') { */
+  /*     expectSeperator = true; */
+  /*   } */
+  /*   if (line[*lastReadCharIndex] == ',') { */
+  /*     expectSeperator = false; */
+  /*   } */
+  /*   currntNumberString[currentNumberStringIndex] = '\0'; */
+  /*   currntNumberInt = atoi(currntNumberString); */
+  /*   pushInt(&numbers, currntNumberInt, numCount++); */
+  /*   currentNumberStringIndex = 0; */
+}
+
+/* pushInt(&numbers, INT_ARR_END_DELIMITER, numCount); */
+/* return numbers; */
+/* } */
+
+void addNumbersToTranslation(StrArr *numbers, Translation *trans) {
+  int i;
+  int num = 0;
+  for (i = 0; i < numbers->length; i++) {
+    num = atoi(numbers->strings[i]);
+    addTranslation(intToBinary(num), NULL, trans);
+  }
 }
 
 void readRestOfNumberLine(char *line, int *lastReadCharIndex,
                           Label *currentLabel) {
-  int *numbers;
-  Translation *trans = newTranslation();
+  StrArr *numbers = NULL;
+  char *err = NULL;
+  Translation *trans;
+  char *labelName = NULL;
   numbers = getNumbersFromLine(line, lastReadCharIndex);
+  if (numbers == NULL) {
+    err = cat_strings("Error in file ", ds->file_name, " in line ",
+                      ds->line_num_string, " invalid .data definition");
+    log_error(ds->err_log, err);
+    freeMem(err, err);
+  }
+  trans = newTranslation();
+  labelName = currentLabel == NULL ? NULL : currentLabel->name;
+  addNumbersToTranslation(numbers, trans);
+  addAsmRowToTable(newAsmRow(trans->lineCount, ds->line_num,
+                             ds->data_tb->translationCounter, trans,
+                             labelName != NULL, labelName),
+                   ds->data_tb);
 }
 
-void readRestOfStringLine(char *line, int *lastReadCharIndex,
-                          Label *currentLabel) {}
-void readRestOfStructLine(char *line, int *lastReadCharIndex,
-                          Label *currentLabel) {}
+void readRestOfStringLine(char *line, int *lastReadCharIndex) {}
+void readRestOfStructLine(char *line, int *lastReadCharIndex) {}
 
 void readRestOfDataLine(char *line, char *dataType, int *lastReadCharIndex,
                         Label *currentLabel) {
@@ -194,10 +305,10 @@ void readRestOfDataLine(char *line, char *dataType, int *lastReadCharIndex,
     readRestOfNumberLine(line, lastReadCharIndex, currentLabel);
     break;
   case STRING:
-    readRestOfStringLine(line, lastReadCharIndex, currentLabel);
+    readRestOfStringLine(line, lastReadCharIndex);
     break;
   case STRUCT:
-    readRestOfStructLine(line, lastReadCharIndex, currentLabel);
+    readRestOfStructLine(line, lastReadCharIndex);
     break;
   default:
     break;
@@ -223,16 +334,15 @@ void firstScan(AsmDescriptor *ds) {
     if (isLabelDef(word)) {
       setLabelDefFlag(ds, true);
       labelName = getLabelNameFromDefinition(word);
-      word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
       if (getLabelByName(ds->lable_tb, labelName)) {
         err = cat_strings("Error in file ", ds->file_name, " in line ",
-                          ds->line_num_str, " duplicate definition of \"",
+                          ds->line_num_string, " duplicate definition of \"",
                           labelName, "\"", "\n", NULL);
         log_error(ds->err_log, err);
-        if (err)
-          free(err);
-        err = NULL;
+        freeMem(err, labelName);
+        continue;
       }
+      word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
       currentLabel = newLabel(labelName, ds->line_num, NONE, DATA);
     }
 
@@ -246,6 +356,7 @@ void firstScan(AsmDescriptor *ds) {
       if (getLabelDefFlag() == true)
         currentLabel->type = DATA;
       readRestOfDataLine(ds->line, word, &lastReadCharIndex, currentLabel);
+      addLabelToTable(currentLabel, ds->lable_tb);
       freeMem(word, labelName);
       continue;
     }
@@ -258,13 +369,12 @@ void firstScan(AsmDescriptor *ds) {
       continue;
     } else {
       err = cat_strings("Error in file ", ds->file_name, " in line ",
-                        ds->line_num_str, " invalid label definition", "\n",
+                        ds->line_num_string, " invalid label definition", "\n",
                         NULL);
 
       log_error(ds->err_log, err);
-      free(err);
+      freeMem(err, err);
     }
-
     freeMem(word, labelName);
   }
 }
