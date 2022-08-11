@@ -136,7 +136,7 @@ int isInt(char *word) {
   if (word[i] == '+' || word[i] == '-')
     i++;
   for (; i < len; i++) {
-    if (!isdigit(word[i]))
+    if (word[i] > '9' || word[i] < '0')
       return false;
   }
   return true;
@@ -188,14 +188,18 @@ int getLineValidityForDataDef(char *line) {
       if (line[currentCharIndex] == ' ') {
         continue;
       }
-      if (line[currentCharIndex] != ',')
+      if (line[currentCharIndex] != delimiter)
         return false;
       delimiterExpected = false;
       numberExpected = true;
     }
   }
   /* checks that the the line did not end in a delimiter */
-  return delimiterExpected;
+  if (!delimiterExpected)
+    return false;
+  if (currentWordCharIndex != 0)
+    return isInt(currentWord);
+  return true;
 }
 
 StrArr *getNumbersFromLine(char *line, int *lastReadCharIndex) {
@@ -204,64 +208,7 @@ StrArr *getNumbersFromLine(char *line, int *lastReadCharIndex) {
   if (!validDataDef)
     return NULL;
   return split(line, ",");
-  /* int expectSeperator = false; */
-  /* char currntNumberString[MAX_LABEL_LENGHT]; */
-  /* int currentNumberStringIndex = 0; */
-  /* int singRead = false; */
-  /* int numCount = 0; */
-  /* int currntNumberInt; */
-  /* int *numbers = NULL; */
-  /* while (is_white_space(line[*lastReadCharIndex])) */
-  /*   (*lastReadCharIndex)++; */
-  /* while (line[*lastReadCharIndex] != '\0' || line[*lastReadCharIndex] !=
-   * '\n') { */
-  /*   while (is_white_space(line[*lastReadCharIndex])) */
-  /*     (*lastReadCharIndex)++; */
-  /*   if (expectSeperator) { */
-  /*     if (line[*lastReadCharIndex] != ',') { */
-  /*       printf("missing \",\" in data definition"); */
-  /*     } */
-  /*     (*lastReadCharIndex)++; */
-  /*     expectSeperator = false; */
-  /*     continue; */
-  /*   } */
-
-  /*   if ((line[*lastReadCharIndex] == '-' || line[*lastReadCharIndex] == '+')
-   * && */
-  /*       !singRead) { */
-  /*     currntNumberString[currentNumberStringIndex] =
-   * line[*lastReadCharIndex]; */
-  /*     currentNumberStringIndex++; */
-  /*     (*lastReadCharIndex)++; */
-  /*     singRead = true; */
-  /*   } */
-  /*   if ((line[*lastReadCharIndex] == '-' || line[*lastReadCharIndex] == '+')
-   * && */
-  /*       singRead) { */
-  /*     printf("duplicate use of sing"); */
-  /*     continue; */
-  /*   } */
-  /*   while (isdigit(line[*lastReadCharIndex])) { */
-  /*     currntNumberString[currentNumberStringIndex] =
-   * line[*lastReadCharIndex]; */
-  /*     currentNumberStringIndex++; */
-  /*     (*lastReadCharIndex)++; */
-  /*   } */
-  /*   if (line[*lastReadCharIndex] == ' ') { */
-  /*     expectSeperator = true; */
-  /*   } */
-  /*   if (line[*lastReadCharIndex] == ',') { */
-  /*     expectSeperator = false; */
-  /*   } */
-  /*   currntNumberString[currentNumberStringIndex] = '\0'; */
-  /*   currntNumberInt = atoi(currntNumberString); */
-  /*   pushInt(&numbers, currntNumberInt, numCount++); */
-  /*   currentNumberStringIndex = 0; */
 }
-
-/* pushInt(&numbers, INT_ARR_END_DELIMITER, numCount); */
-/* return numbers; */
-/* } */
 
 void addNumbersToTranslation(StrArr *numbers, Translation *trans) {
   int i;
