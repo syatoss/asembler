@@ -83,7 +83,7 @@ void addLabelNodeToListTail(LabelNode *node, LabelList *list) {
     return;
   if (list->head == NULL) {
     list->head = node;
-    list->head->next = list->tail;
+    /* list->head->next = list->tail; */
   }
   if (list->tail)
     list->tail->next = node;

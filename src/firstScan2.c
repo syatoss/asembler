@@ -63,22 +63,6 @@ int getNubmberOfRequieredOperands(char *instructionName) {
 }
 
 int isInstructionName(char *word) {
-  /* int i; */
-  /* int isOperator = false; */
-  /* word = trim(word); */
-  /* for (i = 0; i < NUM_OF_ZERO_OPERAND_INSTRUCTIONS; i++) { */
-  /*   isOperator = */
-  /*       isOperator || (strcmp(word, ZERO_OPERAND_INSTRUCTIONS[i]) == 0); */
-  /* } */
-  /* for (i = 0; i < NUM_OF_ONE_OPERAND_INSTRUCTIONS; i++) { */
-  /*   isOperator = isOperator || (strcmp(word, ONE_OPERAND_INSTRUCTIONS[i]) ==
-   * 0); */
-  /* } */
-  /* for (i = 0; i < NUM_OF_TWO_OPERAND_INSTRUCTIONS; i++) { */
-  /*   isOperator = isOperator || (strcmp(word, TWO_OPERAND_INSTRUCTIONS[i]) ==
-   * 0); */
-  /* } */
-  /* free(word); */
   return getNubmberOfRequieredOperands(word) != INVALID;
 }
 
@@ -231,7 +215,7 @@ void readEntryExtern(char *line, char *statusStr, int *lastReadCharIndex,
   enum LABEL_STATUS status;
   status = getLabelStatus(statusStr);
   if (currentLabel != NULL) {
-    freeLabel(currentLabel);
+    /* freeLabel(currentLabel); */
     currentLabel = NULL;
   }
   switch (status) {
@@ -1004,12 +988,13 @@ void firstScan(AsmDescriptor *ds) {
       }
       word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
       currentLabel = newLabel(labelName, ds->line_num, NONE, DATA);
-      addLabelToTable(currentLabel, ds->lable_tb);
-      printf("added label:%s\n", currentLabel->name);
+      /* addLabelToTable(currentLabel, ds->lable_tb); */
     }
 
     if (isEntryExtern(word)) {
       readEntryExtern(ds->line, word, &lastReadCharIndex, currentLabel);
+      freeLabel(currentLabel);
+      currentLabel = NULL;
       freeMem(word, labelName);
       continue;
     }
@@ -1017,6 +1002,7 @@ void firstScan(AsmDescriptor *ds) {
     if (isDataDef(word)) {
       if (flags->hasLabelDef) {
         currentLabel->type = DATA;
+        addLabelToTable(currentLabel, ds->lable_tb);
         /* addLabelToTable(currentLabel, ds->lable_tb); */
       }
       readRestOfDataLine(ds->line, word, &lastReadCharIndex, currentLabel);
@@ -1027,6 +1013,7 @@ void firstScan(AsmDescriptor *ds) {
     if (isInstructionName(word)) {
       if (flags->hasLabelDef) {
         currentLabel->type = INSTRUCTION;
+        addLabelToTable(currentLabel, ds->lable_tb);
         /* addLabelToTable(currentLabel, ds->lable_tb); */
       }
       readRestOfInstruction(ds->line, word, &lastReadCharIndex, currentLabel,

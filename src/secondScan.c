@@ -45,6 +45,7 @@ char *getEntryLabelNameFromLine(char *line) {
   char *wordInLine = NULL;
   int lastReadIndex = 0;
   StrArr *lineWords;
+  char *labelName = NULL;
   wordInLine = getNextWordWithWordEndDelimiter(line, &lastReadIndex);
   if (isLabelDef(wordInLine)) {
     freeMem(wordInLine, wordInLine);
@@ -53,7 +54,7 @@ char *getEntryLabelNameFromLine(char *line) {
   }
 
   lineWords = get_line_words(line + lastReadIndex);
-  char *labelName = cp_string(lineWords->strings[0]);
+  labelName = cp_string(lineWords->strings[0]);
   free_str_arr(lineWords);
   return labelName;
 }
@@ -271,5 +272,5 @@ void actualSecondScan() {
 void secondScan() {
   /* testPrint(); */
   actualSecondScan();
-  printLabelTable(ds->lable_tb);
+  /* printLabelTable(ds->lable_tb); */
 }

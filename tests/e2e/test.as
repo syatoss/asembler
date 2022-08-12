@@ -1,6 +1,6 @@
 .entry LOOP
 .entry LENGTH
-.extern L3
+s: .extern L3
 .extern W
 MAIN: mov S1.1, W
  add r2,STR
