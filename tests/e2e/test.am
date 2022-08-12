@@ -1,1 +1,6 @@
-LENGTH:   .data  +6,-9,1512
+r11: .extern as
+prn #4
+
+
+
+
