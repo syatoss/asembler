@@ -62,6 +62,7 @@ void assembler(char *asm_file_name) {
   }
 
   /* run the second scan if no errors found */
+  rewind(ds->fp);
   secondScan();
   free_asm_descriptor(ds);
   free(spread_file_name);

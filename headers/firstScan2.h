@@ -18,5 +18,7 @@
 enum DATA_TYPES { NUMBER, STRING, STRUCT };
 
 void firstScan(AsmDescriptor *ds);
+char *getNextWordWithWordEndDelimiter(char *line, int *lastReadCharIndex);
+int isLabelDef(char *word);
 
 #endif

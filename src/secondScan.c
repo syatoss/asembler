@@ -5,6 +5,7 @@
 #include "../headers/LabelTable.h"
 #include "../headers/asm_descriptor.h"
 #include "../headers/constants.h"
+#include "../headers/firstScan2.h"
 #include "../headers/line_paser.h"
 #include "../headers/string_parsers.h"
 
@@ -23,31 +24,47 @@
 
 extern AsmDescriptor *ds;
 
-int isEntry(char *word) { return strcpy(word, ENTRY_LABEL) == 0; }
+int isEntry(char *word) { return strcmp(word, ENTRY_LABEL) == 0; }
 
 int shouldSkipLine(char *line) {
   int shouldSkip = false;
+  int i = 0;
+  int hasEntryDef = false;
   StrArr *words = get_line_words(line);
   shouldSkip = shouldSkip || is_comment_line(line);
   shouldSkip = shouldSkip || words->length < 2;
-  shouldSkip = shouldSkip || !isEntry(words->strings[0]);
+  /* shouldSkip = shouldSkip || !isEntry(words->strings[0]); */
+  for (i = 0; i < words->length; i++)
+    hasEntryDef = hasEntryDef || isEntry(words->strings[i]);
+  shouldSkip = shouldSkip || !hasEntryDef;
   free_str_arr(words);
   return shouldSkip;
 }
 
 char *getEntryLabelNameFromLine(char *line) {
-  StrArr *lineWords = get_line_words(line);
-  char *labelName = cp_string(lineWords->strings[1]);
+  char *wordInLine = NULL;
+  int lastReadIndex = 0;
+  StrArr *lineWords;
+  wordInLine = getNextWordWithWordEndDelimiter(line, &lastReadIndex);
+  if (isLabelDef(wordInLine)) {
+    freeMem(wordInLine, wordInLine);
+    /* should read .entry */
+    wordInLine = getNextWordWithWordEndDelimiter(line, &lastReadIndex);
+  }
+
+  lineWords = get_line_words(line + lastReadIndex);
+  char *labelName = cp_string(lineWords->strings[0]);
   free_str_arr(lineWords);
   return labelName;
 }
 
 void setInternalLabel(char *line) {
-  char *labelName;
-  Label *label;
+  char *labelName = NULL;
+  Label *label = NULL;
   labelName = getEntryLabelNameFromLine(line);
   label = getLabelByName(ds->lable_tb, labelName);
   label->status = INTERNAL;
+  ds->lable_tb->hasEntryLabels = true;
   free(labelName);
 }
 
@@ -80,7 +97,6 @@ void addMissingLabelAdresses(AsmRow *row) {
   Label *currentLabel;
   char *err = NULL;
   char *rowInAsmFile = NULL;
-  /* char *asmLineString; */
   Translation *trans = row->translation;
   for (i = 0; i < MAX_WORDS_PER_INSTRUCTION; i++) {
     if (trans->nulls[i] == NULL)
@@ -97,11 +113,16 @@ void addMissingLabelAdresses(AsmRow *row) {
       err = NULL;
       rowInAsmFile = NULL;
       continue;
-      /* free(asmLineString); */
     }
     trans->binary[i] =
         intToBinary(currentLabel->lineOfApearance +
                     ds->instructions_tb->translationCounter + START_ADDRESS);
+    shiftLeft(trans->binary[i], 2);
+    if (currentLabel->status == EXTERNAL) {
+      setARE(trans->binary[i], E);
+    } else {
+      setARE(trans->binary[i], R);
+    }
     trans->base32[i] = binaryToBase32(trans->binary[i]);
   }
 }
@@ -122,7 +143,8 @@ void writeLabelApearanceLineToFile(Label *label, FILE *targetFile) {
   padding = START_ADDRESS;
   padding += label->type == DATA ? ds->instructions_tb->translationCounter : 0;
   base32LabelAddress = intToBase32(label->lineOfApearance + padding);
-  lineToWrite = cat_strings(NULL, label->name, " ", base32LabelAddress, NULL);
+  lineToWrite =
+      cat_strings(NULL, label->name, " ", base32LabelAddress, "\n", NULL);
   fputs(lineToWrite, targetFile);
   free(lineToWrite);
   free(base32LabelAddress);
@@ -248,6 +270,6 @@ void actualSecondScan() {
 
 void secondScan() {
   /* testPrint(); */
-  printLabelTable(ds->lable_tb);
   actualSecondScan();
+  printLabelTable(ds->lable_tb);
 }
