@@ -92,8 +92,8 @@ void free_str_arr(StrArr *arr) {
 
 char *cp_string(char *str) {
   char *str_cp;
-  str_cp = str ? (char *)malloc(sizeof(char *) * (strlen(str) + 1))
-               : (char *)malloc(sizeof(char));
+  str_cp = str != NULL ? (char *)malloc(sizeof(char *) * (strlen(str) + 1))
+                       : (char *)malloc(sizeof(char));
   str ? strcpy(str_cp, str) : strcpy(str_cp, "");
   return str_cp;
 }

@@ -248,5 +248,6 @@ void actualSecondScan() {
 
 void secondScan() {
   /* testPrint(); */
+  printLabelTable(ds->lable_tb);
   actualSecondScan();
 }

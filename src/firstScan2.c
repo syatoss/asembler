@@ -18,7 +18,7 @@ const char WORD_END_DELIMITERS[WORD_END_DELIMITER_COUNT] = {'\n', '\0', ' ',
 /*     "mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", */
 /*     "dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; */
 const char *ZERO_OPERAND_INSTRUCTIONS[NUM_OF_ZERO_OPERAND_INSTRUCTIONS] = {
-    "htl", "rts"};
+    "hlt", "rts"};
 const char *ONE_OPERAND_INSTRUCTIONS[NUM_OF_ONE_OPERAND_INSTRUCTIONS] = {
     "not", "clr", "inc", "dec", "jmp", "bne", "get", "prn", "jsr"};
 const char *TWO_OPERAND_INSTRUCTIONS[NUM_OF_TWO_OPERAND_INSTRUCTIONS] = {
@@ -45,7 +45,6 @@ int isWordEndDelimiter(char c) {
 
 int getNubmberOfRequieredOperands(char *instructionName) {
   int i = 0;
-  int isOperator = false;
   instructionName = trim(instructionName);
   for (i = 0; i < NUM_OF_ZERO_OPERAND_INSTRUCTIONS; i++) {
     if (strcmp(instructionName, ZERO_OPERAND_INSTRUCTIONS[i]) == 0)
@@ -220,7 +219,7 @@ void readRestOfExternLine(char *line, int *lastReadCharIndex,
     freeMem(err, err);
     return;
   }
-  lineWords = split(line, " ");
+  lineWords = split(line + *lastReadCharIndex, " ");
   currentLabel = newLabel(lineWords->strings[0], ds->line_num, EXTERNAL, DATA);
   addLabelToTable(currentLabel, ds->lable_tb);
   free_str_arr(lineWords);
@@ -592,7 +591,6 @@ int isOffset(char *number) {
 int isDataAccess(char *operand) {
   int dataAccess = true;
   char *trimmedOperand = NULL;
-  int i = 0;
   int LABEL_INDEX = 0;
   int OFFSET_INDEX = 1;
   StrArr *opreandParts = NULL;
@@ -670,7 +668,6 @@ int isTwoOperandInstructionLineValid(
     char *line, InstuctionAllowedOpreandLBA *instructionLBA) {
   char delimiter = ',';
   int i = 0;
-  int isValid = false;
   char *restOfLine = NULL;
   int expectDelimiter = true;
   int currentWordIndex = 0;
@@ -693,8 +690,10 @@ int isTwoOperandInstructionLineValid(
     currentWordIndex++;
     i++;
   }
+  i++;
   free(restOfLine);
-  restOfLine = trim(restOfLine);
+  restOfLine = NULL;
+  restOfLine = trim(line + i);
   if (strlen(restOfLine) == 0) {
     free(restOfLine);
     return false;
@@ -720,8 +719,9 @@ int isTwoOperandInstructionLineValid(
     currentWordIndex++;
   }
   free(restOfLine);
-  restOfLine = trim(restOfLine);
-  if (strlen(restOfLine) == 0) {
+  restOfLine = NULL;
+  restOfLine = trim(line + i);
+  if (strlen(restOfLine) != 0) {
     free(restOfLine);
     return false;
   }
@@ -731,12 +731,7 @@ int isTwoOperandInstructionLineValid(
 
 int getLineValidityForInstruction(char *line, int requieredOperandCount,
                                   InstuctionAllowedOpreandLBA *instructionLBA) {
-  char delimiter = ',';
   int i = 0;
-  char *trimmed = NULL;
-  char word[STRING_BUFFER_SIZE] = {0};
-  int currentWordIndex = 0;
-  int delimiterExpected = false;
   while (is_white_space(line[i]))
     i++;
   if (requieredOperandCount == 0) {
@@ -795,7 +790,7 @@ void addTranslationForZeroOperands(char *instructionName, Label *currentLabel,
   shiftLeft(bin, 6);
   setARE(bin, A);
   if (currentLabel != NULL)
-    label = currentLabel->name;
+    label = cp_string(currentLabel->name);
   addTranslation(bin, NULL, trans);
   addAsmRowToTable(newAsmRow(1, ds->instructions_tb->translationCounter,
                              ds->line_num, trans, label != NULL, label),
@@ -813,7 +808,99 @@ enum LBA getOperandLBAId(char *operand) {
   return DIRECT_ACCESS;
 }
 
-void addOperandTranslation(char *operand, enum LBA lba, Translation *trans) {}
+void addOperandTranslation(char *operand, enum LBA lba, Translation *trans,
+                           int operandNmber) {
+  char *bin = NULL;
+  char *folowupBin = NULL;
+  int LABEL_INDEX = 0;
+  int OFFSET_INDEX = 1;
+  int offsetFisrtOperand = 2;
+  int offsetSecondOperand = 6;
+  StrArr *operandParts = NULL;
+  switch (lba) {
+
+  case IMEDIATE_ACCESS:
+    operand++;
+    bin = intToBinary(atoi(operand));
+    shiftLeft(bin, 2);
+    setARE(bin, A);
+    addTranslation(bin, NULL, trans);
+    freeMem(bin, folowupBin);
+    return;
+  case DIRECT_ACCESS:
+    addTranslation(bin, operand, trans);
+    freeMem(bin, folowupBin);
+    return;
+  case DATA_ACCESS:
+    operandParts = split(operand, ".");
+    addTranslation(bin, operandParts->strings[LABEL_INDEX], trans);
+    folowupBin = intToBinary(atoi(operandParts->strings[OFFSET_INDEX]));
+    shiftLeft(folowupBin, 2);
+    setARE(folowupBin, A);
+    addTranslation(folowupBin, NULL, trans);
+    freeMem(bin, folowupBin);
+    free_str_arr(operandParts);
+    return;
+  case REGISTER_ACCESS:
+    operand++; /* skip the r */
+    bin = intToBinary(atoi(operand));
+    shiftLeft(bin,
+              operandNmber == 1 ? offsetFisrtOperand : offsetSecondOperand);
+    addTranslation(bin, NULL, trans);
+    freeMem(bin, folowupBin);
+    return;
+  }
+}
+
+void addTwoRegisterOperandsToTranslation(char *register1, char *register2,
+                                         Translation *trans) {
+  char *register1Bin = NULL;
+  char *register2Bin = NULL;
+  register1Bin = intToBinary(atoi(++register1));
+  shiftLeft(register1Bin, 6);
+  register2Bin = intToBinary(atoi(++register2));
+  shiftLeft(register2Bin, 2);
+  orInPlace(register1Bin, register2Bin);
+  addTranslation(register1Bin, NULL, trans);
+  freeMem(register1Bin, register2Bin);
+}
+
+void addTranslationForTwoOperands(char *instructionName, char *srcOperand,
+                                  char *destOperand, Label *currentLabel,
+                                  Translation *trans, AsmDescriptor *ds) {
+  char *mainBin = NULL;
+  char *secondaryBin = NULL;
+  char *thirdBin = NULL;
+  char *label = NULL;
+  enum LBA destOperanLlbaId = 0;
+  enum LBA srcOperanLlbaId = 0;
+  mainBin = intToBinary(getInstructionId(instructionName));
+  shiftLeft(mainBin, 6);
+  setARE(mainBin, A);
+  if (currentLabel != NULL)
+    label = cp_string(currentLabel->name);
+  destOperanLlbaId = getOperandLBAId(destOperand);
+  srcOperanLlbaId = getOperandLBAId(srcOperand);
+  secondaryBin = intToBinary(srcOperanLlbaId);
+  thirdBin = intToBinary(destOperanLlbaId);
+  shiftLeft(secondaryBin, 4);
+  shiftLeft(thirdBin, 2);
+  orInPlace(mainBin, secondaryBin);
+  orInPlace(mainBin, thirdBin);
+  addTranslation(mainBin, NULL, trans);
+  if (srcOperanLlbaId == REGISTER_ACCESS &&
+      destOperanLlbaId == REGISTER_ACCESS) {
+    addTwoRegisterOperandsToTranslation(srcOperand, destOperand, trans);
+  } else {
+    addOperandTranslation(srcOperand, srcOperanLlbaId, trans, 1);
+    addOperandTranslation(destOperand, destOperanLlbaId, trans, 2);
+  }
+  addAsmRowToTable(newAsmRow(1, ds->instructions_tb->translationCounter,
+                             ds->line_num, trans, label != NULL, label),
+                   ds->instructions_tb);
+  freeMem(mainBin, secondaryBin);
+  freeMem(label, label);
+}
 
 void addTranslationForOneOperand(char *instructionName, OperandLBA *lba,
                                  char *destOperand, Label *currentLabel,
@@ -826,20 +913,25 @@ void addTranslationForOneOperand(char *instructionName, OperandLBA *lba,
   shiftLeft(mainBin, 6);
   setARE(mainBin, A);
   if (currentLabel != NULL)
-    label = currentLabel->name;
+    label = cp_string(currentLabel->name);
   lbaId = getOperandLBAId(destOperand);
   secondaryBin = intToBinary(lbaId);
   shiftLeft(secondaryBin, 2);
   orInPlace(mainBin, secondaryBin);
   addTranslation(mainBin, NULL, trans);
-  addOperandTranslation(destOperand, lbaId, trans);
+  addOperandTranslation(destOperand, lbaId, trans, 2);
+  addAsmRowToTable(newAsmRow(1, ds->instructions_tb->translationCounter,
+                             ds->line_num, trans, label != NULL, label),
+                   ds->instructions_tb);
+  freeMem(mainBin, secondaryBin);
+  freeMem(label, label);
 }
 
 void addInstructionToTranslation(char *instructionName,
                                  int requieredOperandCount,
                                  InstuctionAllowedOpreandLBA *instructionLBA,
                                  StrArr *operand, Label *currentLabel,
-                                 Translation *trans) {
+                                 Translation *trans, AsmDescriptor *ds) {
   if (requieredOperandCount == 0) {
     addTranslationForZeroOperands(instructionName, currentLabel, trans);
   }
@@ -849,12 +941,13 @@ void addInstructionToTranslation(char *instructionName,
   }
   if (requieredOperandCount == 2) {
     addTranslationForTwoOperands(instructionName, operand->strings[0],
-                                 operand->strings[1], currentLabel, trans);
+                                 operand->strings[1], currentLabel, trans, ds);
   }
 }
 
 void readRestOfInstruction(char *line, char *instructionName,
-                           int *lastReadCharIndex, Label *currentLabel) {
+                           int *lastReadCharIndex, Label *currentLabel,
+                           AsmDescriptor *ds) {
   int requieredOperandsCount = 0;
   int validInstructionLine = false;
   char *err = NULL;
@@ -877,7 +970,8 @@ void readRestOfInstruction(char *line, char *instructionName,
   trans = newTranslation();
   operands = split(line + *lastReadCharIndex, ",");
   addInstructionToTranslation(instructionName, requieredOperandsCount,
-                              instructionLBA, operands, currentLabel, trans);
+                              instructionLBA, operands, currentLabel, trans,
+                              ds);
 }
 
 void firstScan(AsmDescriptor *ds) {
@@ -887,8 +981,8 @@ void firstScan(AsmDescriptor *ds) {
   int lastReadCharIndex = 0;
   char *err = NULL;
   LineFlags *flags;
-  flags = newLineFlags();
   while (get_next_line(ds)) {
+    flags = newLineFlags();
     clearFlags(flags);
     lastReadCharIndex = 0;
     if (lineEmpyOrComment(ds->line))
@@ -910,6 +1004,8 @@ void firstScan(AsmDescriptor *ds) {
       }
       word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
       currentLabel = newLabel(labelName, ds->line_num, NONE, DATA);
+      addLabelToTable(currentLabel, ds->lable_tb);
+      printf("added label:%s\n", currentLabel->name);
     }
 
     if (isEntryExtern(word)) {
@@ -921,7 +1017,7 @@ void firstScan(AsmDescriptor *ds) {
     if (isDataDef(word)) {
       if (flags->hasLabelDef) {
         currentLabel->type = DATA;
-        addLabelToTable(currentLabel, ds->lable_tb);
+        /* addLabelToTable(currentLabel, ds->lable_tb); */
       }
       readRestOfDataLine(ds->line, word, &lastReadCharIndex, currentLabel);
       freeMem(word, labelName);
@@ -929,9 +1025,12 @@ void firstScan(AsmDescriptor *ds) {
     }
 
     if (isInstructionName(word)) {
-      if (flags->hasLabelDef)
+      if (flags->hasLabelDef) {
         currentLabel->type = INSTRUCTION;
-      readRestOfInstruction(ds->line, word, &lastReadCharIndex, currentLabel);
+        /* addLabelToTable(currentLabel, ds->lable_tb); */
+      }
+      readRestOfInstruction(ds->line, word, &lastReadCharIndex, currentLabel,
+                            ds);
       freeMem(word, labelName);
       continue;
     } else {
@@ -943,5 +1042,6 @@ void firstScan(AsmDescriptor *ds) {
     }
     freeMem(word, labelName);
     freeLineFlags(flags);
+    flags = NULL;
   }
 }
