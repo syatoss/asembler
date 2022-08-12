@@ -29,5 +29,6 @@ void updateTranslationAtIndex(Translation *trans, int index, char *bin,
                               char *label);
 void setARE(char *bin, enum ARE are);
 char *intToBase32(int num);
+void orInPlace(char *targetBin, char *operandBin);
 
 #endif

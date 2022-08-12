@@ -278,7 +278,7 @@ int getLineValidityForDataDef(char *line) {
   int numberExpected = true;
   int currentWordCharIndex = 0;
   char delimiter = ',';
-  char currentWord[MAX_LABEL_LENGHT] = {0};
+  char currentWord[STRING_BUFFER_SIZE] = {0};
   while (is_white_space(line[currentCharIndex]))
     currentCharIndex++;
   for (; line[currentCharIndex] != '\n' && line[currentCharIndex] != '\0';
@@ -555,9 +555,302 @@ int lineEmpyOrComment(char *line) {
   return shouldSkip;
 }
 
+int isZeroOperandInsturctionLineValid(char *line) {
+  char *trimmed = NULL;
+  int isValid = true;
+  trimmed = trim(line);
+  isValid = strlen(trimmed) == 0;
+  free(trimmed);
+  return isValid;
+}
+
+int isImediateAccess(char *operand) {
+  char *operandTrimmed = NULL;
+  int i = 0;
+  char prefix = '#';
+  int imediateAccess = true;
+  operandTrimmed = trim(operand);
+  if (operand[i] != prefix) {
+    imediateAccess = false;
+  }
+  i++;
+  if (strlen(operand + i) == 0)
+    imediateAccess = false;
+  imediateAccess = imediateAccess && isInt(operand + i);
+  free(operandTrimmed);
+  return imediateAccess;
+}
+
+int isOffset(char *number) {
+  if (strlen(number) == 0)
+    return false;
+  if (number[0] == '+' || number[0] == '-')
+    return false;
+  return isInt(number);
+}
+
+int isDataAccess(char *operand) {
+  int dataAccess = true;
+  char *trimmedOperand = NULL;
+  int i = 0;
+  int LABEL_INDEX = 0;
+  int OFFSET_INDEX = 1;
+  StrArr *opreandParts = NULL;
+  trimmedOperand = trim(operand);
+  opreandParts = split(operand, ".");
+  if (opreandParts == NULL || opreandParts->length != 2) {
+    free_str_arr(opreandParts);
+    free(trimmedOperand);
+    return false;
+  }
+  dataAccess = dataAccess &&
+               isValidLabelName(opreandParts->strings[LABEL_INDEX]) &&
+               isOffset(opreandParts->strings[OFFSET_INDEX]);
+  free_str_arr(opreandParts);
+  free(trimmedOperand);
+  return dataAccess;
+}
+
+int isDirectAccess(char *operand) {
+  char *trimmed = NULL;
+  int directAccess = true;
+  trimmed = trim(operand);
+  if (strlen(trimmed) == 0) {
+    free(trimmed);
+    return false;
+  }
+  directAccess = directAccess && isValidLabelName(trimmed);
+  free(trimmed);
+  return directAccess;
+}
+
+int operandMatchLBA(char *operand, OperandLBA *lba) {
+  int match = false;
+  if (lba == NULL && operand == NULL)
+    return true;
+  if (lba == NULL && operand != NULL)
+    return false;
+  if (lba != NULL && operand == NULL)
+    return false;
+  if (lba->registerAccess) {
+    match = match || isRegister(operand);
+  }
+  if (lba->imediteAccess) {
+    match = match || isImediateAccess(operand);
+  }
+  if (lba->dataAccess) {
+    match = match || isDataAccess(operand);
+  }
+  if (lba->directAccess) {
+    match = match || isDirectAccess(operand);
+  }
+  return match;
+}
+
+int isOneOperandInstructionLineValid(
+    char *line, InstuctionAllowedOpreandLBA *instructionLBA) {
+  int i = 0;
+  char word[STRING_BUFFER_SIZE] = {0};
+  int currentWordIndex = 0;
+  int isValid = true;
+  char *trimmed = NULL;
+  while (line[i] != ' ' && line[i] != '\n' && line[i] != '\0') {
+    word[currentWordIndex++] = line[i++];
+  }
+  word[currentWordIndex] = '\0';
+  trimmed =
+      trim(line + i); /* checking that the is nothing left to read in the line*/
+  isValid = operandMatchLBA(word, instructionLBA->secondOperand) &&
+            strlen(trimmed) == 0;
+  free(trimmed);
+  return isValid;
+}
+
+int isTwoOperandInstructionLineValid(
+    char *line, InstuctionAllowedOpreandLBA *instructionLBA) {
+  char delimiter = ',';
+  int i = 0;
+  int isValid = false;
+  char *restOfLine = NULL;
+  int expectDelimiter = true;
+  int currentWordIndex = 0;
+  char operand1[STRING_BUFFER_SIZE] = {0};
+  char operand2[STRING_BUFFER_SIZE] = {0};
+  while (is_white_space(line[i]))
+    i++;
+  restOfLine = trim(line + i);
+  if (strlen(restOfLine) == 0) {
+    free(restOfLine);
+    return false;
+  }
+  while (line[i] != ' ') {
+    if (line[i] == delimiter) {
+      expectDelimiter = false;
+      operand1[currentWordIndex] = '\0';
+      break;
+    }
+    operand1[currentWordIndex] = line[i];
+    currentWordIndex++;
+    i++;
+  }
+  free(restOfLine);
+  restOfLine = trim(restOfLine);
+  if (strlen(restOfLine) == 0) {
+    free(restOfLine);
+    return false;
+  }
+  currentWordIndex = 0;
+  if (expectDelimiter) {
+    while (true) {
+      if (line[i] == delimiter) {
+        i++;
+        break;
+      }
+      if (line[i] != ' ' && line[i] != '\t') {
+        return false;
+      }
+      i++;
+    }
+  }
+  while (is_white_space(line[i]))
+    i++;
+  while (!is_white_space(line[i]) && line[i] != '\0') {
+    operand2[currentWordIndex] = line[i];
+    i++;
+    currentWordIndex++;
+  }
+  free(restOfLine);
+  restOfLine = trim(restOfLine);
+  if (strlen(restOfLine) == 0) {
+    free(restOfLine);
+    return false;
+  }
+  return operandMatchLBA(operand1, instructionLBA->firstOperand) &&
+         operandMatchLBA(operand2, instructionLBA->secondOperand);
+}
+
 int getLineValidityForInstruction(char *line, int requieredOperandCount,
                                   InstuctionAllowedOpreandLBA *instructionLBA) {
-  return 1;
+  char delimiter = ',';
+  int i = 0;
+  char *trimmed = NULL;
+  char word[STRING_BUFFER_SIZE] = {0};
+  int currentWordIndex = 0;
+  int delimiterExpected = false;
+  while (is_white_space(line[i]))
+    i++;
+  if (requieredOperandCount == 0) {
+    return isZeroOperandInsturctionLineValid(line + i);
+  }
+  if (requieredOperandCount == 1) {
+    return isOneOperandInstructionLineValid(line + i, instructionLBA);
+  }
+  if (requieredOperandCount == 2) {
+    return isTwoOperandInstructionLineValid(line + i, instructionLBA);
+  }
+  return false;
+}
+
+int getInstructionId(char *instructionName) {
+  if (strcmp(instructionName, "mov") == 0)
+    return 0;
+  if (strcmp(instructionName, "cmp") == 0)
+    return 1;
+  if (strcmp(instructionName, "add") == 0)
+    return 2;
+  if (strcmp(instructionName, "sub") == 0)
+    return 3;
+  if (strcmp(instructionName, "not") == 0)
+    return 4;
+  if (strcmp(instructionName, "clr") == 0)
+    return 5;
+  if (strcmp(instructionName, "lea") == 0)
+    return 6;
+  if (strcmp(instructionName, "inc") == 0)
+    return 7;
+  if (strcmp(instructionName, "dec") == 0)
+    return 8;
+  if (strcmp(instructionName, "jmp") == 0)
+    return 9;
+  if (strcmp(instructionName, "bne") == 0)
+    return 10;
+  if (strcmp(instructionName, "get") == 0)
+    return 11;
+  if (strcmp(instructionName, "prn") == 0)
+    return 12;
+  if (strcmp(instructionName, "jsr") == 0)
+    return 13;
+  if (strcmp(instructionName, "rts") == 0)
+    return 14;
+  if (strcmp(instructionName, "hlt") == 0)
+    return 15;
+  return -1;
+}
+
+void addTranslationForZeroOperands(char *instructionName, Label *currentLabel,
+                                   Translation *trans) {
+  char *bin = NULL;
+  char *label = NULL;
+  bin = intToBinary(getInstructionId(instructionName));
+  shiftLeft(bin, 6);
+  setARE(bin, A);
+  if (currentLabel != NULL)
+    label = currentLabel->name;
+  addTranslation(bin, NULL, trans);
+  addAsmRowToTable(newAsmRow(1, ds->instructions_tb->translationCounter,
+                             ds->line_num, trans, label != NULL, label),
+                   ds->instructions_tb);
+  freeMem(bin, label);
+}
+
+enum LBA getOperandLBAId(char *operand) {
+  if (isRegister(operand))
+    return REGISTER_ACCESS;
+  if (isImediateAccess(operand))
+    return IMEDIATE_ACCESS;
+  if (isDataAccess(operand))
+    return DATA_ACCESS;
+  return DIRECT_ACCESS;
+}
+
+void addOperandTranslation(char *operand, enum LBA lba, Translation *trans) {}
+
+void addTranslationForOneOperand(char *instructionName, OperandLBA *lba,
+                                 char *destOperand, Label *currentLabel,
+                                 Translation *trans) {
+  char *mainBin = NULL;
+  char *secondaryBin = NULL;
+  char *label = NULL;
+  enum LBA lbaId = 0;
+  mainBin = intToBinary(getInstructionId(instructionName));
+  shiftLeft(mainBin, 6);
+  setARE(mainBin, A);
+  if (currentLabel != NULL)
+    label = currentLabel->name;
+  lbaId = getOperandLBAId(destOperand);
+  secondaryBin = intToBinary(lbaId);
+  shiftLeft(secondaryBin, 2);
+  orInPlace(mainBin, secondaryBin);
+  addTranslation(mainBin, NULL, trans);
+  addOperandTranslation(destOperand, lbaId, trans);
+}
+
+void addInstructionToTranslation(char *instructionName,
+                                 int requieredOperandCount,
+                                 InstuctionAllowedOpreandLBA *instructionLBA,
+                                 StrArr *operand, Label *currentLabel,
+                                 Translation *trans) {
+  if (requieredOperandCount == 0) {
+    addTranslationForZeroOperands(instructionName, currentLabel, trans);
+  }
+  if (requieredOperandCount == 1) {
+    addTranslationForOneOperand(instructionName, instructionLBA->secondOperand,
+                                operand->strings[0], currentLabel, trans);
+  }
+  if (requieredOperandCount == 2) {
+    addTranslationForTwoOperands(instructionName, operand->strings[0],
+                                 operand->strings[1], currentLabel, trans);
+  }
 }
 
 void readRestOfInstruction(char *line, char *instructionName,
@@ -565,11 +858,26 @@ void readRestOfInstruction(char *line, char *instructionName,
   int requieredOperandsCount = 0;
   int validInstructionLine = false;
   char *err = NULL;
+  StrArr *operands = NULL;
+  Translation *trans = NULL;
   InstuctionAllowedOpreandLBA *instructionLBA = NULL;
   instructionLBA = getAllowedLBAForInstruction(instructionName);
   requieredOperandsCount = getNubmberOfRequieredOperands(instructionName);
   validInstructionLine = getLineValidityForInstruction(
       line + *lastReadCharIndex, requieredOperandsCount, instructionLBA);
+  if (!validInstructionLine) {
+    err = cat_strings(
+        "Error in file ", ds->file_name, " in line ", ds->line_num_string,
+        " invalid operands for instuction \"", instructionName, "\"", NULL);
+    log_error(ds->err_log, err);
+    freeMem(err, err);
+    freeInstuctionAllowedOpreandLBA(instructionLBA);
+    return;
+  }
+  trans = newTranslation();
+  operands = split(line + *lastReadCharIndex, ",");
+  addInstructionToTranslation(instructionName, requieredOperandsCount,
+                              instructionLBA, operands, currentLabel, trans);
 }
 
 void firstScan(AsmDescriptor *ds) {

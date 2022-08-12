@@ -61,6 +61,17 @@ void setARE(char *bin, enum ARE are) {
   }
 }
 
+void orInPlace(char *targetBin, char *operandBin) {
+  int i = 0;
+  for (i = 0; i < WORD_SIZE; i++) {
+    if (targetBin[i] == '1' || operandBin[i] == '1')
+      targetBin[i] = '1';
+    else {
+      targetBin[i] = '0';
+    }
+  }
+}
+
 void shiftLeft(char *bin, int shiftSize) {
   flipBin(bin);
   shiftRight(bin, shiftSize);
