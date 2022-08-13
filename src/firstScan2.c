@@ -370,7 +370,7 @@ int getLineValidityForStringDef(char *line) {
   trimmed = trim(line);
   pivot = trimmed;
   len = strlen(trimmed);
-  if (trimmed[0] != quote || trimmed[len - 1] != quote) {
+  if (trimmed[0] != quote || trimmed[len - 1] != quote || len < 2) {
     free(pivot);
     return false;
   }
@@ -446,6 +446,8 @@ int getLineValidityForStructDef(char *line) {
   char *pivot2 = NULL;
   trimmed = trim(line);
   pivot = trimmed;
+  if (strlen(trimmed) == 0)
+    return false;
   while (trimmed[i] != delimiter)
     i++;
   number = substring(trimmed, 0, i);
