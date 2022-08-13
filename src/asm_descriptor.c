@@ -25,7 +25,8 @@ AsmDescriptor *new_asm_descriptor(char *raw_file_name, char *file_extennsion) {
   ds->data_tb = newAsmTranslationTable();
   ds->instructions_tb = newAsmTranslationTable();
   if (!ds->fp) {
-    err = cat_strings("Error, cant find ", ds->file_name, NULL);
+    err = cat_strings("Error invalid argument can\'t find file ", ds->file_name,
+                      NULL);
     log_error(ds->err_log, err);
     free(err);
   }

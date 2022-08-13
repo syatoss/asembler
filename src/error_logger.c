@@ -31,5 +31,6 @@ void clear_logger(ErrorLogger *logger) {
 }
 
 void print_all_logger_errors(ErrorLogger *logger) {
+  fprintf(stderr, "\n");
   print_table(logger->errors, stderr);
 }
