@@ -616,7 +616,7 @@ int getLineValidityForStructDef(char *line) {
   pivot = trimmed;
   if (strlen(trimmed) == 0)
     return false;
-  while (trimmed[i] != delimiter)
+  while (trimmed[i] != delimiter && trimmed[i] != '\0' && trimmed[i] != ' ')
     i++;
   number = substring(trimmed, 0, i);
   pivot2 = number;
@@ -633,7 +633,7 @@ StrArr *getStructValuesFromLine(char *line, int *lastReadCharIndex) {
   StrArr *values = NULL;
   char *pivot = NULL;
   int i = 0;
-  validStructDef = getLineValidityForStructDef(line + *lastReadCharIndex);
+  validStructDef = getLineValidityForStructDef(line + (*lastReadCharIndex));
   if (!validStructDef)
     return NULL;
   values = split(line + *lastReadCharIndex, ",");
