@@ -10,7 +10,6 @@
 #include "../headers/line_paser.h"
 #include "../headers/macro_regiester.h"
 #include "../headers/macro_table.h"
-#include "../headers/master_header.h"
 #include "../headers/string_parsers.h"
 #include "../headers/utils.h"
 

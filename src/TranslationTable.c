@@ -1,4 +1,4 @@
-#include "../headers/DataTable.h"
+#include "../headers/TranslationTable.h"
 
 #include <stdio.h>
 #include <stdlib.h>

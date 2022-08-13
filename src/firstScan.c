@@ -1,4 +1,4 @@
-#include "../headers/firstScan2.h"
+#include "../headers/firstScan.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,11 +12,105 @@
 #include "../headers/line_paser.h"
 #include "../headers/string_parsers.h"
 
+/*
+ * TERMINOLOGY NOTE
+ *
+ * an operation is sometimes regarded as "instruction" and some times as an
+ * "operation" operation is a word line prn,jmp,add etc. this is due to
+ * confusion in the project's description. a line like .data, .string or .struct
+ * is regarded as data
+ *
+ * */
+
+/*
+ * ALGORITHM
+ *
+ * The first scan reads and analizes each line individually
+ * for each line the first scan categorizes the line type rather it is a data
+ * line or an instruction line or an error
+ * after the analization a function handling the respective line type is
+ * executed. each such respective function reads the line, validates it's
+ * currect structure or logs an error after the validity check passes the line
+ * is spit to its respective parts (rather its numbers in .data or operands in
+ * instruction line etc) and each parts is translated and the translation is
+ * added to the respective table hosted on the AsemblerDesctriptor object
+ * */
+
+int isWordEndDelimiter(char c);
+int getNubmberOfRequieredOperands(char *instructionName);
+int isInstructionName(char *word);
+int isDataDef(char *word);
+int isEntryExtern(char *word);
+int isRegister(char *word);
+int isLanguageReservedWord(char *word);
+int isValidLabelName(char *lableName);
+enum DATA_TYPES getDataType(char *dataType);
+enum LABEL_STATUS getLabelStatus(char *status);
+int getLineValidityForEntryExternDef(char *line);
+void readRestOfEntryLine(char *line, int *lastReadCharIndex,
+                         Label *currentLabel);
+void readRestOfExternLine(char *line, int *lastReadCharIndex,
+                          Label *currentLabel);
+void readEntryExtern(char *line, char *statusStr, int *lastReadCharIndex,
+                     Label *currentLabel);
+void pushInt(int **intArrPtr, int num, int arrSize);
+int isInt(char *word);
+int getLineValidityForDataDef(char *line);
+StrArr *getNumbersFromLine(char *line, int *lastReadCharIndex);
+void addNumbersToTranslation(StrArr *numbers, Translation *trans);
+void readRestOfNumberLine(char *line, int *lastReadCharIndex,
+                          Label *currentLabel);
+int isValidAsciiChar(char c);
+int getLineValidityForStringDef(char *line);
+char *getAsciiStringFromLine(char *line, int *lastReadCharIndex);
+void addAsciiToTranslation(char *ascii, Translation *trans);
+void readRestOfStringLine(char *line, int *lastReadCharIndex,
+                          Label *currentLabel);
+int getLineValidityForStructDef(char *line);
+StrArr *getStructValuesFromLine(char *line, int *lastReadCharIndex);
+void addStructValuesToTranslation(StrArr *values, Translation *trans);
+void readRestOfStructLine(char *line, int *lastReadCharIndex,
+                          Label *currentLabel);
+void readRestOfDataLine(char *line, char *dataType, int *lastReadCharIndex,
+                        Label *currentLabel);
+int lineEmpyOrComment(char *line);
+int isZeroOperandInsturctionLineValid(char *line);
+int isImediateAccess(char *operand);
+int isOffset(char *number);
+int isDataAccess(char *operand);
+int isDirectAccess(char *operand);
+int operandMatchLBA(char *operand, OperandLBA *lba);
+int isOneOperandInstructionLineValid(
+    char *line, InstuctionAllowedOpreandLBA *instructionLBA);
+int isTwoOperandInstructionLineValid(
+    char *line, InstuctionAllowedOpreandLBA *instructionLBA);
+int getLineValidityForInstruction(char *line, int requieredOperandCount,
+                                  InstuctionAllowedOpreandLBA *instructionLBA);
+int getInstructionId(char *instructionName);
+void addTranslationForZeroOperands(char *instructionName, Label *currentLabel,
+                                   Translation *trans);
+enum LBA getOperandLBAId(char *operand);
+void addOperandTranslation(char *operand, enum LBA lba, Translation *trans,
+                           int operandNmber);
+void addTwoRegisterOperandsToTranslation(char *register1, char *register2,
+                                         Translation *trans);
+void addTranslationForTwoOperands(char *instructionName, char *srcOperand,
+                                  char *destOperand, Label *currentLabel,
+                                  Translation *trans, AsmDescriptor *ds);
+void addTranslationForOneOperand(char *instructionName, OperandLBA *lba,
+                                 char *destOperand, Label *currentLabel,
+                                 Translation *trans);
+void addInstructionToTranslation(char *instructionName,
+                                 int requieredOperandCount,
+                                 InstuctionAllowedOpreandLBA *instructionLBA,
+                                 StrArr *operand, Label *currentLabel,
+                                 Translation *trans, AsmDescriptor *ds);
+void readRestOfInstruction(char *line, char *instructionName,
+                           int *lastReadCharIndex, Label *currentLabel,
+                           AsmDescriptor *ds);
+
 const char WORD_END_DELIMITERS[WORD_END_DELIMITER_COUNT] = {'\n', '\0', ' ',
                                                             '\t'};
-/* const char *OPERATORS[NUM_OF_INSTRUCTIONS] = { */
-/*     "mov", "cmp", "add", "sub", "not", "clr", "lea", "inc", */
-/*     "dec", "jmp", "bne", "get", "prn", "jsr", "rts", "hlt"}; */
 const char *ZERO_OPERAND_INSTRUCTIONS[NUM_OF_ZERO_OPERAND_INSTRUCTIONS] = {
     "hlt", "rts"};
 const char *ONE_OPERAND_INSTRUCTIONS[NUM_OF_ONE_OPERAND_INSTRUCTIONS] = {
@@ -31,8 +125,80 @@ const char *DATA_TYPES[NUM_OF_DATA_TYPES] = {
     ".string",
 };
 const char *LABEL_STATUSES[NUM_OF_LABEL_STATUSES] = {EXTERN_LABEL, ENTRY_LABEL};
-
 extern AsmDescriptor *ds;
+
+void firstScan(AsmDescriptor *ds) {
+  char *word = NULL;
+  char *labelName = NULL;
+  Label *currentLabel = NULL;
+  int lastReadCharIndex = 0;
+  char *err = NULL;
+  LineFlags *flags;
+  while (get_next_line(ds)) {
+    flags = newLineFlags();
+    clearFlags(flags);
+    lastReadCharIndex = 0;
+    if (lineEmpyOrComment(ds->line))
+      continue;
+
+    word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
+    currentLabel = NULL;
+
+    if (isLabelDef(word)) {
+      flags->hasLabelDef = true;
+      labelName = getLabelNameFromDefinition(word);
+      if (getLabelByName(ds->lable_tb, labelName)) {
+        err = cat_strings("Error in file ", ds->file_name, " in line ",
+                          ds->line_num_string, " duplicate definition of \"",
+                          labelName, "\"", NULL);
+        log_error(ds->err_log, err);
+        freeMem(err, labelName);
+        continue;
+      }
+      word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
+      currentLabel = newLabel(labelName, ds->line_num, NONE, DATA);
+    }
+
+    if (isEntryExtern(word)) {
+      readEntryExtern(ds->line, word, &lastReadCharIndex, currentLabel);
+      freeLabel(currentLabel);
+      currentLabel = NULL;
+      freeMem(word, labelName);
+      continue;
+    }
+
+    if (isDataDef(word)) {
+      if (flags->hasLabelDef) {
+        currentLabel->type = DATA;
+        addLabelToTable(currentLabel, ds->lable_tb);
+      }
+      readRestOfDataLine(ds->line, word, &lastReadCharIndex, currentLabel);
+      freeMem(word, labelName);
+      continue;
+    }
+
+    if (isInstructionName(word)) {
+      if (flags->hasLabelDef) {
+        currentLabel->type = INSTRUCTION;
+        addLabelToTable(currentLabel, ds->lable_tb);
+      }
+      readRestOfInstruction(ds->line, word, &lastReadCharIndex, currentLabel,
+                            ds);
+      freeMem(word, labelName);
+      continue;
+    } else {
+      err = cat_strings("Error in file ", ds->file_name, " in line ",
+                        ds->line_num_string, " invalid operation \"", word,
+                        "\"", NULL);
+
+      log_error(ds->err_log, err);
+      freeMem(err, err);
+    }
+    freeMem(word, labelName);
+    freeLineFlags(flags);
+    flags = NULL;
+  }
+}
 
 int isWordEndDelimiter(char c) {
   int i;
@@ -960,80 +1126,4 @@ void readRestOfInstruction(char *line, char *instructionName,
   addInstructionToTranslation(instructionName, requieredOperandsCount,
                               instructionLBA, operands, currentLabel, trans,
                               ds);
-}
-
-void firstScan(AsmDescriptor *ds) {
-  char *word = NULL;
-  char *labelName = NULL;
-  Label *currentLabel = NULL;
-  int lastReadCharIndex = 0;
-  char *err = NULL;
-  LineFlags *flags;
-  while (get_next_line(ds)) {
-    flags = newLineFlags();
-    clearFlags(flags);
-    lastReadCharIndex = 0;
-    if (lineEmpyOrComment(ds->line))
-      continue;
-
-    word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
-    currentLabel = NULL;
-
-    if (isLabelDef(word)) {
-      flags->hasLabelDef = true;
-      labelName = getLabelNameFromDefinition(word);
-      if (getLabelByName(ds->lable_tb, labelName)) {
-        err = cat_strings("Error in file ", ds->file_name, " in line ",
-                          ds->line_num_string, " duplicate definition of \"",
-                          labelName, "\"", NULL);
-        log_error(ds->err_log, err);
-        freeMem(err, labelName);
-        continue;
-      }
-      word = getNextWordWithWordEndDelimiter(ds->line, &lastReadCharIndex);
-      currentLabel = newLabel(labelName, ds->line_num, NONE, DATA);
-      /* addLabelToTable(currentLabel, ds->lable_tb); */
-    }
-
-    if (isEntryExtern(word)) {
-      readEntryExtern(ds->line, word, &lastReadCharIndex, currentLabel);
-      freeLabel(currentLabel);
-      currentLabel = NULL;
-      freeMem(word, labelName);
-      continue;
-    }
-
-    if (isDataDef(word)) {
-      if (flags->hasLabelDef) {
-        currentLabel->type = DATA;
-        addLabelToTable(currentLabel, ds->lable_tb);
-        /* addLabelToTable(currentLabel, ds->lable_tb); */
-      }
-      readRestOfDataLine(ds->line, word, &lastReadCharIndex, currentLabel);
-      freeMem(word, labelName);
-      continue;
-    }
-
-    if (isInstructionName(word)) {
-      if (flags->hasLabelDef) {
-        currentLabel->type = INSTRUCTION;
-        addLabelToTable(currentLabel, ds->lable_tb);
-        /* addLabelToTable(currentLabel, ds->lable_tb); */
-      }
-      readRestOfInstruction(ds->line, word, &lastReadCharIndex, currentLabel,
-                            ds);
-      freeMem(word, labelName);
-      continue;
-    } else {
-      err = cat_strings("Error in file ", ds->file_name, " in line ",
-                        ds->line_num_string, " invalid operation \"", word,
-                        "\"", NULL);
-
-      log_error(ds->err_log, err);
-      freeMem(err, err);
-    }
-    freeMem(word, labelName);
-    freeLineFlags(flags);
-    flags = NULL;
-  }
 }

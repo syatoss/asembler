@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#include "./DataTable.h"
 #include "./LabelTable.h"
+#include "./TranslationTable.h"
 #include "./error_logger.h"
 #include "./utils.h"
 

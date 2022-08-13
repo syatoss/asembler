@@ -1,5 +1,5 @@
-#ifndef FISRS_SCAN_2
-#define FISRS_SCAN_2
+#ifndef FISRS_SCAN
+#define FISRS_SCAN
 
 #include "./asm_descriptor.h"
 
@@ -17,8 +17,12 @@
 
 enum DATA_TYPES { NUMBER, STRING, STRUCT };
 
+/* all first scan logic */
 void firstScan(AsmDescriptor *ds);
+/* gets the next word in a line, used by second scan as well */
 char *getNextWordWithWordEndDelimiter(char *line, int *lastReadCharIndex);
+/* checks rather a certain word is lable definition - used by second scan as
+ * well */
 int isLabelDef(char *word);
 
 #endif

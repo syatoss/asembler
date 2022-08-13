@@ -5,7 +5,7 @@
 #include "../headers/LabelTable.h"
 #include "../headers/asm_descriptor.h"
 #include "../headers/constants.h"
-#include "../headers/firstScan2.h"
+#include "../headers/firstScan.h"
 #include "../headers/line_paser.h"
 #include "../headers/string_parsers.h"
 
@@ -23,6 +23,36 @@
  * */
 
 extern AsmDescriptor *ds;
+int isEntry(char *word);
+int shouldSkipLine(char *line);
+char *getEntryLabelNameFromLine(char *line);
+void setInternalLabel(char *line);
+void handleAsmLine();
+void completeEntryLabelsFromSrcCode(AsmDescriptor *ds);
+int translationNeedsCompletion(Translation *trans);
+void addMissingLabelAdresses(AsmRow *row);
+void completeRowTranslation(AsmRow *row);
+void completeInstructionTranslation(AsmDescriptor *ds);
+void writeLabelApearanceLineToFile(Label *label, FILE *targetFile);
+void writeEntryFile(AsmDescriptor *ds);
+void writeExtrenalsFile(AsmDescriptor *ds);
+void writeRowTranslationToFile(AsmRow *row, FILE *targetFile,
+                               int startingAddress);
+void writeAsmTranslationTableToFile(AsmTranslationTable *table,
+                                    FILE *targetFile, int startingAddress);
+void writeInstructionAndDataLengthsToFile(AsmDescriptor *ds, FILE *targetFile);
+void writeMachineCodeFile(AsmDescriptor *ds);
+void writeAsmOutput(AsmDescriptor *ds);
+
+void secondScan() {
+  completeEntryLabelsFromSrcCode(ds);
+  completeInstructionTranslation(ds);
+  if (ds->err_log->has_errors) {
+    print_all_logger_errors(ds->err_log);
+    return;
+  }
+  writeAsmOutput(ds);
+}
 
 int isEntry(char *word) { return strcmp(word, ENTRY_LABEL) == 0; }
 
@@ -33,7 +63,6 @@ int shouldSkipLine(char *line) {
   StrArr *words = get_line_words(line);
   shouldSkip = shouldSkip || is_comment_line(line);
   shouldSkip = shouldSkip || words->length < 2;
-  /* shouldSkip = shouldSkip || !isEntry(words->strings[0]); */
   for (i = 0; i < words->length; i++)
     hasEntryDef = hasEntryDef || isEntry(words->strings[i]);
   shouldSkip = shouldSkip || !hasEntryDef;
@@ -268,18 +297,4 @@ void testPrint() {
   printAsmTranslationTable(ds->data_tb);
 }
 
-void actualSecondScan() {
-  completeEntryLabelsFromSrcCode(ds);
-  completeInstructionTranslation(ds);
-  if (ds->err_log->has_errors) {
-    print_all_logger_errors(ds->err_log);
-    return;
-  }
-  writeAsmOutput(ds);
-}
-
-void secondScan() {
-  /* testPrint(); */
-  actualSecondScan();
-  /* printLabelTable(ds->lable_tb); */
-}
+/* void secondScan() { actualSecondScan(); } */

@@ -6,14 +6,19 @@
 #include "./str_linked_list.h"
 
 typedef struct {
-    int num_of_lines;
-    StrList* strings;
+  int num_of_lines;
+  StrList *strings;
 } StrTable;
 
-void add_str(StrTable*, char*);
-void print_table(StrTable*, FILE*);
-void println_str(StrTable*, char*, FILE*);
-void clear_str_table(StrTable*);
-StrTable* new_str_table();
+/* adds the string to the table */
+void add_str(StrTable *, char *);
+/* prints the table strings to the provided target */
+void print_table(StrTable *, FILE *);
+/* prints the provided string to the target file */
+void println_str(StrTable *, char *, FILE *);
+/* frees the pointer and all assosiated allocated memory */
+void clear_str_table(StrTable *);
+/* allocates new memory for StrTable assing defaults and returns the pointer */
+StrTable *new_str_table();
 
 #endif

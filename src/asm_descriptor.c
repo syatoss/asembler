@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../headers/DataTable.h"
+#include "../headers/TranslationTable.h"
 #include "../headers/constants.h"
 #include "../headers/string_parsers.h"
 

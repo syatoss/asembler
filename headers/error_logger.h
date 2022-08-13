@@ -4,14 +4,17 @@
 #include "./str_table.h"
 
 typedef struct {
-    int has_errors;
-    int error_count;
-    StrTable* errors;
+  int has_errors;
+  int error_count;
+  StrTable *errors;
 } ErrorLogger;
 
-ErrorLogger* new_error_logger(FILE*);
-void log_error(ErrorLogger*, char*);
-void clear_logger(ErrorLogger*);
-void print_all_logger_errors(ErrorLogger*);
+/* allocates new memory for error logger and initates default values */
+ErrorLogger *new_error_logger(FILE *);
+void log_error(ErrorLogger *, char *);
+/* frees all allocated memory assosiated with the error logger */
+void clear_logger(ErrorLogger *);
+/* prints the errors to stderr */
+void print_all_logger_errors(ErrorLogger *);
 
 #endif

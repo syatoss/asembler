@@ -3,6 +3,6 @@
 
 #include "./asm_descriptor.h"
 
-extern AsmDescriptor* ds;
+extern AsmDescriptor *ds;
 
 #endif

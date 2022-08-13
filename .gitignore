@@ -60,4 +60,5 @@ dkms.conf
 # all binary files
 bin/
 tests/
+assembler
 
