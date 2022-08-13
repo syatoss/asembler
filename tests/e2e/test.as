@@ -1,7 +1,7 @@
-.entry LOOP
+ .entry LOOP
 .entry LENGTH
 s: .extern L3
-.extern W
+.extern W 
 MAIN: mov S1.1, W
  add r2,STR
 LOOP: jmp W
@@ -13,6 +13,6 @@ mov S1.2, r3
  bne L3
 END: hlt
 STR: .string "abcdef"
-LENGTH: .data 6,-9,15
+LENGTH: .data 6,-9,1
 K: .data 22
 S1: .struct 8, "ab"

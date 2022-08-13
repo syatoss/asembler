@@ -1022,7 +1022,8 @@ void firstScan(AsmDescriptor *ds) {
       continue;
     } else {
       err = cat_strings("Error in file ", ds->file_name, " in line ",
-                        ds->line_num_string, " invalid label definition", NULL);
+                        ds->line_num_string, " invalid operation \"", word,
+                        "\"", NULL);
 
       log_error(ds->err_log, err);
       freeMem(err, err);
