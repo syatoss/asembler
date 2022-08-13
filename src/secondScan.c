@@ -62,8 +62,17 @@ char *getEntryLabelNameFromLine(char *line) {
 void setInternalLabel(char *line) {
   char *labelName = NULL;
   Label *label = NULL;
+  char *err = NULL;
   labelName = getEntryLabelNameFromLine(line);
   label = getLabelByName(ds->lable_tb, labelName);
+  if (!label) {
+    err = cat_strings("Error in file ", ds->file_name, " in line ",
+                      ds->line_num_string, " label \"", labelName,
+                      "\" marked as entry is not defined in file", NULL);
+    log_error(ds->err_log, err);
+    free(err);
+    return;
+  }
   label->status = INTERNAL;
   ds->lable_tb->hasEntryLabels = true;
   free(labelName);

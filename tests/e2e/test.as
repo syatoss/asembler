@@ -1,1 +1,1 @@
-.struct 
+.entry a

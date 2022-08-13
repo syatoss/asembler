@@ -173,10 +173,12 @@ enum LABEL_STATUS getLabelStatus(char *status) {
 int getLineValidityForEntryExternDef(char *line) {
   StrArr *lineWords = NULL;
   int isValid = true;
+  Label *label;
   lineWords = split(line, " ");
   if (lineWords->length != 1)
     isValid = false;
-  isValid = isValid && isValidLabelName(lineWords->strings[0]);
+  label = getLabelByName(ds->lable_tb, lineWords->strings[0]);
+  isValid = isValid && isValidLabelName(lineWords->strings[0]) && label == NULL;
   free_str_arr(lineWords);
   return isValid;
 }
